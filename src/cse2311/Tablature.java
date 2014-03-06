@@ -1,16 +1,20 @@
 package cse2311;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+
+import com.itextpdf.text.pdf.BaseFont;
 
 public class Tablature {
 	private float spacing;
 	private Color color;
 	private String title;
 	private String subtitle;
-	ArrayList<String[]> data;
+	private ArrayList<String[]> data;
+	private BaseFont font;
+	
+
 	
 	/**
 	 * Inputs a ASCII guitar tablature and converts it to an Arraylist.
@@ -20,43 +24,32 @@ public class Tablature {
 	 * @throws FileNotFoundException Throws an Exception if the file is not found.
 	 * @throws InvalidFormatException 
 	 */
-	public Tablature(File file) 
+	public Tablature() 
+		{
+		
+		}
+	public Tablature(Tablature t) 
 			throws FileNotFoundException, InvalidFormatException {
-		data = Reader.readFile(file);
-		title = Reader.title;
-		subtitle = Reader.subtitle;
-		spacing = 1;
-		color = color.black;
-		Parser x = new Parser();
-		x.parse(data);
-		data = Reader.splitInToSubSections(data);
-		x.fixBars(data);
-		data = x.makeCorrectLengthStrings(data);
+		data = t.getData();
+		title = t.getTitle();
+		subtitle = t.getSubtitle();
+		spacing = t.getSpacing();
+		color = Color.black;
 	}
 
-	/**
-	 * Inputs a ASCII guitar tablature and converts it to an Arraylist.
-	 * Also takes in parameters for spacing, title, subtitle, and color.
-	 * @param file The ASCII Tablature
-	 * @param userSpacing User defined spacing for the output PDF.
-	 * @param userTitle User defined title for the output PDF.
-	 * @param userSubtitle User defined subtitle for the output PDF.
-	 * @param userColor User defined color for the output PDF.
-	 * @throws FileNotFoundException Throws an Exception if the file is not found.
-	 * @throws InvalidFormatException 
-	 */
-	public Tablature(File file, int userSpacing, String userTitle, String userSubtitle, Color userColor) 
-			throws FileNotFoundException, InvalidFormatException {
-		data = Reader.readFile(file);
-		spacing = userSpacing;
-		color = userColor;
-		title = userTitle;
-		subtitle = userSubtitle;
-		Parser x = new Parser();
-		x.parse(data);
-		data = Reader.splitInToSubSections(data);
-		x.fixBars(data);
-		data = x.makeCorrectLengthStrings(data);
+
+	public ArrayList<String[]> getData() {
+		return data;
+	}
+	public BaseFont getFont() {
+		return font;
+	}
+	public void setFont(BaseFont font) {
+		this.font = font;
+	}
+
+	public void setData(ArrayList<String[]> data) {
+		this.data = data;
 	}
 
 	public void setSpacing(float userSpacing){

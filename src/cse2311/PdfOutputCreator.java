@@ -3,7 +3,7 @@ package cse2311;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -15,7 +15,7 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfWriter;
 
-public class PrintToPDF {
+public class PdfOutputCreator {
 	float size; 
 
 	public static void makePDF(Tablature tab) throws IOException,
@@ -46,7 +46,7 @@ public class PrintToPDF {
 		// PdfContentByte draw)
 		// lineTo(float x, float y)
 		
-		for (int i = 0; i < tab.data.size(); i++) {
+		for (int i = 0; i < tab.getData().size(); i++) {
 			for (int j = 0; j < 6; j++) {
 				/*
 				 * String add = tab.data.get(i).get(j) + tab.data.get(i+1).get(j);
@@ -57,8 +57,8 @@ public class PrintToPDF {
 				drawHorLine(currX, currY, 36.0f, draw); //drawn from beginning of page to starting bar (calvin)
 				currX += 36.0f;
 			
-				for (int z = 0; z < tab.data.get(i)[j].length(); z++) {
-					char l = tab.data.get(i)[j].charAt(z);
+				for (int z = 0; z < tab.getData().get(i)[j].length(); z++) {
+					char l = tab.getData().get(i)[j].charAt(z);
 					if (l == '-') {
 						drawHorLine(currX, currY, 5.02f, draw);
 						currX = currX + 5.02f;
@@ -68,24 +68,24 @@ public class PrintToPDF {
 							drawVerLine(currX, currY-3.5f, 7.0f, draw); 
 						// drawHorLine(currX, currY, 1.8f, draw);
 						// drawVerLine(currX, currY, 7.0f, draw);
-					} else if (l == '●'){
+					} else if (l == '*'){
+						drawCircle(currX, currY, draw);
 						drawHorLine(currX, currY, 5.02f, draw);
-						text(l + "", currX, currY+1.25f, 8, draw); //aligned the text with horizontal lines (calvin)
 						currX = currX + 5.02f;
 					} else if (l == '/'){
 						drawHorLine(currX, currY, 5.02f, draw);
 						//lastWordX = currX; //set location of last num/letter
 						//lastWordY = currY;
-						text(l + "", currX, currY+1.25f, 8, draw); //aligned the text with horizontal lines (calvin)
+						text(l + "", currX, currY+1.25f,tab.getFont(), 8, draw); //aligned the text with horizontal lines (calvin)
 						currX = currX + 5.02f;
 					} else if (l == '>') {
 							drawDiamond(currX + 2.0f, currY + 3.5f, draw);
 							currX = currX + 5.02f;
-					} else if (l == 'p'&& z < (tab.data.get(i)[j].length() - 1)
-							&& tab.data.get(i)[j].charAt(z - 1) == '|'){
+					} else if (l == 'p'&& z < (tab.getData().get(i)[j].length() - 1)
+							&& tab.getData().get(i)[j].charAt(z - 1) == '|'){
 							createBezierCurves(draw,lastWordX+2,lastWordY-3,currX+7.02f,currY+13);
 							drawHorLine(currX, currY, 5.02f, draw);
-							text(l + "", currX - 1.0f, currY + 10.0f, 4, draw);
+							text(l + "", currX - 1.0f, currY + 10.0f,tab.getFont(), 4, draw);
 							currX = currX + 5.02f;
 							 //aligned the text with horizontal lines (calvin)
 							
@@ -96,7 +96,7 @@ public class PrintToPDF {
 					} else {
 						lastWordX = currX; //set location of last num/letter
 						lastWordY = currY;
-						text(l + "", currX, currY+1.25f, 8, draw); //aligned the text with horizontal lines (calvin)
+						text(l + "", currX, currY+1.25f,tab.getFont(), 8, draw); //aligned the text with horizontal lines (calvin)
 						currX = currX + 5.02f;
 					}
 				}
@@ -128,6 +128,7 @@ public class PrintToPDF {
 						new BaseColor(/* Red */0, /* Green */0, /* Blue */0)),
 				new Font(Font.FontFamily.HELVETICA, 16, Font.NORMAL,
 						new BaseColor(/* Red */0, /* Green */0, /* Blue */0)), };
+
 
 		Paragraph Title = new Paragraph(title, fonts[1]);
 		Title.setAlignment(1);
@@ -172,11 +173,11 @@ public class PrintToPDF {
 		draw.stroke();
 	}
 
-	/*public static void drawCircle(float currX, float currY, PdfContentByte draw) {
-		draw.circle(currX, currY, 1.5f);
+	public static void drawCircle(float currX, float currY, PdfContentByte draw) {
+		draw.circle(currX+2.3f, currY+3.3f, 1.5f);
 		draw.setColorFill(BaseColor.BLACK);
 		draw.fillStroke();
-	}*/
+	}
 
 	public static void drawThick(float currX, float currY, float toY,
 			PdfContentByte draw) {
@@ -197,10 +198,9 @@ public class PrintToPDF {
 	}
 
 	public static void text(String text, float currX, float currY,
-			int fontsize, PdfContentByte draw) throws DocumentException,
+			BaseFont font,int fontsize, PdfContentByte draw) throws DocumentException,
 			IOException {
-		BaseFont font = BaseFont.createFont("Monospace.ttf",
-				BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+	
 		draw.saveState();
 		draw.beginText();
 		draw.setTextMatrix(currX, currY);
