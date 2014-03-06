@@ -42,7 +42,7 @@ public class PdfOutputCreator {
 		float lastWordY = currY;
 		
 		// drawLine(0,currY, 36, currY, draw)
-		// public static void DrawLine(float x, float y, float toX, float toY,
+		// private static void DrawLine(float x, float y, float toX, float toY,
 		// PdfContentByte draw)
 		// lineTo(float x, float y)
 		
@@ -59,6 +59,9 @@ public class PdfOutputCreator {
 			
 				for (int z = 0; z < tab.getData().get(i)[j].length(); z++) {
 					char l = tab.getData().get(i)[j].charAt(z);
+					char m = 99;
+					if(z <tab.getData().get(i)[j].length()-1)
+						 m = tab.getData().get(i)[j].charAt(z+1);
 					if (l == '-') {
 						drawHorLine(currX, currY, 5.02f, draw);
 						currX = currX + 5.02f;
@@ -76,12 +79,15 @@ public class PdfOutputCreator {
 						drawHorLine(currX, currY, 5.02f, draw);
 						//lastWordX = currX; //set location of last num/letter
 						//lastWordY = currY;
-						text(l + "", currX, currY+1.25f,tab.getFont(), 8, draw); //aligned the text with horizontal lines (calvin)
+						drawDiagonal (currX+2f, currY+3.25f, draw); //aligned the text with horizontal lines (calvin)
 						currX = currX + 5.02f;
 					} else if (l == '>') {
-							drawDiamond(currX + 2.0f, currY + 3.5f, draw);
+							drawDiamond(currX + 3f, currY + 3.5f, draw);
 							currX = currX + 5.02f;
-					} else if (l == 'p'&& z < (tab.getData().get(i)[j].length() - 1)
+					}else if (l == ',') {
+						drawHorLine(currX, currY, 1f, draw);
+						currX = currX + 1f;
+					}else if (l == 'p'&& z < (tab.getData().get(i)[j].length() - 1)
 							&& tab.getData().get(i)[j].charAt(z - 1) == '|'){
 							createBezierCurves(draw,lastWordX+2,lastWordY-3,currX+7.02f,currY+13);
 							drawHorLine(currX, currY, 5.02f, draw);
@@ -96,8 +102,19 @@ public class PdfOutputCreator {
 					} else {
 						lastWordX = currX; //set location of last num/letter
 						lastWordY = currY;
-						text(l + "", currX, currY+1.25f,tab.getFont(), 8, draw); //aligned the text with horizontal lines (calvin)
-						currX = currX + 5.02f;
+						text(l + "", currX, currY+1.25f,tab.getFont(), 8, draw);
+						if((l>47&&l<58)&&(m>47&&m<58)){
+							currX = currX + 3.5f;
+							text(m + "", currX, currY+1.25f,tab.getFont(), 8, draw);
+							currX = currX + 1.52f;
+							
+							z++;
+							currX = currX + 5.02f;
+							
+						}else{
+						 //aligned the text with horizontal lines (calvin)
+							currX = currX + 5.02f;
+						}
 					}
 				}
 				drawHorLine(currX, currY, 612.0f - currX, draw); //drawn from last bar to end of page (calvin)
@@ -140,7 +157,7 @@ public class PdfOutputCreator {
 		document.add(subTitle);
 	}
 
-	public static void drawHorLine(float currX, float currY, float toX,
+	private static void drawHorLine(float currX, float currY, float toX,
 			PdfContentByte draw) {
 		draw.setLineWidth(.5f);
 		draw.moveTo(currX, currY + 3.3f);
@@ -148,7 +165,7 @@ public class PdfOutputCreator {
 		draw.stroke();
 	}
 
-	public static void drawVerLine(float currX, float currY, float toY,
+	private static void drawVerLine(float currX, float currY, float toY,
 			PdfContentByte draw) {
 		draw.setLineWidth(.5f);
 		draw.moveTo(currX, currY);
@@ -156,7 +173,7 @@ public class PdfOutputCreator {
 		draw.stroke();
 	}
 
-	public static void drawDiamond(float currX, float currY, PdfContentByte draw) {
+	private static void drawDiamond(float currX, float currY, PdfContentByte draw) {
 		currY = currY + (1.75f);
 		draw.moveTo(currX, currY);
 		draw.lineTo(currX - 1.93f, currY - 1.93f);
@@ -173,13 +190,13 @@ public class PdfOutputCreator {
 		draw.stroke();
 	}
 
-	public static void drawCircle(float currX, float currY, PdfContentByte draw) {
+	private static void drawCircle(float currX, float currY, PdfContentByte draw) {
 		draw.circle(currX+2.3f, currY+3.3f, 1.5f);
 		draw.setColorFill(BaseColor.BLACK);
 		draw.fillStroke();
 	}
 
-	public static void drawThick(float currX, float currY, float toY,
+	private static void drawThick(float currX, float currY, float toY,
 			PdfContentByte draw) {
 		draw.setLineWidth(1.8f);
 		draw.moveTo(currX, currY);
@@ -187,7 +204,7 @@ public class PdfOutputCreator {
 		draw.stroke();
 	}
 
-	public static void drawDiagonal(float currX, float currY,
+	private static void drawDiagonal(float currX, float currY,
 			PdfContentByte draw) {
 		draw.moveTo(currX, currY);
 		draw.lineTo(currX + 1.75f, currY + 1.75f);
@@ -197,7 +214,7 @@ public class PdfOutputCreator {
 		draw.stroke();
 	}
 
-	public static void text(String text, float currX, float currY,
+	private static void text(String text, float currX, float currY,
 			BaseFont font,int fontsize, PdfContentByte draw) throws DocumentException,
 			IOException {
 	
@@ -210,15 +227,15 @@ public class PdfOutputCreator {
 		draw.restoreState();
 	}
 
-	public void size(float x) {
+	private void size(float x) {
 		size = x;
 	}
 
-	public boolean testsize() {
+	private boolean testsize() {
 		return true;
 	}
 	
-	public static void createBezierCurves(PdfContentByte cb, float x0, float y0,
+	private static void createBezierCurves(PdfContentByte cb, float x0, float y0,
 		         float x3, float y3) {        
 		cb.arc(x0 - 6.0F, y0 - 8.5F, x3 + 6.5F, y3 - 4.5F, 60, 60);
     }

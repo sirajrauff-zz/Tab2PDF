@@ -49,15 +49,16 @@ public class Parser {
 				} else if (copyLine.charAt(i) == 's') {
 					copyLine.replace(i, i + 1, "/");
 				} else if (copyLine.charAt(i) == ' ') {
-					copyLine.replace(i, i + 1, "");
+					copyLine.replace(i, i + 1, ",");
 				}
+				
 			}
 			sec[barNum] = copyLine.toString();
 		}
 	}
 }
 
-	public String checkPrintString(String printString) {
+	private String checkPrintString(String printString) {
 		// remove|,|| to|
 		StringBuffer copyLine = new StringBuffer(printString);
 		for (int i = 1; i < copyLine.length(); i++) {
@@ -77,7 +78,7 @@ public class Parser {
 		return copyLine.toString();
 	}
 	
-	public void fixBars(ArrayList<String[]> sections) {
+	private void fixBars(ArrayList<String[]> sections) {
 		String one, two;
 		StringBuffer line;
 		for (int i = 0; i < sections.size(); i++) {
@@ -109,7 +110,7 @@ public class Parser {
 		}
 	}
 
-	public ArrayList<String[]> makeCorrectLengthStrings(ArrayList<String[]> sections) {
+	private ArrayList<String[]> makeCorrectLengthStrings(ArrayList<String[]> sections) {
 
 		ArrayList<String[]> returnSections = new ArrayList<String[]>();
 		while (!sections.isEmpty()) {
@@ -126,7 +127,7 @@ public class Parser {
 			// sectionPrint.setLeading(0f, 1f);
 			String[] sectionPrint = new String[7];
 			while ((printString.length() + sections.get(section)[barNum]
-					.length()) <= 108) {
+					.length()) <= 110) {
 				printString = printString + sections.get(section)[barNum];
 				section++;
 				if (sections.size() == section) {// if reached last section
@@ -173,7 +174,7 @@ public class Parser {
 	 * @throws InvalidFormatException Length of lines in a given bar are not the same length,
 	 * 									or line starts with unknown character.
 	 */
-	public Tablature readFile(File file)
+	private Tablature readFile(File file)
 			throws FileNotFoundException, InvalidFormatException {
 		Tablature returnTab = new Tablature();
 		ArrayList<String[]> sections = new ArrayList<String[]>();
@@ -211,6 +212,7 @@ public class Parser {
 						sections.add(new String[7]);
 						barLength = -1; barNumber = 0;
 					}
+				
 					sections.get(sections.size() - 1)[barNumber] = readLine;
 					if (barLength == -1) {
 						barLength = readLine.length();
@@ -233,7 +235,7 @@ public class Parser {
 		return returnTab;
 	}
 	
-	public ArrayList<String[]> splitInToSubSections(ArrayList<String[]> sections) throws InvalidFormatException {
+	private ArrayList<String[]> splitInToSubSections(ArrayList<String[]> sections) throws InvalidFormatException {
 		ArrayList<String[]> temporary = new ArrayList<String[]>();		
 		for (int sectionNum = 0; sectionNum < sections.size(); sectionNum++) {
 			String[] temp = sections.get(sectionNum);

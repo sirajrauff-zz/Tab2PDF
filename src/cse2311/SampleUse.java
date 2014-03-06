@@ -16,12 +16,10 @@ public class SampleUse {
 	
 		Parser c = new Parser();
 		Tablature guitar = c.parse(file);
-		guitar.setFont(BaseFont.createFont("Monospace.ttf",
-				BaseFont.IDENTITY_H, BaseFont.EMBEDDED));
-		
+		guitar.setFont(BaseFont.createFont(BaseFont.COURIER, BaseFont.WINANSI, false));
+	
 		Tablature guitar2 = c.parse(file2);
-		guitar2.setFont(BaseFont.createFont("Monospace.ttf",
-				BaseFont.IDENTITY_H, BaseFont.EMBEDDED));
+		guitar2.setFont(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, false));
 		
 		//Tablature guitar3 = c.parse(file3);
 		//guitar2.setFont(BaseFont.createFont("Monospace.ttf",
