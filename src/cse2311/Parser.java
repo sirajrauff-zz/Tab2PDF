@@ -8,10 +8,7 @@ import java.util.Scanner;
 public class Parser {	
 	 
 
-	public Parser(){
-
-		
-	}
+	public Parser(){}
 	
 	public Tablature parse(File file) throws FileNotFoundException, InvalidFormatException {
 		Tablature returnTab = new Tablature();

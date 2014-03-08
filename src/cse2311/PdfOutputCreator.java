@@ -174,15 +174,16 @@ public class PdfOutputCreator {
 	}
 
 	private static void drawDiamond(float currX, float currY, PdfContentByte draw) {
-		currY = currY + (1.75f);
-		draw.moveTo(currX, currY);
+		currX = currX - 1.75f;
+		currY = currY + 1.75f;
+		draw.moveTo(currX + 0.175f, currY + 0.175f);
 		draw.lineTo(currX - 1.93f, currY - 1.93f);
 		draw.stroke();
 		draw.moveTo(currX, currY);
 		draw.lineTo(currX + 1.93f, currY - 1.93f);
 		draw.stroke();
 		currY = currY - (3.5f);
-		draw.moveTo(currX, currY);
+		draw.moveTo(currX - 0.175f, currY - 0.175f);
 		draw.lineTo(currX + 1.93f, currY + 1.93f);
 		draw.stroke();
 		draw.moveTo(currX, currY);

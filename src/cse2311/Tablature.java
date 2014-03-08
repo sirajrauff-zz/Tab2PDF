@@ -28,6 +28,7 @@ public class Tablature {
 		{
 		
 		}
+	
 	public Tablature(Tablature t) 
 			throws FileNotFoundException, InvalidFormatException {
 		data = t.getData();
