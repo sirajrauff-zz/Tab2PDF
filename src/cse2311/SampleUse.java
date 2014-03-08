@@ -1,40 +1,33 @@
-package cse2311;
+
 
 import java.io.File;
 import java.io.IOException;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.BaseFont;
+
 
 public class SampleUse {
 
-	public static void main(String[] args) throws DocumentException, InvalidFormatException, IOException {
+	public static void main(String[] args) throws DocumentException, IOException {
+		
 		
 		File file = new File("rememberingrain.txt");
 		File file2 = new File("moonlightsonata.txt");
-		//File file3 = new File("testcase.txt");
-	
+		File file3 = new File("testcase.txt");
+		
+		
 		Parser c = new Parser();
-		Tablature guitar = c.parse(file);
-		guitar.setFont(BaseFont.createFont(BaseFont.COURIER, BaseFont.WINANSI, false));
+		
+		Tablature t = c.readFile(file);
+		Style s = new Style();
+		MusicSheet ms = new MusicSheet(t);
+		
+		PdfOutputCreator.makePDF(ms, s);
 	
-		Tablature guitar2 = c.parse(file2);
-		guitar2.setFont(BaseFont.createFont(BaseFont.HELVETICA, BaseFont.WINANSI, false));
 		
-		//Tablature guitar3 = c.parse(file3);
-		//guitar2.setFont(BaseFont.createFont("Monospace.ttf",
-			//	BaseFont.IDENTITY_H, BaseFont.EMBEDDED));
-		
-		try {
-			
-			PdfOutputCreator.makePDF(guitar);
-			PdfOutputCreator.makePDF(guitar2);
-			//PrintToPDF.makePDF(guitar);
-			System.out.println("printing");
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		}
-		System.out.println(guitar.getTitle());
 	}
+	
 }

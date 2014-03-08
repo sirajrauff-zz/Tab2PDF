@@ -1,109 +1,112 @@
-package cse2311;
 
-import java.awt.Color;
-import java.io.FileNotFoundException;
+
 import java.util.ArrayList;
-
-import com.itextpdf.text.pdf.BaseFont;
+import java.util.StringTokenizer;
 
 public class Tablature {
-	private float spacing;
-	private Color color;
-	private String title;
-	private String subtitle;
-	private ArrayList<String[]> data;
-	private BaseFont font;
-	
 
-	
-	/**
-	 * Inputs a ASCII guitar tablature and converts it to an Arraylist.
-	 * It then stores this with default parameters for spacing and color.
-	 * This constructor leaves title and subtitle null for the user to define.
-	 * @param file The ASCII Tablature
-	 * @throws FileNotFoundException Throws an Exception if the file is not found.
-	 * @throws InvalidFormatException 
-	 */
-	public Tablature() 
-		{
-		
-		}
-	
-	public Tablature(Tablature t) 
-			throws FileNotFoundException, InvalidFormatException {
-		data = t.getData();
-		title = t.getTitle();
-		subtitle = t.getSubtitle();
-		spacing = t.getSpacing();
-		color = Color.black;
+	private ArrayList<Measure> my_Measure;
+
+	private float my_Spacing;
+
+	private String my_Title;
+
+	private String my_Subtitle;
+
+	public Tablature() {
+		this.my_Spacing = 5f;
+		this.my_Subtitle = "Default";
+		this.my_Title = "Default";
+
 	}
 
+	public void addLineToLastMeasure(String g) {
+		if (this.get_Measures().size() != 0
+				&& this.get_Last_Measure().size() != 6) {
+			this.get_Last_Measure().addLine(g);
+		} else {
+			this.addMeasure();
+			this.addLineToLastMeasure(g);
+		}
 
-	public ArrayList<String[]> getData() {
-		return data;
-	}
-	public BaseFont getFont() {
-		return font;
-	}
-	public void setFont(BaseFont font) {
-		this.font = font;
-	}
-
-	public void setData(ArrayList<String[]> data) {
-		this.data = data;
 	}
 
-	public void setSpacing(float userSpacing){
-		spacing = Math.abs(userSpacing);
-	}
-	
-	public float getSpacing(){
-		return spacing;
-	}
-	
-	public void setColor(Color userColor){
-		color = userColor;
-	}
-	
-	public Color getColor(){
-		return color;
-	}
-	
-	public Boolean setTitle(String userTitle){
-		if (title == null){
-			title = userTitle;
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	public String getTitle(){
-		return title;
-	}
-	
-	public Boolean setSubtitle(String userSubtitle){
-		if (subtitle == null){
-			subtitle = userSubtitle;
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	public String getSubtitle(){
-		return subtitle;
-	}
-	
-	public void printAll() {
-		for (int sectionNum = 0; sectionNum < data.size(); sectionNum++) {
-			String[] temp = data.get(sectionNum);
-			System.out.println(sectionNum);
-			for (int barNum = 0; barNum < 6; barNum++) {
-				System.out.println(temp[barNum]);
+	public void addMultiMeasureLine(StringTokenizer StrTkn) {
+
+		if (this.get_Measures().size() == 0
+				|| this.get_Last_Measure().size() == 6) {
+			while (StrTkn.hasMoreTokens()) {
+				this.addMeasure();
+				this.addLineToLastMeasure(StrTkn.nextToken());
 			}
+		} else {
+			while (StrTkn.hasMoreTokens()) {
+				this.addLineToMeasure(StrTkn.countTokens(), StrTkn.nextToken());
+			}
+
 		}
+
 	}
+
+	private void addMeasure() {
+		this.get_Measures().add(new Measure());
+
+	}
+
+	private void addLineToMeasure(int index, String s) {
+		this.get_Measures().get(get_Measures().size() - index).addLine(s);
+
+	}
+
+	private Measure get_Last_Measure() {
+		if (get_Measures().size() != 0) {
+			return get_Measures().get(get_Measures().size() - 1);
+		} else
+			return null;
+	}
+
+	public int size() {
+		return this.get_Measures().size();
+	}
+
+	public float get_Spacing() {
+		return my_Spacing;
+
+	}
+
+	public ArrayList<Measure> get_Measures() {
+		if (this.my_Measure == null)// Lazy initialization
+			this.my_Measure = new ArrayList<Measure>();
+
+		return my_Measure;
+	}
+
+	public void set_Measures(ArrayList<Measure> my_Measure) {
+		this.my_Measure = my_Measure;
+	}
+
+	public void set_Spacing(float my_Spacing) {
+		this.my_Spacing = my_Spacing;
+
+	}
+
+	public String get_Title() {
+		return my_Title;
+
+	}
+
+	public void set_Title(String my_Title) {
+		this.my_Title = my_Title;
+
+	}
+
+	public String get_Subtitle() {
+		return my_Subtitle;
+	}
+
+	public void set_Subtitle(String my_Subtitle) {
+		this.my_Subtitle = my_Subtitle;
+
+	}
+
 }

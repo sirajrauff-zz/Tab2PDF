@@ -1,9 +1,8 @@
-package cse2311;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -18,16 +17,16 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class PdfOutputCreator {
 	float size; 
 
-	public static void makePDF(Tablature tab) throws IOException,
-			DocumentException {
+	public static void makePDF(MusicSheet ms,Style s) throws IOException,DocumentException {
+		
 		Document document = new Document(PageSize.LETTER);
 		PdfWriter write = PdfWriter.getInstance(document, new FileOutputStream(
-				new File(tab.getTitle() + ".pdf")));
+				new File(ms.get_Title() + ".pdf")));
 		document.open();
 		write.open();
 		PdfContentByte draw = write.getDirectContent();
 
-		printTitle(tab.getTitle(), tab.getSubtitle(), document);
+		printTitle(ms.get_Title(), ms.get_Subtitle(), document);
 
 
 		// example of adding 0+1, 2+3, 4+5 etc
@@ -46,22 +45,25 @@ public class PdfOutputCreator {
 		// PdfContentByte draw)
 		// lineTo(float x, float y)
 		
-		for (int i = 0; i < tab.getData().size(); i++) {
-			for (int j = 0; j < 6; j++) {
+		for (Staff staff : ms.get_Staffs()) {
+			int j = 0;
+			for (StringBuffer sLine : staff.get_Lines()) {
 				/*
-				 * String add = tab.data.get(i).get(j) + tab.data.get(i+1).get(j);
+				 * String add = ms.data.get(i).get(j) + ms.data.get(i+1).get(j);
 				 * Paragraph line_x = new Paragraph(add);
 				 * line_x.setAlignment(Element.ALIGN_LEFT);
 				 * document.add(line_x);
 				 */
+				
+				String line = sLine.toString();
 				drawHorLine(currX, currY, 36.0f, draw); //drawn from beginning of page to starting bar (calvin)
 				currX += 36.0f;
 			
-				for (int z = 0; z < tab.getData().get(i)[j].length(); z++) {
-					char l = tab.getData().get(i)[j].charAt(z);
+				for (int z = 0; z < line.length(); z++) {
+					char l = line.charAt(z);
 					char m = 99;
-					if(z <tab.getData().get(i)[j].length()-1)
-						 m = tab.getData().get(i)[j].charAt(z+1);
+					if(z <line.length()-1)
+						 m = line.charAt(z+1);
 					if (l == '-') {
 						drawHorLine(currX, currY, 5.02f, draw);
 						currX = currX + 5.02f;
@@ -87,11 +89,11 @@ public class PdfOutputCreator {
 					}else if (l == ',') {
 						drawHorLine(currX, currY, 1f, draw);
 						currX = currX + 1f;
-					}else if (l == 'p'&& z < (tab.getData().get(i)[j].length() - 1)
-							&& tab.getData().get(i)[j].charAt(z - 1) == '|'){
+					}else if (l == 'p'&& z < (line.length() - 1)
+							&& line.charAt(z - 1) == '|'){
 							createBezierCurves(draw,lastWordX+2,lastWordY-3,currX+7.02f,currY+13);
 							drawHorLine(currX, currY, 5.02f, draw);
-							text(l + "", currX - 1.0f, currY + 10.0f,tab.getFont(), 4, draw);
+							text(l + "", currX - 1.0f, currY + 10.0f,s.my_Fontface,4,draw);
 							currX = currX + 5.02f;
 							 //aligned the text with horizontal lines (calvin)
 							
@@ -99,13 +101,16 @@ public class PdfOutputCreator {
 						if(j < 5)
 							drawThick(currX, currY-4f, 5.02f, draw);
 						
+					}else if (l == '(') {
+						System.out.println("Repeat "+staff.getrepeatNum() +" Times");
+						
 					} else {
 						lastWordX = currX; //set location of last num/letter
 						lastWordY = currY;
-						text(l + "", currX, currY+1.25f,tab.getFont(), 8, draw);
+						text(l + "", currX, currY+1.25f,s.my_Fontface, 8, draw);
 						if((l>47&&l<58)&&(m>47&&m<58)){
 							currX = currX + 3.5f;
-							text(m + "", currX, currY+1.25f,tab.getFont(), 8, draw);
+							text(m + "", currX, currY+1.25f,s.my_Fontface, 8, draw);
 							currX = currX + 1.52f;
 							
 							z++;
@@ -119,6 +124,7 @@ public class PdfOutputCreator {
 				}
 				drawHorLine(currX, currY, 612.0f - currX, draw); //drawn from last bar to end of page (calvin)
 				currX = 0.0f;
+				j++;
 				currY = currY - 7.0f;
 			}
 			currX = 0.0f;
@@ -228,13 +234,6 @@ public class PdfOutputCreator {
 		draw.restoreState();
 	}
 
-	private void size(float x) {
-		size = x;
-	}
-
-	private boolean testsize() {
-		return true;
-	}
 	
 	private static void createBezierCurves(PdfContentByte cb, float x0, float y0,
 		         float x3, float y3) {        
