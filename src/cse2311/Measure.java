@@ -9,12 +9,12 @@ public  class Measure {
 	private String barType;
 	private boolean repeat;
 	private int repeatNum;
-	
+	private float spacing;
 	private float width = 0;
 	
 
-	public Measure(){
-		
+	public Measure(float f){
+		this.spacing = f;
 	}
 	
 	public Measure(String firstLine){
@@ -33,10 +33,11 @@ public  class Measure {
 		return false;
 	}
 	private void corrections(){
+		
 		this.checkRepeat();
 		this.checkBarType();
 		this.checkLength();
-		this.setWidth(this.get_Lines().get(0).length());
+		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
 		
 	}
 	
@@ -102,6 +103,7 @@ public  class Measure {
 		
 	}
 	public float getWidth() {
+		
 		return width;
 	}
 
@@ -154,6 +156,37 @@ public  class Measure {
 
 	public void setBarType(String barType) {
 		this.barType = barType;
+	}
+
+	public float getSpacing() {
+		return spacing;
+	}
+
+	public void setSpacing(float spacing) {
+		this.spacing = spacing;
+		this.recalculateWidth();
+	}
+
+	private void recalculateWidth() {
+		if(this.getBarType()=="Both"){
+			this.width = 6.6f;	
+	
+		}
+		
+		else if(this.getBarType()=="Right"){
+			this.width = 4.3f;	
+			
+		}
+		else if(this.getBarType()=="Left"){
+			this.width = 4.3f;	
+			
+			}
+		else {
+			this.width = .5f;	
+			
+		}
+		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
+		
 	}
 
 }

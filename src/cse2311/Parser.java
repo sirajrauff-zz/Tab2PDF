@@ -11,7 +11,7 @@ public class Parser {
 	String subtitleRegex = "[Ss][Uu][Bb][Tt][Ii][Tt][Ll][Ee]=[A-Za-z\\s0-9]+";
 	String spacingRegex = "[Ss][Pp][Aa][Cc][Ii][Nn][Gg]=[\\s0-9.]+";
 
-	String acceptedSymbols = "^[\\|\\*\\-<>0-9hps%]+$";
+	String acceptedSymbols = "^[\\s\\|\\*\\-,<>0-9hps%]+$";
 	String measureSeparators = "[\\|\\D\\%]";
 
 	public Parser() {
@@ -48,7 +48,7 @@ public class Parser {
 		while (s.hasNext()) {
 			String nextLine = s.nextLine();
 
-			if (nextLine.isEmpty()) {// blank line
+			if (nextLine.isEmpty()||  nextLine.matches("\\t")) {// blank line
 				continue;
 			}
 
@@ -57,26 +57,27 @@ public class Parser {
 
 			if (nextLine.matches(acceptedSymbols)) {
 				nextLine = subsituteSymbols(nextLine);
+			
 				StringTokenizer StrTkn = new StringTokenizer(nextLine,
 						measureSeparators);
 				if (StrTkn.countTokens() > 1) {
 					returnTab.addMultiMeasureLine(StrTkn);
+					
+					
 
 				} else {
 					returnTab.addLineToLastMeasure(StrTkn.nextToken());
+					
 				}
 
 			}
+			
 
 		}
 
 		return returnTab;
 	}
-/*
-	private void print(Object s) {
-		System.out.println(s);
-	}
-*/
+
 	private boolean readHeader(Tablature returnTab, String nextLine) {
 
 		if (nextLine.matches(titleRegex)) {
@@ -84,14 +85,13 @@ public class Parser {
 			return true;
 		}
 		if (nextLine.matches(subtitleRegex)) {
-			returnTab
-					.set_Subtitle(nextLine.substring(nextLine.indexOf("=") + 1));
+			returnTab.set_Subtitle(nextLine.substring(nextLine.indexOf("=") + 1));
 			return true;
 		}
-		if (nextLine.matches(spacingRegex)) {
-			returnTab.set_Spacing(Float.valueOf(nextLine.replaceAll(
-					"[A-Za-z=]+", "")));
+		if (nextLine.matches(spacingRegex)) {{
+			returnTab.set_Spacing(Float.valueOf(nextLine.replaceAll("[A-Za-z=]+", "")));
 			return true;
+		}
 		}
 		return false;
 	}

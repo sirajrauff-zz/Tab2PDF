@@ -21,13 +21,32 @@ public class SampleUse {
 		
 		Parser c = new Parser();
 		
-		Tablature t = c.readFile(file);
-		Style s = new Style();
-		MusicSheet ms = new MusicSheet(t);
+		Tablature t = c.readFile(file);//tab holds data
+		Tablature t2 = c.readFile(file2);//tab holds data
+		Tablature t3 = c.readFile(file3);//tab holds data
+
 		
-		PdfOutputCreator.makePDF(ms, s);
-	
+
+		//!IMPORTANT holds the doument used by pdf out creater
+		Style s = new Style(new Document(PageSize.A4));
+		Style s2 = new Style(new Document(PageSize.A4));
+		Style s3 = new Style(new Document(PageSize.A4));
+		//holds output preferences(has defautls) like distances and font for notes and margins;
 		
+		
+		MusicSheet ms = new MusicSheet(t,s);// formats the data for pdf output for the given style
+		MusicSheet ms2 = new MusicSheet(t2,s2);
+		MusicSheet ms3 = new MusicSheet(t3,s3);
+		
+		
+		
+		PdfOutputCreator pdfout = new PdfOutputCreator("");//takes the output laction in the construter
+		PdfOutputCreator pdfout2 = new PdfOutputCreator("");
+		PdfOutputCreator pdfout3 = new PdfOutputCreator("");
+		
+		pdfout.makePDF(ms);//make the pdf
+		pdfout2.makePDF(ms2);
+		pdfout3.makePDF(ms3);
 	}
 	
 }

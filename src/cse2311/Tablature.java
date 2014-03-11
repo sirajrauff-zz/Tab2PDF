@@ -14,9 +14,9 @@ public class Tablature {
 	private String my_Subtitle;
 
 	public Tablature() {
-		this.my_Spacing = 5f;
 		this.my_Subtitle = "Default";
 		this.my_Title = "Default";
+	
 
 	}
 
@@ -49,11 +49,12 @@ public class Tablature {
 	}
 
 	private void addMeasure() {
-		this.get_Measures().add(new Measure());
+		this.get_Measures().add(new Measure(this.get_Spacing()));
 
 	}
 
 	private void addLineToMeasure(int index, String s) {
+		
 		this.get_Measures().get(get_Measures().size() - index).addLine(s);
 
 	}
@@ -63,6 +64,12 @@ public class Tablature {
 			return get_Measures().get(get_Measures().size() - 1);
 		} else
 			return null;
+	}
+	
+	public void printMeasures(){
+		for (Measure m : this.get_Measures()){
+			m.printLines();
+		}
 	}
 
 	public int size() {
@@ -86,6 +93,8 @@ public class Tablature {
 	}
 
 	public void set_Spacing(float my_Spacing) {
+		for(Measure m : this.get_Measures())
+			m.setSpacing(my_Spacing);
 		this.my_Spacing = my_Spacing;
 
 	}

@@ -8,7 +8,7 @@ public class Staff {
 	
 	private float width;
 	
-	private int repeatNum =-1;
+	private ArrayList<Integer>  repeatNum ;
 	
 
 	public Staff(float printSpace) {
@@ -19,18 +19,29 @@ public class Staff {
 
 		this.appendToLines(m);
 		if (m.isRepeat())
-			this.setrepeatNum(m.getRepeatNum());
+			this.getrepeatNum().add((m.getRepeatNum()));
 		
 		this.setWidth(m.getWidth());
 
 	}
 
-	public int getrepeatNum() {
+	public ArrayList<Integer> getrepeatNum() {
+		if (this.repeatNum == null){// Lazy initialization
+				this.repeatNum = new ArrayList<Integer>();}
 		return repeatNum;
 	}
 
-	public void setrepeatNum(int repeatNum) {
+	public void setrepeatNum(ArrayList<Integer> repeatNum) {
 		this.repeatNum = repeatNum;
+	}
+	
+	public int getTopInt() {
+		int i =-1;
+		if(this.getrepeatNum()!= null && this.getrepeatNum().size()!= 0 ){
+			i = this.getrepeatNum().get(0);
+			this.getrepeatNum().remove(0);
+		}
+		return i;
 	}
 
 
@@ -56,7 +67,6 @@ public class Staff {
 		String single = "|";
 		String left = "D-|";
 		String right = "|-D";
-		String triple = "|-|-|";
 	
 		if(bar == "Both")
 			line= left + line+right;
@@ -129,5 +139,6 @@ public class Staff {
 		}
 		System.out.println();
 	}
+
 
 }

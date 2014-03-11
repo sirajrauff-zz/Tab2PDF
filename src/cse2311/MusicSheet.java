@@ -6,18 +6,19 @@ public class MusicSheet {
 
 	private ArrayList<Staff> my_Staffs;
 	
-	private float my_Spacing;
+	private float my_Spacing ;
 	private String my_Title;
 	private String my_Subtitle;
-
+	private Style my_Style;
 	
 	
-	public MusicSheet(Tablature tab){
-	
+	public MusicSheet(Tablature tab,Style s){
+		this.setMy_Style(s);
 		this.set_Title(tab.get_Title());
 		this.set_Subtitle(tab.get_Subtitle());
+		my_Spacing= tab.get_Spacing();
 		this.makeStaffs(tab);
-		
+
 		
 	}
 
@@ -43,7 +44,7 @@ public class MusicSheet {
 
 
 	private void addStaff() {
-		this.get_Staffs().add(new Staff(120f));
+		this.get_Staffs().add(new Staff(this.getMy_Style().getPrint_Space()));
 		
 	}
 	
@@ -79,10 +80,6 @@ public class MusicSheet {
 
 
 
-	public void set_Spacing(float my_Spacing) {
-		this.my_Spacing = my_Spacing;
-	}
-
 
 
 	public String get_Title() {
@@ -113,6 +110,18 @@ public class MusicSheet {
 			s.printLines();
 			
 		
+	}
+
+
+
+	public Style getMy_Style() {
+		return my_Style;
+	}
+
+
+
+	public void setMy_Style(Style my_Style) {
+		this.my_Style = my_Style;
 	}
 	
 }
