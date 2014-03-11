@@ -7,7 +7,7 @@ public class Tablature {
 
 	private ArrayList<Measure> my_Measure;
 
-	private float my_Spacing;
+	private float my_Spacing=5;
 
 	private String my_Title;
 
@@ -54,8 +54,8 @@ public class Tablature {
 	}
 
 	private void addLineToMeasure(int index, String s) {
-		
-		this.get_Measures().get(get_Measures().size() - index).addLine(s);
+		if(this.get_Measures().size()>index)
+			this.get_Measures().get(get_Measures().size() - index).addLine(s);
 
 	}
 

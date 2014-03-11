@@ -95,7 +95,8 @@ public class Staff {
 
 	private void fixBars() {
 		int i = 0;
-		for(i=0;i<6;i++){
+		
+		for(i=0;i<this.get_Lines().size();i++){
 			String line = this.get_Lines().get(i).toString();
 			this.get_Lines().remove(i);
 			this.my_Lines.add(i,this.fixedLine(line));

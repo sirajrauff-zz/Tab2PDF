@@ -60,22 +60,22 @@ public  class Measure {
 
 	private void checkLength() {
 		int longest_Length = -1 ;
+		System.out.println();
 		for (String s : this.get_Lines()){
+			
 			if (longest_Length == -1)
 				longest_Length =s.length();
-			else if(longest_Length<s.length())	
+			else if(longest_Length>s.length())	
 				longest_Length =s.length();
 		}
 		
+		 ArrayList<String> temp = new  ArrayList<String>() ;
 		for (String s : this.get_Lines()){
-			
-			StringBuffer d = new StringBuffer(s);
-			for (int i = 0; i < longest_Length - d.length() ; i++){
-				   d.append("-");
-				}
-			s = d.toString();
-			
+			temp.add(s.substring(0,longest_Length));
 		}
+		
+		this.setMy_Lines(temp);
+		
 		
 	}
 
