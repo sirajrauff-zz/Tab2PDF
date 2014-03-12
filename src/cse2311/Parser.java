@@ -29,6 +29,7 @@ public class Parser {
 		while (m.find()) {
 			repeatNum = m.group().toString().charAt(1);
 
+
 		}
 		out = out.replaceAll("[eBGDAE]", "|");
 		out = out.replaceAll("\\|\\|\\|", "T");
@@ -52,14 +53,18 @@ public class Parser {
 			if (nextLine.isEmpty()||  nextLine.matches("\\t")||nextLine.matches("\\s+")) {// blank line
 				continue;
 			}
+			
+			if(nextLine.length()<4){
+				continue;
+			}
 
 			if (readHeader(returnTab, nextLine))
 				continue;
 			
 			if (nextLine.matches(acceptedSymbols)) {
-				
+			
 				nextLine = subsituteSymbols(nextLine);
-				
+		
 				StringTokenizer StrTkn = new StringTokenizer(nextLine,measureSeparators);
 				if (StrTkn.countTokens() > 1) {
 					returnTab.addMultiMeasureLine(StrTkn);
@@ -71,6 +76,8 @@ public class Parser {
 					
 				}
 
+			}else{
+				System.out.println( "UnSupported Symbol in " +nextLine);
 			}
 			
 

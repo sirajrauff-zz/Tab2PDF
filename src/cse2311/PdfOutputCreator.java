@@ -83,7 +83,7 @@ public class PdfOutputCreator {
 						drawHorLine(currX, currY, ms.get_Spacing(), draw);
 						drawDiagonal(currX, currY, draw);
 						currX = currX + ms.get_Spacing();
-					} else if (l == '(') {
+					} else if (l == '('&&j==0) {
 						String repeat = "REAPEAT " + st.getTopInt() + " TIMES";
 						text(repeat,
 								currX - (repeat.length() * ms.get_Spacing()),
@@ -110,7 +110,7 @@ public class PdfOutputCreator {
 						createBezierCurves(draw, lastWordX + 2, lastWordY - 3,
 								currX + 7.02f, currY + 13);
 						drawHorLine(currX, currY, 5.02f, draw);
-						text(l + "", currX - 1.0f, currY + 10.0f,
+						text(l + "", currX+3f, currY + 10.0f,
 								s.my_Fontface, 4, draw);
 
 						currX = currX + ms.get_Spacing();
@@ -258,7 +258,7 @@ public class PdfOutputCreator {
 
 	private void createBezierCurves(PdfContentByte cb, float x0, float y0,
 			float x3, float y3) {
-		cb.arc(x0 - 6.0F, y0 - 8.5F, x3 + 6.5F, y3 - 4.5F, 60, 60);
+		cb.arc(x0 - 6.0F +2f, y0 - 8.5F - 4f, x3 + 6.5F +2f, y3 - 4.5F-4f, 60, 60);
 	}
 
 }

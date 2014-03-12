@@ -36,21 +36,28 @@ public  class Measure {
 		
 		this.checkRepeat();
 		this.checkBarType();
-		this.checkLength();
+		this.checkLength();//doest work perfectly
 		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
 		
 	}
 	
-	private void checkRepeat() {
+	private boolean checkRepeat() {
 		StringBuffer temp = new StringBuffer(this.get_Lines().get(0));
-		if (temp.toString().charAt(temp.length()-2) == '('){
+		if( temp.length() <2){
+			this.setRepeat(false);
+			return false;}
+		if ((temp.length()!=0 && temp.toString().charAt(temp.length()-2) == '(')){
 			this.setRepeat(true);
-			this.setRepeatNum(Integer.parseInt(temp.substring(temp.length()-1)));
-			this.get_Lines().remove(0);
-			this.get_Lines().add(0, temp.substring(0, temp.length()-1).toString());
+			if ((temp.toString().charAt(temp.length()-1) > 47 && temp.toString().charAt(temp.length()-1) < 58)){
+				this.setRepeatNum(Integer.parseInt(temp.substring(temp.length()-1)));
+				
+				this.get_Lines().remove(0);
+				this.get_Lines().add(0, temp.substring(0, temp.length()-1).toString());
+			}
 
 		}else 
 			this.setRepeat(false);
+		return true;
 			
 			
 			
@@ -68,10 +75,14 @@ public  class Measure {
 			else if(longest_Length>s.length())	
 				longest_Length =s.length();
 		}
-		
+	
 		 ArrayList<String> temp = new  ArrayList<String>() ;
 		for (String s : this.get_Lines()){
-			temp.add(s.substring(0,longest_Length));
+			if(s.charAt(s.length()-1) =='('){
+				temp.add(s.substring(0,longest_Length) + "(");
+			}
+			else
+				temp.add(s.substring(0,longest_Length));
 		}
 		
 		this.setMy_Lines(temp);

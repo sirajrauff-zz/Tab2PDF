@@ -32,16 +32,15 @@ public class Tablature {
 	}
 
 	public void addMultiMeasureLine(StringTokenizer StrTkn) {
-
-		if (this.get_Measures().size() == 0
-				|| this.get_Last_Measure().size() == 6) {
+	
+		if (this.get_Measures().size() < StrTkn.countTokens() || this.get_Last_Measure().size() == 6) {
 			while (StrTkn.hasMoreTokens()) {
 				this.addMeasure();
 				this.addLineToLastMeasure(StrTkn.nextToken());
 			}
 		} else {
 			while (StrTkn.hasMoreTokens()) {
-				this.addLineToMeasure(StrTkn.countTokens(), StrTkn.nextToken());
+					this.addLineToMeasure(StrTkn.countTokens(), StrTkn.nextToken());
 			}
 
 		}
@@ -54,7 +53,7 @@ public class Tablature {
 	}
 
 	private void addLineToMeasure(int index, String s) {
-		if(this.get_Measures().size()>index)
+		if(this.get_Measures().size()>=index)
 			this.get_Measures().get(get_Measures().size() - index).addLine(s);
 
 	}
