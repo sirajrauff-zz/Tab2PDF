@@ -46,11 +46,10 @@ public  class Measure {
 		if( temp.length() <2){
 			this.setRepeat(false);
 			return false;}
-		if ((temp.length()!=0 && temp.toString().charAt(temp.length()-2) == '(')){
+		if ((temp.length()!=0 && temp.toString().charAt(temp.length()-2) == '+')){
 			this.setRepeat(true);
 			if ((temp.toString().charAt(temp.length()-1) > 47 && temp.toString().charAt(temp.length()-1) < 58)){
 				this.setRepeatNum(Integer.parseInt(temp.substring(temp.length()-1)));
-				
 				this.get_Lines().remove(0);
 				this.get_Lines().add(0, temp.substring(0, temp.length()-1).toString());
 			}
@@ -78,8 +77,8 @@ public  class Measure {
 	
 		 ArrayList<String> temp = new  ArrayList<String>() ;
 		for (String s : this.get_Lines()){
-			if(s.charAt(s.length()-1) =='('){
-				temp.add(s.substring(0,longest_Length) + "(");
+			if(s.charAt(s.length()-1) =='+'){
+				temp.add(s.substring(0,longest_Length) + "+");
 			}
 			else
 				temp.add(s.substring(0,longest_Length));

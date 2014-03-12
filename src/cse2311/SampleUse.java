@@ -15,28 +15,18 @@ public class SampleUse {
 		
 		
 		File file = new File("rememberingrain.txt");
-		File file2 = new File("moonlightsonata.txt");
-		File file4 = new File("test2.txt");
-		File file5 = new File("test3.txt");
-		File file6 = new File("test4.txt");
-		File file7 = new File("test5.txt");
-		File file8 = new File("test6.txt");
-
+                File file2 = new File("moonlightsonata.txt");
+	
 			
 		
 		
 		Parser c = new Parser();
 		
 		Tablature t = c.readFile(file);//tab holds data
-		t.printMeasures();
+
 
 		//!IMPORTANT holds the doument used by pdf out creater
-		Style s = new Style(new Document(PageSize.A4));
-	
-			
-		
-	
-		//holds output preferences(has defautls) like distances and font for notes and margins;
+		Style s = new Style(new Document(PageSize.A4));//holds output preferences(has defautls) like distances and font for notes and margins;
 		
 		
 		MusicSheet ms = new MusicSheet(t,s);// formats the data for pdf output for the given style

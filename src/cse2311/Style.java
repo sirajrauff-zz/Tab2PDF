@@ -12,7 +12,7 @@ public class Style {
 	private float my_height;
 	private float _width;
 	
-	public float dist_Staffs =7f;
+	public float dist_Staffs =30f;
 	public float dist_Lines=7f;
 	
 	float leftMargin = 36f;

@@ -11,7 +11,7 @@ public class Parser {
 	String subtitleRegex = "[Ss][Uu][Bb][Tt][Ii][Tt][Ll][Ee]=[A-Za-z\\s0-9]+";
 	String spacingRegex = "[Ss][Pp][Aa][Cc][Ii][Nn][Gg]=[\\s0-9.]+";
 
-	String acceptedSymbols = "^[\\s\\|\\*\\-,<>0-9hps%eBGDAErb/]+$";
+	String acceptedSymbols = "^[\\s\\|\\*\\-,\\+<>0-9hps%eBGDAErb/]+$";
 	String measureSeparators = "[\\|\\D\\%]";
 
 	public Parser() {
@@ -33,7 +33,7 @@ public class Parser {
 		}
 		out = out.replaceAll("[eBGDAE]", "|");
 		out = out.replaceAll("\\|\\|\\|", "T");
-		out = out.replaceAll("\\|[0-9]", "(" + repeatNum + "%");
+		out = out.replaceAll("\\|[0-9]", "+" + repeatNum + "%");
 		out = out.replaceAll("<", "-");
 		out = out.replaceAll("s", "/");
 		out = out.replaceAll("\\s", ",");
@@ -57,14 +57,14 @@ public class Parser {
 			if(nextLine.length()<4){
 				continue;
 			}
-
+		
 			if (readHeader(returnTab, nextLine))
 				continue;
 			
 			if (nextLine.matches(acceptedSymbols)) {
 			
 				nextLine = subsituteSymbols(nextLine);
-		
+				
 				StringTokenizer StrTkn = new StringTokenizer(nextLine,measureSeparators);
 				if (StrTkn.countTokens() > 1) {
 					returnTab.addMultiMeasureLine(StrTkn);
