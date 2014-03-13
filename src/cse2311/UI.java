@@ -1,4 +1,6 @@
 package cse2311;
+
+
 /**
  * 
  */
@@ -48,6 +50,11 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
+import cse2311.MusicSheet;
+import cse2311.Parser;
+import cse2311.PdfOutputCreator;
+import cse2311.Style;
+import cse2311.Tablature;
  
 public class UI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
@@ -296,11 +303,15 @@ public class UI extends JFrame implements ActionListener {
 					title = t.get_Title();
 					subtitle = t.get_Subtitle();
 					spacing = t.get_Spacing();
-			        save.setEnabled(true);
-				} catch (IOException | DocumentException e2) {
+			                save.setEnabled(true);
+				} catch ( DocumentException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}catch (IOException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
+				
 				
 				/*if (title != "") {
 					this.title.setText(title);

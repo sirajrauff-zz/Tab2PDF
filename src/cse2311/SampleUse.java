@@ -14,16 +14,19 @@ public class SampleUse {
 
 	public static void main(String[] args) throws DocumentException, IOException {
 		
-		UI.createAndShowGUI();
-		/*File file = new File("rememberingrain.txt");
-        	//File file = new File("moonlightsonata.txt");
+		//UI.createAndShowGUI();
+		File file = new File("rememberingrain.txt");
+        	File file2 = new File("moonlightsonata.txt");
+                File file3 = new File("test2.txt");
+                File file4 = new File("test3.txt");
 	
 		Parser c = new Parser();
-		Tablature t = c.readFile(file);//tab holds data
+		Tablature t = c.readFile(file);//tab holds dat
+                t.printMeasures();
 		//!IMPORTANT holds the doument used by pdf out creater
 		Style s = new Style(new Document(PageSize.A4));//holds output preferences(has defautls) like distances and font for notes and margins;
 		MusicSheet ms = new MusicSheet(t,s);// formats the data for pdf output for the given style
 		PdfOutputCreator pdfout = new PdfOutputCreator("");//takes the output laction in the construter
-		pdfout.makePDF(ms);//make the pdf*/
+		pdfout.makePDF(ms);//make the pdf
 	}
 }
