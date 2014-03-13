@@ -43,6 +43,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.itextpdf.text.Document;
@@ -50,19 +52,22 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
+
 import cse2311.MusicSheet;
 import cse2311.Parser;
 import cse2311.PdfOutputCreator;
 import cse2311.Style;
 import cse2311.Tablature;
  
-public class UI extends JFrame implements ActionListener {
+public class UI extends JFrame implements ActionListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
-    String filePath;
+    String filePath, userTitle, userSubtitle;
     JTextField fileTitle;
     File txtFile;
 	Tablature t;
-    
+    Parser c = new Parser();
+	Style s = new Style(new Document(PageSize.A4));
+	
     /**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
@@ -197,19 +202,25 @@ public class UI extends JFrame implements ActionListener {
     	temp.setBorder(new TitledBorder(new EtchedBorder(), "Edit"));
     	JLabel titleLabel = new JLabel("Title: ");
     	title = new JTextField();
-    	title.setMaximumSize(new Dimension(150,50));
+    	title.setMaximumSize(new Dimension(270,50));
+    	title.addActionListener(this);
     	
     	JLabel authorLabel = new JLabel("Author: ");
     	author = new JTextField();
-    	author.setMaximumSize(new Dimension(150,50));
+    	author.setMaximumSize(new Dimension(270,50));
+    	author.addActionListener(this);
+    	
     	JLabel fontLabel = new JLabel("Font");
     	fontType = new JComboBox();
     	fontSize = new JComboBox();
-    	fontType.setMaximumSize(new Dimension(150,50));
-    	fontSize.setMaximumSize(new Dimension(150,50));
+    	fontType.setMaximumSize(new Dimension(270,50));
+    	fontSize.setMaximumSize(new Dimension(270,50));
     	
     	JLabel spacingLabel = new JLabel("Spacing: ");
-    	spacing = new JSlider();
+    	spacing = new JSlider(1,99);
+    	spacing.setMinorTickSpacing(10);
+    	spacing.setPaintTicks(true);
+    	spacing.addChangeListener(this);
     	
     	temp.add(titleLabel, temp);
     	temp.add(title, temp);
@@ -293,8 +304,6 @@ public class UI extends JFrame implements ActionListener {
 				
 				//TODO add open functionality here
 				//'txtFile' is the txt file being passed
-				Parser c = new Parser();
-				Style s = new Style(new Document(PageSize.A4));
 				try {
 					t = c.readFile(txtFile);
 					MusicSheet ms = new MusicSheet(t,s);
@@ -303,39 +312,34 @@ public class UI extends JFrame implements ActionListener {
 					title = t.get_Title();
 					subtitle = t.get_Subtitle();
 					spacing = t.get_Spacing();
-			                save.setEnabled(true);
+			        save.setEnabled(true);
 				} catch ( DocumentException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
-				}catch (IOException e2) {
+				} catch (IOException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
 				
 				
-				/*if (title != "") {
-					this.title.setText(title);
-				}
-				if (subtitle != "") {
-					this.author.setText(subtitle);
-				}*/
+				/**/
 				
 				RandomAccessFile raf;
 				ByteBuffer buf;
 				try {
 					raf = new RandomAccessFile (new File (title + ".pdf"), "r");
-					FileChannel fc = raf.getChannel ();
-					buf = fc.map (FileChannel.MapMode.READ_ONLY, 0, fc.size ());
-					PDFFile pdfFile = new PDFFile (buf);
+					FileChannel fc = raf.getChannel();
+					buf = fc.map (FileChannel.MapMode.READ_ONLY, 0, fc.size());
+					PDFFile pdfFile = new PDFFile(buf);
 					
-					int numpages = pdfFile.getNumPages ();
+					int numpages = pdfFile.getNumPages();
 
-			        page = pdfFile.getPage (1);
+			        page = pdfFile.getPage(1);
 			                
-			        Rectangle2D r2d = page.getBBox ();
+			        Rectangle2D r2d = page.getBBox();
 
-			        width = r2d.getWidth ();
-			        height = r2d.getHeight ();
+			        width = r2d.getWidth();
+			        height = r2d.getHeight();
 			        width /= 72.0;
 			        height /= 72.0;
 			        int res = Toolkit.getDefaultToolkit ().getScreenResolution ();
@@ -372,10 +376,22 @@ public class UI extends JFrame implements ActionListener {
 		        livePreview.setPreferredSize(new Dimension(544, 704));
 				copy.pack();
 			}
-
+			
+			if (t.get_Title() != null) {
+				this.title.setText(title);
+			}
+			if (t.get_Subtitle() != null) {
+				this.author.setText(subtitle);
+			}
+			if (t.get_Spacing() != 5) {
+				this.spacing.setValue((int) (t.get_Spacing() * 10)); 
+			}
 		}
 		else if (e.getSource().equals(save)/* || e.getSource().equals(saveMenu)*/){
-			output = new File(title.getText() + ".pdf");
+			if (userTitle != null)
+				output = new File(userTitle + ".pdf");
+			else
+				output = new File(title.getText() + ".pdf");
 			JFileChooser saveFile = new JFileChooser();
 			saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
 			saveFile.setAcceptAllFileFilterUsed(false);
@@ -432,7 +448,7 @@ public class UI extends JFrame implements ActionListener {
 			}
 		}
 		
-		else if (e.getSource().equals(help)){
+		else if (e.getSource().equals(help)) {
 			try {
 				java.awt.Desktop.getDesktop().browse(new URI("http://www.google.ca"));
 			} catch (IOException e1) {
@@ -443,5 +459,29 @@ public class UI extends JFrame implements ActionListener {
 				e1.printStackTrace();
 			}
 		}
+		
+		else if (e.getSource().equals(title)) {
+			userTitle = title.getText();
+			t.set_Title(userTitle);
+		}
+		
+		else if (e.getSource().equals(author)) {
+			userSubtitle = author.getText();
+			t.set_Subtitle(userSubtitle);
+		}
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) { 
+		try {
+			float x = this.spacing.getValue() / 10;
+			t.set_Spacing(x);
+			MusicSheet ms = new MusicSheet(t,s);
+			PdfOutputCreator pdfout = new PdfOutputCreator("");
+			pdfout.makePDF(ms);
+		} catch ( DocumentException | IOException e2) {
+			e2.printStackTrace();
+		} 
+		// TODO update preview
 	}
 }
