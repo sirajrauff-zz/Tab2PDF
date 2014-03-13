@@ -1,3 +1,4 @@
+package cse2311;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +21,6 @@ public class PdfOutputCreator {
 	String outputLocation = "";
 
 	public PdfOutputCreator(String outputLocation) {
-
 		this.outputLocation = outputLocation;
 	}
 
@@ -58,7 +58,6 @@ public class PdfOutputCreator {
 				currX += s.leftMargin;
 
 				for (int z = 0; z < line.length(); z++) {
-
 					char l = line.charAt(z);
 					char m = 99;
 
@@ -69,12 +68,11 @@ public class PdfOutputCreator {
 						drawHorLine(currX, currY, ms.get_Spacing(), draw);
 						currX = currX + ms.get_Spacing();
 					} else if (l == '|') {
-
 						if (j > 0) {
 							drawVerLine(currX, currY, s.dist_Lines, draw);
 
 						}
-
+						
 					} else if (l == '*') {
 						drawCircle(currX, currY, draw);
 						currX = currX + ms.get_Spacing();
@@ -83,65 +81,62 @@ public class PdfOutputCreator {
 						drawHorLine(currX, currY, ms.get_Spacing(), draw);
 						drawDiagonal(currX, currY, draw);
 						currX = currX + ms.get_Spacing();
+						
 					} else if (l == '+'&&j==0) {
-						String repeat = "REAPEAT " + st.getTopInt() + " TIMES";
+						String repeat = "Repeat " + st.getTopInt() + " times";
 						text(repeat,
-								currX - (repeat.length() * ms.get_Spacing()),
-								currY + s.dist_Lines, s.my_Fontface, 8, draw);
+								currX - (repeat.length() * ms.get_Spacing()) + 18,
+								currY + 1 + s.dist_Lines, s.my_Fontface, 7, draw);
 
 					} else if (l == '>') {
 						drawDiamond(currX, currY, draw);
 						currX = currX + ms.get_Spacing();
-					}else if (l == ',') {
+						
+					} else if (l == ',') {
 						drawHorLine(currX, currY, 1f, draw);
 						currX = currX + 1f;
+						
 					}  else if (l == 'p' && z < (line.length() - 1)&& line.charAt(z - 1) == '|') {
-
-						createBezierCurves(draw, lastWordX, lastWordY,currX);
+						createBezierCurves(draw, lastWordX, lastWordY, currX);
 						drawHorLine(currX, currY, 5.02f, draw);
-						text(l + "", currX - 1.0f, currY + 10.0f,s.my_Fontface, 4, draw);
+						text(l + "", currX - 1.12f, currY + 9f, s.my_Fontface, 4, draw);
 						currX = currX + ms.get_Spacing();
-
+						
 					} else if (l == 'p' || l == 'h') {
 						createBezierCurves(draw, lastWordX, lastWordY,currX);
 						drawHorLine(currX, currY, 5.02f, draw);
-						text(l + "", currX+3f, currY + 10.0f,
+						text(l + "", currX + 1, currY + 9f,
 								s.my_Fontface, 4, draw);
-
 						currX = currX + ms.get_Spacing();
+						
 					} else if (l == 'D') {
 						if (j != 0)
 							drawThick(currX, currY, s.dist_Lines, draw);
-
+						
 					} else {
 						lastWordX = currX;
 						lastWordY = currY;
 						
-
 						if ((l > 47 && l < 58) && (m > 47 && m < 58)) {
 							currX -=s.get_width(l)/2;
 							text(l + "", currX, currY, s.my_Fontface, fontSize,draw);
 							currX += s.get_width(l);
 							text(m + "", currX, currY,s.my_Fontface, fontSize, draw);
-                                                        currX += s.get_width(m);
+                            currX += s.get_width(m);
 							
-							drawHorLine(currX,currY,(2f * ms.get_Spacing())- (s.get_width(l)/2 + s.get_width(m)),
-									draw);
-                                              
-                                                        currX +=s.get_width(l)/2;
+							drawHorLine(currX,currY,(2f * ms.get_Spacing())- (s.get_width(l)/2 + s.get_width(m)), draw);
+                            
+							currX +=s.get_width(l)/2;
 							currX += (2f * ms.get_Spacing())- (s.get_width(l) + s.get_width(m));
 							
 							z++;
-							
-						}else {
+						} else {
 							text(l + "", currX, currY, s.my_Fontface, fontSize,draw);
 							drawHorLine(currX + s.get_width(l), currY,ms.get_Spacing() - s.get_width(l), draw);
 							currX = currX + ms.get_Spacing();
-						
 						}
 					}
 				}
-
 				drawHorLine(currX, currY, document.getPageSize().getWidth()
 						- currX, draw);
 
@@ -149,15 +144,11 @@ public class PdfOutputCreator {
 				if (j!=5)
 					currY = currY - s.dist_Lines;
 			}
-
 			currX = 0.0f;
 			currY = currY - s.dist_Staffs;
-
 		}
-
 		document.close();
 		write.close();
-
 	}
 //currX =currX+ (ms.get_Spacing()-s.get_width(l)) + (ms.get_Spacing()-s.get_width(line.charAt(z-2))) + (ms.get_Spacing()-ms.get_Spacing()/5);
 	private void printTitle(String title, String subtitle, Document document)
@@ -243,7 +234,6 @@ public class PdfOutputCreator {
 	private void text(String text, float currX, float currY, BaseFont font,
 			int fontsize, PdfContentByte draw) throws DocumentException,
 			IOException {
-
 		draw.saveState();
 		draw.beginText();
 		draw.setTextMatrix(currX, currY - (s.get_height() / 2.5f));
@@ -255,9 +245,7 @@ public class PdfOutputCreator {
 
 	private void createBezierCurves(PdfContentByte cb, float x0, float y0,
 			float x1) {
-               // cb.arc(x0 - 6.0F +2f, y0 - 8.5F - 4f, x3 + 6.5F +2f, y0 - 4.5F-4f, 60, 60);
-                cb.arc(x0,y0,x1,y0, 60, 60);
-
+		//createBezierCurves(draw, lastWordX, lastWordY, currX);
+		cb.arc(x0 + 2f, y0 + 5f, x1 + 7f, y0 - 1.5f, 40, 100);
 	}
-
 }

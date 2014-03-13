@@ -7,7 +7,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URI;
@@ -41,7 +43,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.PageSize;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
  
@@ -49,6 +53,8 @@ public class UI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
     String filePath;
     JTextField fileTitle;
+    File txtFile;
+	Tablature t;
     
     /**
      * Create the GUI and show it.  For thread safety,
@@ -71,7 +77,7 @@ public class UI extends JFrame implements ActionListener {
         
         //Create and set up the content pane.
         UI demo = new UI();
-        frame.setJMenuBar(demo.createMenuBar());
+        //frame.setJMenuBar(demo.createMenuBar());
         frame.add(demo.createBody(), BorderLayout.CENTER);
  
         //Display the window.
@@ -81,7 +87,7 @@ public class UI extends JFrame implements ActionListener {
         copy = frame;
     }
     
-    JMenuItem openMenu, saveMenu, optionsMenu;
+    /*JMenuItem openMenu, saveMenu, optionsMenu;
     public JMenuBar createMenuBar() {
         JMenuBar menuBar;
         JMenu menu;
@@ -126,7 +132,7 @@ public class UI extends JFrame implements ActionListener {
         menu.add(optionsMenu);
  
         return menuBar;
-    }
+    }*/
     
     JPanel body, sidebar, a1, b1;
 	JScrollPane a2;
@@ -144,7 +150,7 @@ public class UI extends JFrame implements ActionListener {
         return body;
     }
     
-    JButton open, save, help, more;
+    JButton open, save, help;
     public  JPanel createB1() {
     	 JPanel temp = new JPanel(new GridLayout(2,2,10,10));
     	 temp.setOpaque(true);
@@ -160,27 +166,20 @@ public class UI extends JFrame implements ActionListener {
          save = new JButton("Save", icon);
          save.setToolTipText("Save");
          save.addActionListener(this);
+         save.setEnabled(false);
          
          icon = createImageIcon("images/help48.png");
          help = new JButton("Help", icon);
          help.setToolTipText("Help");
          help.addActionListener(this);
          
-         icon = createImageIcon("images/more48.png");
-         more = new JButton("More", icon);
-         more.setToolTipText("More");
-         more.addActionListener(this);
-         
          //Add the text area to the content pane.
          temp.add(open);
          temp.add(save); 
          temp.add(help);
-         temp.add(more);
          temp.setBorder(new TitledBorder(new EtchedBorder(), "Buttons"));
          return temp;
     }
-    
-    
     
     JTextField title, author;
     JComboBox fontType, fontSize;
@@ -261,10 +260,11 @@ public class UI extends JFrame implements ActionListener {
     double width, height;
     PDFPage page;
     String prevDir;
+    File output;
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		
-		if (e.getSource().equals(open) || e.getSource().equals(openMenu)){
+		if (e.getSource().equals(open)/* || e.getSource().equals(openMenu)*/){
 			JFileChooser openFile = new JFileChooser();
 			
 			if (prevDir != null)
@@ -274,40 +274,39 @@ public class UI extends JFrame implements ActionListener {
 			openFile.setAcceptAllFileFilterUsed(false);
 			int returnVal = openFile.showOpenDialog(this);
 			
-			File txtFile = openFile.getSelectedFile();
+			txtFile = openFile.getSelectedFile();
 			if (txtFile != null)
 				prevDir = txtFile.getAbsolutePath();
 			//OLD PDFgenertation code
-			/*ArrayList<String[]> sections = new ArrayList<String[]>();
-			String subtitle, title;
-			Float spacing;*/
+			ArrayList<String[]> sections = new ArrayList<String[]>();
+			String subtitle = "", title = "";
+			Float spacing;
 			
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				
 				//TODO add open functionality here
 				//'txtFile' is the txt file being passed
-				
-				//OLD PDFgenertation code
-				/*try {
-					sections = Reader.readFile(file.getAbsolutePath());
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				}
-				title = Reader.title;
-				subtitle = Reader.subtitle;
-				spacing = (float) 0;
-				
-				Parser.parse(sections);
-				sections = Reader.splitInToSubSections(sections);
-				Parser.fixBars(sections);
-				sections = Parser.makeCorrectLengthStrings(sections);
-				
+				Parser c = new Parser();
+				Style s = new Style(new Document(PageSize.A4));
 				try {
-					Print2PDF.makePDF( title+".pdf", sections,title, subtitle);
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				} catch (DocumentException e1) {
-					e1.printStackTrace();
+					t = c.readFile(txtFile);
+					MusicSheet ms = new MusicSheet(t,s);
+					PdfOutputCreator pdfout = new PdfOutputCreator("");
+					pdfout.makePDF(ms);
+					title = t.get_Title();
+					subtitle = t.get_Subtitle();
+					spacing = t.get_Spacing();
+			        save.setEnabled(true);
+				} catch (IOException | DocumentException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				
+				/*if (title != "") {
+					this.title.setText(title);
+				}
+				if (subtitle != "") {
+					this.author.setText(subtitle);
 				}*/
 				
 				RandomAccessFile raf;
@@ -346,51 +345,7 @@ public class UI extends JFrame implements ActionListener {
 					livePreview.setPreferredSize(new Dimension(544, 704));
 				}
 				
-				fileTitle.setText("Untitled.pdf");
-			}
-
-		}
-		else if (e.getSource().equals(save) || e.getSource().equals(saveMenu)){
-			
-			if (prevDir != null){
-				JFileChooser saveFile = new JFileChooser();
-				saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
-				saveFile.setAcceptAllFileFilterUsed(false);
-				saveFile.setCurrentDirectory(new File(prevDir));
-				saveFile.setSelectedFile(new File("Untitled"));
-				int returnVal = saveFile.showSaveDialog(this);
-				
-	            if (returnVal == JFileChooser.APPROVE_OPTION) {
-	                File file = new File(saveFile.getSelectedFile().toString().concat(".pdf"));
-	                System.out.println(file.getAbsolutePath());
-	                
-	                //TODO add save functionality here
-	                //'file' is where the user wants to save the file and the filename 
-	                
-	            } 
-			}
-			else {
-				JOptionPane.showMessageDialog(null, "Please open a \'txt\' sheet music file first");
-			}
-			
-		}
-		
-		else if (e.getSource().equals(help)){
-			
-			try {
-				java.awt.Desktop.getDesktop().browse(new URI("http://www.google.ca"));
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (URISyntaxException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-		}
-		
-		else if(e.getSource().equals(more)){
-			if (view == 0){
+				fileTitle.setText(title + ".pdf");
 				
 				a1 = createA1();
 		        sidebar.add(a1, BorderLayout.PAGE_END);
@@ -404,26 +359,78 @@ public class UI extends JFrame implements ActionListener {
 				}
 		        
 		        livePreview.setPreferredSize(new Dimension(544, 704));
-		        more.setText("Less");
-		        //copy.setResizable(true);
 				copy.pack();
-				view = 1;
 			}
-			else if (view == 1){
-				
-				a1.removeAll();
-				a1.setBorder(null);
-				body.remove(a1);
-				body.remove(a2);
-				
-				more.setText("More");
-				//copy.setResizable(false);
-				copy.pack();
-				view = 0;
+
+		}
+		else if (e.getSource().equals(save)/* || e.getSource().equals(saveMenu)*/){
+			output = new File(title.getText() + ".pdf");
+			JFileChooser saveFile = new JFileChooser();
+			saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
+			saveFile.setAcceptAllFileFilterUsed(false);
+			saveFile.setCurrentDirectory(new File(prevDir));
+			saveFile.setSelectedFile(output);
+			int returnVal = saveFile.showSaveDialog(this);
+			
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+            	if (JOptionPane.showConfirmDialog(null, "That files exists. Overwrite?") == JOptionPane.OK_OPTION){
+	                File file = saveFile.getSelectedFile();
+	                
+	                //TODO add save functionality here
+	                //'file' is where the user wants to save the file and the filename 
+	                if(!file.exists()) {
+	                	try {
+							file.createNewFile();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+	                }
+	
+	                FileChannel source = null;
+	                FileChannel destination = null;
+	
+	                try {
+	                	try {
+		                    source = new FileInputStream(output).getChannel();
+		                    destination = new FileOutputStream(file).getChannel();
+		                    destination.transferFrom(source, 0, source.size());
+	                	}catch(Exception ex){}
+	                	
+	                }
+	                
+	                finally {
+	                    if(source != null) {
+	                        try {
+								source.close();
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+	                    }
+	                    if(destination != null) {
+	                    	try {
+	                        	destination.close();
+	                    	} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+	                    	}
+	                    }
+	                }
+            	}
 			}
 		}
 		
-		
+		else if (e.getSource().equals(help)){
+			try {
+				java.awt.Desktop.getDesktop().browse(new URI("http://www.google.ca"));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (URISyntaxException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
 	}
-
 }

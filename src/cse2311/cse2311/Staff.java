@@ -1,15 +1,11 @@
+package cse2311;
 import java.util.ArrayList;
 
 public class Staff {
-
 	private ArrayList<StringBuffer> my_Lines;
-
 	private float printSpace;
-	
 	private float width;
-	
 	private ArrayList<Integer>  repeatNum ;
-	
 
 	public Staff(float printSpace) {
 		this.setPrintSpace(printSpace);
@@ -20,9 +16,7 @@ public class Staff {
 		this.appendToLines(m);
 		if (m.isRepeat())
 			this.getrepeatNum().add((m.getRepeatNum()));
-		
 		this.setWidth(m.getWidth());
-
 	}
 
 	public ArrayList<Integer> getrepeatNum() {
@@ -43,21 +37,17 @@ public class Staff {
 		}
 		return i;
 	}
-
-
-
+	
 	private void appendToLines(Measure m) {
 		int i = 0;
 		for (String line : m.get_Lines()) {
 			
 			if (!(this.get_Lines().size() <= i)) {
-				
 				this.get_Lines().get(i).append(this.barsAdded(m.getBarType(),line));
 			} else {
 				this.addStringBuffer();
 				this.get_Lines().get(i).append(this.barsAdded(m.getBarType(),line));
 			}
-			
 			i++;
 		}
 		this.fixBars();
@@ -77,20 +67,17 @@ public class Staff {
 		if(bar == "Single")
 			line= single + line+single;
 		
-		
 		return line;
 	}
 
 	public void addStringBuffer() {
 		this.get_Lines().add(new StringBuffer());
-
 	}
 
 	public boolean canFitAnother(Measure m) {
 		if (this.getWidth() + m.getWidth() < this.getPrintSpace())
 			return true;
 		return false;
-
 	}
 
 	private void fixBars() {
@@ -100,7 +87,6 @@ public class Staff {
 			String line = this.get_Lines().get(i).toString();
 			this.get_Lines().remove(i);
 			this.my_Lines.add(i,this.fixedLine(line));
-		
 		}
 	}
 
@@ -140,6 +126,4 @@ public class Staff {
 		}
 		System.out.println();
 	}
-
-
 }

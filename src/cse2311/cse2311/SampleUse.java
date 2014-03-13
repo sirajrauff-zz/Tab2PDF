@@ -1,3 +1,4 @@
+package cse2311;
 
 
 import java.io.File;
@@ -13,28 +14,16 @@ public class SampleUse {
 
 	public static void main(String[] args) throws DocumentException, IOException {
 		
-		
-		File file = new File("rememberingrain.txt");
-                File file2 = new File("moonlightsonata.txt");
+		UI.createAndShowGUI();
+		/*File file = new File("rememberingrain.txt");
+        	//File file = new File("moonlightsonata.txt");
 	
-			
-		
-		
 		Parser c = new Parser();
-		
 		Tablature t = c.readFile(file);//tab holds data
-
-
 		//!IMPORTANT holds the doument used by pdf out creater
 		Style s = new Style(new Document(PageSize.A4));//holds output preferences(has defautls) like distances and font for notes and margins;
-		
-		
 		MusicSheet ms = new MusicSheet(t,s);// formats the data for pdf output for the given style
-	
 		PdfOutputCreator pdfout = new PdfOutputCreator("");//takes the output laction in the construter
-
-		pdfout.makePDF(ms);//make the pdf
-	
+		pdfout.makePDF(ms);//make the pdf*/
 	}
-	
 }

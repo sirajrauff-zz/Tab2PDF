@@ -1,23 +1,18 @@
+package cse2311;
 
 
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Tablature {
-
 	private ArrayList<Measure> my_Measure;
-
-	private float my_Spacing=5;
-
+	private float my_Spacing = 5;
 	private String my_Title;
-
 	private String my_Subtitle;
 
 	public Tablature() {
 		this.my_Subtitle = "Default";
 		this.my_Title = "Default";
-	
-
 	}
 
 	public void addLineToLastMeasure(String g) {
@@ -28,7 +23,6 @@ public class Tablature {
 			this.addMeasure();
 			this.addLineToLastMeasure(g);
 		}
-
 	}
 
 	public void addMultiMeasureLine(StringTokenizer StrTkn) {
@@ -42,20 +36,16 @@ public class Tablature {
 			while (StrTkn.hasMoreTokens()) {
 					this.addLineToMeasure(StrTkn.countTokens(), StrTkn.nextToken());
 			}
-
 		}
-
 	}
 
 	private void addMeasure() {
 		this.get_Measures().add(new Measure(this.get_Spacing()));
-
 	}
 
 	private void addLineToMeasure(int index, String s) {
 		if(this.get_Measures().size()>=index)
 			this.get_Measures().get(get_Measures().size() - index).addLine(s);
-
 	}
 
 	private Measure get_Last_Measure() {
@@ -77,13 +67,11 @@ public class Tablature {
 
 	public float get_Spacing() {
 		return my_Spacing;
-
 	}
 
 	public ArrayList<Measure> get_Measures() {
 		if (this.my_Measure == null)// Lazy initialization
 			this.my_Measure = new ArrayList<Measure>();
-
 		return my_Measure;
 	}
 
@@ -95,17 +83,14 @@ public class Tablature {
 		for(Measure m : this.get_Measures())
 			m.setSpacing(my_Spacing);
 		this.my_Spacing = my_Spacing;
-
 	}
 
 	public String get_Title() {
 		return my_Title;
-
 	}
 
 	public void set_Title(String my_Title) {
 		this.my_Title = my_Title;
-
 	}
 
 	public String get_Subtitle() {
@@ -114,7 +99,5 @@ public class Tablature {
 
 	public void set_Subtitle(String my_Subtitle) {
 		this.my_Subtitle = my_Subtitle;
-
 	}
-
 }

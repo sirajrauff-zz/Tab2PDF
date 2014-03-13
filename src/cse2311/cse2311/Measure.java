@@ -1,17 +1,14 @@
-
+package cse2311;
 
 import java.util.ArrayList;
 
-
 public  class Measure {
-	
 	private ArrayList<String> my_Lines;
 	private String barType;
 	private boolean repeat;
 	private int repeatNum;
 	private float spacing;
 	private float width = 0;
-	
 
 	public Measure(float f){
 		this.spacing = f;
@@ -20,25 +17,23 @@ public  class Measure {
 	public Measure(String firstLine){
 		this.addLine(firstLine);
 	}
-
 	
 	public boolean addLine(String line) {
 		if(get_Lines().size()<6){
-		get_Lines().add(line);
-			if(this.size() == 6)
-				this.corrections();
-		return true;
+			get_Lines().add(line);
+				if(this.size() == 6)
+					this.corrections();
+			return true;
 		}
-		
 		return false;
 	}
+	
 	private void corrections(){
 		
 		this.checkRepeat();
 		this.checkBarType();
 		this.checkLength();//doest work perfectly
 		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
-		
 	}
 	
 	private boolean checkRepeat() {
@@ -54,14 +49,9 @@ public  class Measure {
 				this.get_Lines().add(0, temp.substring(0, temp.length()-1).toString());
 			}
 
-		}else 
+		} else 
 			this.setRepeat(false);
 		return true;
-			
-			
-			
-			
-		
 	}
 
 	private void checkLength() {
@@ -83,45 +73,39 @@ public  class Measure {
 			else
 				temp.add(s.substring(0,longest_Length));
 		}
-		
 		this.setMy_Lines(temp);
-		
-		
 	}
 
 	private void checkBarType() {
 		char left = this.get_Lines().get(2).charAt(0);
 		char right = this.get_Lines().get(2).charAt(this.get_Lines().get(2).length()-1);
 	
-		if(left==right&&right =='*'){
+		if (left ==right && right == '*') {
 			this.barType = "Both";
 			this.setWidth(6.6f);
 		}
 		
-		else if(left!=right&&right =='*'){
+		else if (left != right && right == '*') {
 			this.barType = "Right";
 			this.setWidth(4.3f);
 		}
-		else if(left!=right&&left =='*'){
+		else if (left != right && left == '*') {
 			this.barType = "Left";
 			this.setWidth(4.3f);
-			}
+		}
 		else {
 			this.barType ="Single";
 			this.setWidth(.5f);
 		}
-		
 	}
+	
 	public float getWidth() {
-		
 		return width;
 	}
 
 	private void setWidth(float width) {
 		this.width += width;
 	}
-
-	
 
 	public boolean isRepeat() {
 		return repeat;
@@ -178,25 +162,19 @@ public  class Measure {
 	}
 
 	private void recalculateWidth() {
-		if(this.getBarType()=="Both"){
+		if (this.getBarType() == "Both"){
 			this.width = 6.6f;	
-	
 		}
-		
-		else if(this.getBarType()=="Right"){
+		else if (this.getBarType() == "Right") {
 			this.width = 4.3f;	
 			
 		}
-		else if(this.getBarType()=="Left"){
-			this.width = 4.3f;	
-			
+		else if (this.getBarType() == "Left") {
+			this.width = 4.3f;
 			}
 		else {
-			this.width = .5f;	
-			
+			this.width = .5f;
 		}
 		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
-		
 	}
-
 }
