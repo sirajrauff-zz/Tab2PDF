@@ -63,8 +63,9 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 	private static final long serialVersionUID = 1L;
     String filePath, userTitle, userSubtitle;
     JTextField fileTitle;
-    File txtFile;
+    File txtFile, userDirectory = null;
 	Tablature t;
+	MusicSheet ms;
     Parser c = new Parser();
 	Style s = new Style(new Document(PageSize.A4));
 	
@@ -162,21 +163,26 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
         return body;
     }
     
-    JButton open, save, help;
+    JButton open, directory, help, save;
     public  JPanel createB1() {
     	 JPanel temp = new JPanel(new GridLayout(2,2,10,10));
     	 temp.setOpaque(true);
     	 
 
          //create a jpanel with open, save, help and more buttons
-         ImageIcon icon = createImageIcon("images/open48.png");
-         open = new JButton("Open", icon);
-         open.setToolTipText("Open");
+         open = new JButton("Open Tablature"/*, icon*/);
+         open.setToolTipText("Open ASCII tablature to convert");
          open.addActionListener(this);
+         
+         ImageIcon icon = createImageIcon("images/open48.png");
+         directory = new JButton("Choose Save Directory", icon);
+         directory.setToolTipText("Choose Directory to save PDF in");
+         directory.addActionListener(this);
+         directory.setEnabled(false);
          
          icon = createImageIcon("images/save48.png");
          save = new JButton("Save", icon);
-         save.setToolTipText("Save");
+         save.setToolTipText("Save PDF");
          save.addActionListener(this);
          save.setEnabled(false);
          
@@ -187,8 +193,9 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
          
          //Add the text area to the content pane.
          temp.add(open);
-         temp.add(save); 
+         temp.add(directory); 
          temp.add(help);
+         temp.add(save);
          temp.setBorder(new TitledBorder(new EtchedBorder(), "Buttons"));
          return temp;
     }
@@ -306,13 +313,13 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 				//'txtFile' is the txt file being passed
 				try {
 					t = c.readFile(txtFile);
-					MusicSheet ms = new MusicSheet(t,s);
-					PdfOutputCreator pdfout = new PdfOutputCreator("");
+					ms = new MusicSheet(t,s);
+					PdfOutputCreator pdfout = new PdfOutputCreator(userDirectory);
 					pdfout.makePDF(ms);
 					title = t.get_Title();
 					subtitle = t.get_Subtitle();
 					spacing = t.get_Spacing();
-			        save.setEnabled(true);
+			        directory.setEnabled(true);
 				} catch ( DocumentException e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
@@ -320,9 +327,6 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
-				
-				
-				/**/
 				
 				RandomAccessFile raf;
 				ByteBuffer buf;
@@ -332,7 +336,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 					buf = fc.map (FileChannel.MapMode.READ_ONLY, 0, fc.size());
 					PDFFile pdfFile = new PDFFile(buf);
 					
-					int numpages = pdfFile.getNumPages();
+					//int numpages = pdfFile.getNumPages();
 
 			        page = pdfFile.getPage(1);
 			                
@@ -375,31 +379,60 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		        
 		        livePreview.setPreferredSize(new Dimension(544, 704));
 				copy.pack();
-			}
-			
-			if (t.get_Title() != null) {
-				this.title.setText(title);
-			}
-			if (t.get_Subtitle() != null) {
-				this.author.setText(subtitle);
-			}
-			if (t.get_Spacing() != 5) {
-				this.spacing.setValue((int) (t.get_Spacing() * 10)); 
+				
+				if (t.get_Title() != null) {
+					this.title.setText(title);
+				}
+				if (t.get_Subtitle() != null) {
+					this.author.setText(subtitle);
+				}
+				if (t.get_Spacing() != 5) {
+					this.spacing.setValue((int) (t.get_Spacing() * 10)); 
+				}
 			}
 		}
+		
+		else if (e.getSource().equals(directory)){
+			JFileChooser chooseDirectory = new JFileChooser();
+			chooseDirectory.setAcceptAllFileFilterUsed(false);
+			chooseDirectory.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			int returnVal = chooseDirectory.showDialog(this, "Choose");
+			
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				System.out.print(userDirectory);
+				userDirectory = chooseDirectory.getSelectedFile();
+				save.setEnabled(true);
+			}
+		}
+		
 		else if (e.getSource().equals(save)/* || e.getSource().equals(saveMenu)*/){
-			if (userTitle != null)
+			try {
+				PdfOutputCreator pdfout = new PdfOutputCreator(userDirectory);
+				pdfout.makePDF(ms);
+			} catch (IOException | DocumentException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			/*if (userTitle != null)
 				output = new File(userTitle + ".pdf");
 			else
 				output = new File(title.getText() + ".pdf");
 			JFileChooser saveFile = new JFileChooser();
-			saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
-			saveFile.setAcceptAllFileFilterUsed(false);
+			//saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
 			saveFile.setCurrentDirectory(new File(prevDir));
-			saveFile.setSelectedFile(output);
+			saveFile.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			//saveFile.setSelectedFile(output);
 			int returnVal = saveFile.showSaveDialog(this);
 			
             if (returnVal == JFileChooser.APPROVE_OPTION) {
+				try {
+					PdfOutputCreator pdfout = new PdfOutputCreator(saveFile.getCurrentDirectory().getPath());
+					pdfout.makePDF(ms);
+				} catch (IOException | DocumentException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
             	if (JOptionPane.showConfirmDialog(null, "That files exists. Overwrite?") == JOptionPane.OK_OPTION){
 	                File file = saveFile.getSelectedFile();
 	                
@@ -445,7 +478,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 	                    }
 	                }
             	}
-			}
+			}*/
 		}
 		
 		else if (e.getSource().equals(help)) {
@@ -473,7 +506,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 
 	@Override
 	public void stateChanged(ChangeEvent arg0) { 
-		try {
+		/*try {
 			float x = this.spacing.getValue() / 10;
 			t.set_Spacing(x);
 			MusicSheet ms = new MusicSheet(t,s);
@@ -481,7 +514,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			pdfout.makePDF(ms);
 		} catch ( DocumentException | IOException e2) {
 			e2.printStackTrace();
-		} 
+		}*/
 		// TODO update preview
 	}
 }

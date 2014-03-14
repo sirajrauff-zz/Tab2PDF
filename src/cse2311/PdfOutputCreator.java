@@ -17,20 +17,32 @@ public class PdfOutputCreator {
 	int fontSize = 8;
 	float spacing;
 	Style s;
-
-	String outputLocation = "";
-
-	public PdfOutputCreator(String outputLocation) {
-		this.outputLocation = outputLocation;
+	File outputLocation;
+	boolean defaultLocation = true;
+	PdfWriter write;
+	
+	public PdfOutputCreator(File userOutputLocation) {
+		if (userOutputLocation != null){
+			outputLocation = userOutputLocation;
+			defaultLocation = false;
+		}
 	}
 
-	public void makePDF(MusicSheet ms) throws IOException, DocumentException {
+	public void makePDF(MusicSheet ms) throws IOException, DocumentException {		
 		s = ms.getMy_Style();
 		this.spacing = ms.get_Spacing();
 		Document document = s.document;
-
-		PdfWriter write = PdfWriter.getInstance(document, new FileOutputStream(
-				new File(outputLocation + ms.get_Title() + ".pdf")));
+		/*if (defaultLocation)
+			System.out.print("\n" + ms.get_Title() + ".pdf" + "\n");
+		else
+			System.out.print("\n" + outputLocation.getAbsolutePath() + "\\" + ms.get_Title() + ".pdf" + "\n");*/
+		
+		if (defaultLocation) {
+			write = PdfWriter.getInstance(document, new FileOutputStream(new File(ms.get_Title() + ".pdf")));
+		} else {
+			write = PdfWriter.getInstance(document, new FileOutputStream(
+					new File(outputLocation.getAbsolutePath() + "\\" + ms.get_Title() + ".pdf")));
+		}
 		document.open();
 		write.open();
 		PdfContentByte draw = write.getDirectContent();

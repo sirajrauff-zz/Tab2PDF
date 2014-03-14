@@ -56,7 +56,6 @@ public  class Measure {
 
 	private void checkLength() {
 		int longest_Length = -1 ;
-		System.out.println();
 		for (String s : this.get_Lines()){
 			
 			if (longest_Length == -1)

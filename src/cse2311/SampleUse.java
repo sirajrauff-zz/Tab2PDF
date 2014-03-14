@@ -22,11 +22,12 @@ public class SampleUse {
 	
 		Parser c = new Parser();
 		Tablature t = c.readFile(file);//tab holds dat
-                t.printMeasures();
+        //t.printMeasures();
 		//!IMPORTANT holds the doument used by pdf out creater
 		Style s = new Style(new Document(PageSize.A4));//holds output preferences(has defautls) like distances and font for notes and margins;
 		MusicSheet ms = new MusicSheet(t,s);// formats the data for pdf output for the given style
-		PdfOutputCreator pdfout = new PdfOutputCreator("");//takes the output laction in the construter
-		pdfout.makePDF(ms);//make the pdf*/
+		PdfOutputCreator pdfout = new PdfOutputCreator(null);//takes the output laction in the construter
+		pdfout.makePDF(ms);//make the pdf
+		System.out.print("end");//end*/
 	}
 }

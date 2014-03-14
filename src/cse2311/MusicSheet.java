@@ -9,7 +9,7 @@ public class MusicSheet {
 	private String my_Subtitle;
 	private Style my_Style;
 	
-	public MusicSheet(Tablature tab,Style s){
+	public MusicSheet(Tablature tab, Style s){
 		this.setMy_Style(s);
 		this.set_Title(tab.get_Title());
 		this.set_Subtitle(tab.get_Subtitle());
