@@ -125,7 +125,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
     	 
          //create a jpanel with open, save, help and more buttons
          ImageIcon icon = createImageIcon("images/open48.png");
-         open = new JButton("Open Tablature"/*, icon*/);
+         open = new JButton("Open Tablature", icon);
          open.setToolTipText("Open ASCII tablature to convert");
          open.addActionListener(this);
          
