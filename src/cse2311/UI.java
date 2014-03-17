@@ -124,7 +124,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
     	 temp.setOpaque(true);
     	 
          //create a jpanel with open, save, help and more buttons
-         ImageIcon icon = createImageIcon("images/open48.png");
+    	 ImageIcon icon = createImageIcon("images/open48.png");
          open = new JButton("Open Tablature", icon);
          open.setToolTipText("Open ASCII tablature to convert");
          open.addActionListener(this);
@@ -140,8 +140,8 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
          save.addActionListener(this);
          save.setEnabled(false);
          
-         icon = createImageIcon("images/help48.png");
-         help = new JButton("Help", icon);
+         //icon = createImageIcon("images/help48.png");
+         help = new JButton("Help"/*, icon*/);
          help.setToolTipText("Help");
          help.addActionListener(this);
          
@@ -164,38 +164,12 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
     	JLabel titleLabel = new JLabel("Title: ");
     	title = new JTextField();
     	title.setMaximumSize(new Dimension(270,50));
-        title.addFocusListener(null);
-        title.addFocusListener(new FocusListener() {
-        	@Override
-        	public void focusGained(FocusEvent e) { }
-        	
-        	@Override
-        	public void focusLost(FocusEvent e) {
-        		//input validation
-	            userTitle = title.getText();
-				t.set_Title(userTitle);
-				generatePDF(null);
-				updatePreview();
-				}
-        	});
+    	title.addActionListener(this);
     	
     	JLabel authorLabel = new JLabel("Author: ");
     	author = new JTextField();
     	author.setMaximumSize(new Dimension(270,50));
-    	author.addFocusListener(new FocusListener(){
-    		@Override
-    		public void focusGained(FocusEvent e) { }
-    		
-    		@Override
-    		public void focusLost(FocusEvent e) {
-    			//input validation
-    			userSubtitle = author.getText();
-    			t.set_Subtitle(userSubtitle);
-				generatePDF(null);
-				updatePreview();
-				}
-    		});
-    	
+    	author.addActionListener(this);
     	
     	JLabel fontLabel = new JLabel("Font");
     	fontType = new JComboBox();
@@ -263,25 +237,22 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
     
     int view = 0;
     double width, height;
-    PDFPage page;
     String prevDir;
     File output;
-   
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(open)){
 			JFileChooser openFile = new JFileChooser();
-	        
+
 			fileTitle.setText("Opening...");
+			if (prevDir != null)
+				openFile.setCurrentDirectory(new File(prevDir));
 			
-	        if (prevDir != null)
-	            openFile.setCurrentDirectory(new File(prevDir));
-	        openFile.setAcceptAllFileFilterUsed(false);
-	        openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));
-	        
-	        int returnVal = openFile.showOpenDialog(this);
-	        
-	        txtFile = openFile.getSelectedFile();
+			openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));	
+			openFile.setAcceptAllFileFilterUsed(false);
+			int returnVal = openFile.showOpenDialog(this);
+			
+			txtFile = openFile.getSelectedFile();
 			if (txtFile != null)
 				prevDir = txtFile.getAbsolutePath();
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -368,7 +339,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		
 		a1 = createA1();
 		sidebar.add(a1, BorderLayout.PAGE_END);
-		
+		 	
 		try {
 			a2 = createA2();
 			body.add(a2, BorderLayout.CENTER);
@@ -380,10 +351,10 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		livePreview.setPreferredSize(new Dimension(544, 704));
 		copy.pack();
 		opened = true;
-                deleteFile();
 	}
 
-	private void updatePreview() {
+    PDFPage page;
+    private void updatePreview() {
 		RandomAccessFile raf;
 		ByteBuffer buf;
 		try {
@@ -392,9 +363,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			buf = fc.map (FileChannel.MapMode.READ_ONLY, 0, fc.size());
 			PDFFile pdfFile = new PDFFile(buf);
 			
-			//int numpages = pdfFile.getNumPages();
-
-		    page = pdfFile.getPage(1);
+			page = pdfFile.getPage(1);
 		            
 		    Rectangle2D r2d = page.getBBox();
 
@@ -420,32 +389,11 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			livePreview.setPreferredSize(new Dimension(544, 704));
 		}
 		
-		fileTitle.setText(title + ".pdf");
-        deleteFile();
+		//fileTitle.setText(userTitle + ".pdf");
 	}
 	
 	@Override
-	public void stateChanged(ChangeEvent e) {
-		if (e.getSource().equals(spacing)) {
-            //input validation
-			userSpacing = spacing.getValue()/10;
-			t.set_Spacing(userSpacing);
-			generatePDF(null);
-			updatePreview();
-		}
+	public void stateChanged(ChangeEvent arg0) {
+		// TODO update preview
 	}
-        
-        public void deleteFile(){
-        	try {
-        		File file = new File(t.get_Title()+".pdf");
-        		if(file.delete()) {
-        			System.out.println(file.getName() + " is deleted!");
-        			} 
-        		else {
-        			System.out.println("Delete operation is failed.");
-        			}
-        		} catch(Exception e) {
-        			e.printStackTrace();
-        			}
-        	}
 }
