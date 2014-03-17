@@ -118,21 +118,21 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
         return body;
     }
     
-    JButton open, directory, help, save;
+    JButton open, update, help, save;
     public  JPanel createB1() {
     	 JPanel temp = new JPanel(new GridLayout(2,2,10,10));
     	 temp.setOpaque(true);
     	 
          //create a jpanel with open, save, help and more buttons
+         ImageIcon icon = createImageIcon("images/open48.png");
          open = new JButton("Open Tablature"/*, icon*/);
          open.setToolTipText("Open ASCII tablature to convert");
          open.addActionListener(this);
          
-         ImageIcon icon = createImageIcon("images/open48.png");
-         directory = new JButton("Choose Save Directory", icon);
-         directory.setToolTipText("Choose Directory to save PDF in");
-         directory.addActionListener(this);
-         directory.setEnabled(false);
+         update = new JButton("Update Preview"/*, icon*/);
+         update.setToolTipText("Update Live Preview");
+         update.addActionListener(this);
+         update.setEnabled(false);
          
          icon = createImageIcon("images/save48.png");
          save = new JButton("Save", icon);
@@ -147,7 +147,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
          
          //Add the text area to the content pane.
          temp.add(open);
-         temp.add(directory); 
+         temp.add(update); 
          temp.add(help);
          temp.add(save);
          temp.setBorder(new TitledBorder(new EtchedBorder(), "Buttons"));
@@ -164,46 +164,37 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
     	JLabel titleLabel = new JLabel("Title: ");
     	title = new JTextField();
     	title.setMaximumSize(new Dimension(270,50));
-          title.addFocusListener(null);
-        title.addFocusListener( new FocusListener() {
-                   @Override
-                   public void focusGained(FocusEvent e) {
-                
-                    }
-
-                   @Override
-                    public void focusLost(FocusEvent e) {
-                       //input validation
-                         userTitle = title.getText();
-			t.set_Title(userTitle);
-			generatePDF();
-			updatePreview();
-                    
-                    }
-
-                     });
+        title.addFocusListener(null);
+        title.addFocusListener(new FocusListener() {
+        	@Override
+        	public void focusGained(FocusEvent e) { }
+        	
+        	@Override
+        	public void focusLost(FocusEvent e) {
+        		//input validation
+	            userTitle = title.getText();
+				t.set_Title(userTitle);
+				generatePDF(null);
+				updatePreview();
+				}
+        	});
     	
     	JLabel authorLabel = new JLabel("Author: ");
     	author = new JTextField();
     	author.setMaximumSize(new Dimension(270,50));
-    	author.addFocusListener( new FocusListener() {
-                   @Override
-                   public void focusGained(FocusEvent e) {
-                     
-                     
-                    }
-
-                   @Override
-                    public void focusLost(FocusEvent e) {
-                        //input validation
-                        userSubtitle = author.getText();
-			t.set_Subtitle(userSubtitle);
-			generatePDF();
-			updatePreview();
-                    
-                    }
-
-                    });
+    	author.addFocusListener(new FocusListener(){
+    		@Override
+    		public void focusGained(FocusEvent e) { }
+    		
+    		@Override
+    		public void focusLost(FocusEvent e) {
+    			//input validation
+    			userSubtitle = author.getText();
+    			t.set_Subtitle(userSubtitle);
+				generatePDF(null);
+				updatePreview();
+				}
+    		});
     	
     	
     	JLabel fontLabel = new JLabel("Font");
@@ -276,46 +267,66 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
     String prevDir;
     File output;
    
-   
-         
-               
-			
-		
-		
-		 
-			
-		
-    
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource().equals(open)){
-                    makeFileAndUpdate();
+			JFileChooser openFile = new JFileChooser();
+	        
+			fileTitle.setText("Opening...");
+			
+	        if (prevDir != null)
+	            openFile.setCurrentDirectory(new File(prevDir));
+	        openFile.setAcceptAllFileFilterUsed(false);
+	        openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));
+	        
+	        int returnVal = openFile.showOpenDialog(this);
+	        
+	        txtFile = openFile.getSelectedFile();
+			if (txtFile != null)
+				prevDir = txtFile.getAbsolutePath();
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				try {
+					t = c.readFile(txtFile);
+			        userTitle = t.get_Title();
+			        userSubtitle = t.get_Subtitle();
+			        userSpacing = t.get_Spacing();
+					generatePDF(null);
+			        update.setEnabled(true);
+			        save.setEnabled(true);
+				} catch (IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				
+				if (opened)
+					updatePreview();
+				else
+					generatePreview();
+				
+				fileTitle.setText("Opened " + userTitle);
+				title.setText(userTitle);
+				this.author.setText(userSubtitle);
+				this.spacing.setValue((int) (t.get_Spacing() * 10));
+			}
 		}
 		
-		else if (e.getSource().equals(directory)){
+		else if (e.getSource().equals(update)){
+			generatePDF(null);
+			updatePreview();
+		}
+		
+		else if (e.getSource().equals(save)){
 			JFileChooser chooseDirectory = new JFileChooser();
-                        chooseDirectory.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			chooseDirectory.setAcceptAllFileFilterUsed(false);
-			
+			chooseDirectory.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 			int returnVal = chooseDirectory.showDialog(this, "Choose");
 			
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				userDirectory = chooseDirectory.getSelectedFile();
-				save.setEnabled(true);
+				fileTitle.setText("Saving " + userTitle);
+				generatePDF(userDirectory);
 			}
-		}
-		
-		else if (e.getSource().equals(save)){
-			try {
-                                
-				PdfOutputCreator pdfout = new PdfOutputCreator(userDirectory);
-				s = new Style(new Document(PageSize.A4));
-				ms = new MusicSheet(t,s);
-				pdfout.makePDF(ms);
-			} catch (IOException | DocumentException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			fileTitle.setText("Saved " + userTitle + " to " + userDirectory);
 		}
 		
 		else if (e.getSource().equals(help)) {
@@ -329,56 +340,20 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 				e1.printStackTrace();
 			}
 		}
-                
-             
-		
-		
 	}
-
-    private void makeFileAndUpdate() throws HeadlessException {
-        JFileChooser openFile = new JFileChooser();
-        
-        if (prevDir != null)
-            openFile.setCurrentDirectory(new File(prevDir));
-        openFile.setAcceptAllFileFilterUsed(false);
-        openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));
-        
-        int returnVal = openFile.showOpenDialog(this);
-        
-        txtFile = openFile.getSelectedFile();
-        if (txtFile != null)
-            prevDir = txtFile.getAbsolutePath();
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                t = c.readFile(txtFile);
-                s = new Style(new Document(PageSize.A4));
-                ms = new MusicSheet(t,s);
-                PdfOutputCreator pdfout = new PdfOutputCreator(userDirectory);
-                pdfout.makePDF(ms);
-                directory.setEnabled(true);
-                userTitle = t.get_Title();
-                userSubtitle = t.get_Subtitle();
-                userSpacing = t.get_Spacing();
-            } catch ( DocumentException | IOException e2) {
-                // TODO Auto-generated catch block
-                e2.printStackTrace();
-            }
-            
-            if (opened)
-                updatePreview();
-            else
-                generatePreview();
-            
-            title.setText(userTitle);
-            this.author.setText(userSubtitle);
-            this.spacing.setValue((int) (t.get_Spacing() * 10));
-        }
-    }
 	
-	private void generatePDF() {
-            
+	private void generatePDF(File file) {
+		if (opened) {
+			userTitle = title.getText();
+			userSubtitle = author.getText();
+			userSpacing = spacing.getValue() / 10;
+			t.set_Title(userTitle);
+			t.set_Subtitle(userSubtitle);
+			t.set_Spacing(userSpacing);
+		}
+		
 		try {
-			PdfOutputCreator pdfout = new PdfOutputCreator(null);
+			PdfOutputCreator pdfout = new PdfOutputCreator(file);
 			s = new Style(new Document(PageSize.A4));
 			ms = new MusicSheet(t,s);
 			pdfout.makePDF(ms);
@@ -405,7 +380,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		livePreview.setPreferredSize(new Dimension(544, 704));
 		copy.pack();
 		opened = true;
-                deleteFile(t.get_Title()+".pdf");
+                deleteFile();
 	}
 
 	private void updatePreview() {
@@ -446,37 +421,31 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		}
 		
 		fileTitle.setText(title + ".pdf");
-                deleteFile(t.get_Title()+".pdf");
+        deleteFile();
 	}
 	
 	@Override
-	public void stateChanged(ChangeEvent e) { 
-		
-            
-                  if (e.getSource().equals(spacing)) {
-                       //input validation
+	public void stateChanged(ChangeEvent e) {
+		if (e.getSource().equals(spacing)) {
+            //input validation
 			userSpacing = spacing.getValue()/10;
 			t.set_Spacing(userSpacing);
-			generatePDF();
+			generatePDF(null);
 			updatePreview();
 		}
 	}
         
-        public void deleteFile(String s){
-            try{
- 
-    		File file = new File(s);
- 
-    		if(file.delete()){
-    			System.out.println(file.getName() + " is deleted!");
-    		}else{
-    			System.out.println("Delete operation is failed.");
-    		}
- 
-    	}catch(Exception e){
- 
-    		e.printStackTrace();
- 
-    	}
-        }
+        public void deleteFile(){
+        	try {
+        		File file = new File(t.get_Title()+".pdf");
+        		if(file.delete()) {
+        			System.out.println(file.getName() + " is deleted!");
+        			} 
+        		else {
+        			System.out.println("Delete operation is failed.");
+        			}
+        		} catch(Exception e) {
+        			e.printStackTrace();
+        			}
+        	}
 }
