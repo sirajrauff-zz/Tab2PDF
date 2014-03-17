@@ -134,7 +134,7 @@ public class PdfOutputCreator {
 							text(l + "", currX, currY, s.my_Fontface, fontSize,draw);
 							currX += s.get_width(l);
 							text(m + "", currX, currY,s.my_Fontface, fontSize, draw);
-                            currX += s.get_width(m);
+                                                        currX += s.get_width(m);
 							
 							drawHorLine(currX,currY,(2f * ms.get_Spacing())- (s.get_width(l)/2 + s.get_width(m)), draw);
                             
