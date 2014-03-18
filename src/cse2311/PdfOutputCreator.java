@@ -32,10 +32,6 @@ public class PdfOutputCreator {
 		s = ms.getMy_Style();
 		this.spacing = ms.get_Spacing();
 		Document document = s.document;
-		/*if (defaultLocation)
-			System.out.print("\n" + ms.get_Title() + ".pdf" + "\n");
-		else
-			System.out.print("\n" + outputLocation.getAbsolutePath() + "\\" + ms.get_Title() + ".pdf" + "\n");*/
 		
 		if (defaultLocation) {
 			write = PdfWriter.getInstance(document, new FileOutputStream(new File(ms.get_Title() + ".pdf")));
@@ -55,7 +51,6 @@ public class PdfOutputCreator {
 		float lastWordY = currY;
 
 		for (Staff st : ms.get_Staffs()) {
-
 			if (currY - s.dist_Staffs - (6 * s.dist_Lines) < 0) {
 				document.newPage();
 				currY = s.document.top();
@@ -80,10 +75,8 @@ public class PdfOutputCreator {
 						drawHorLine(currX, currY, ms.get_Spacing(), draw);
 						currX = currX + ms.get_Spacing();
 					} else if (l == '|') {
-						if (j > 0) {
+						if (j > 0)
 							drawVerLine(currX, currY, s.dist_Lines, draw);
-
-						}
 						
 					} else if (l == '*') {
 						drawCircle(currX, currY, draw);
@@ -162,12 +155,12 @@ public class PdfOutputCreator {
 		document.close();
 		write.close();
 	}
-//currX =currX+ (ms.get_Spacing()-s.get_width(l)) + (ms.get_Spacing()-s.get_width(line.charAt(z-2))) + (ms.get_Spacing()-ms.get_Spacing()/5);
+	
+	//currX =currX+ (ms.get_Spacing()-s.get_width(l)) + (ms.get_Spacing()-s.get_width(line.charAt(z-2))) + (ms.get_Spacing()-ms.get_Spacing()/5);
 	private void printTitle(String title, String subtitle, Document document)
 			throws DocumentException {
 		Font[] fonts = {
 				new Font(),
-
 				/* new Font(fontfamily, size, type, color) */
 				new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD,
 						new BaseColor(/* Red */0, /* Green */0, /* Blue */0)),

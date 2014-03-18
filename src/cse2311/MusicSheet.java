@@ -31,13 +31,12 @@ public class MusicSheet {
 	
 	private void addStaff() {
 		this.get_Staffs().add(new Staff(this.getMy_Style().getPrint_Space()));
-		
 	}
 	
 	private Staff get_Last_Staff() {
-		if (get_Staffs().size() != 0) {
+		if (get_Staffs().size() != 0)
 			return get_Staffs().get(get_Staffs().size() - 1);
-		} else
+		else
 			return null;
 	}
 

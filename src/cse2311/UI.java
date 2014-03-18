@@ -282,6 +282,12 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		}
 		
 		else if (e.getSource().equals(update)){
+			userTitle = title.getText();
+			userSubtitle = author.getText();
+			userSpacing = spacing.getValue() / 10;
+			t.set_Title(userTitle);
+			t.set_Subtitle(userSubtitle);
+			t.set_Spacing(userSpacing);
 			generatePDF(null);
 			updatePreview();
 		}
@@ -295,6 +301,12 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				userDirectory = chooseDirectory.getSelectedFile();
 				fileTitle.setText("Saving " + userTitle);
+				userTitle = title.getText();
+				userSubtitle = author.getText();
+				userSpacing = spacing.getValue() / 10;
+				t.set_Title(userTitle);
+				t.set_Subtitle(userSubtitle);
+				t.set_Spacing(userSpacing);
 				generatePDF(userDirectory);
 			}
 			fileTitle.setText("Saved " + userTitle + " to " + userDirectory);
@@ -303,10 +315,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		else if (e.getSource().equals(help)) {
 			try {
 				java.awt.Desktop.getDesktop().browse(new URI("http://www.google.ca"));
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (URISyntaxException e1) {
+			} catch (IOException | URISyntaxException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
@@ -314,15 +323,6 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 	}
 	
 	private void generatePDF(File file) {
-		if (opened) {
-			userTitle = title.getText();
-			userSubtitle = author.getText();
-			userSpacing = spacing.getValue() / 10;
-			t.set_Title(userTitle);
-			t.set_Subtitle(userSubtitle);
-			t.set_Spacing(userSpacing);
-		}
-		
 		try {
 			PdfOutputCreator pdfout = new PdfOutputCreator(file);
 			s = new Style(new Document(PageSize.A4));
@@ -336,7 +336,6 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 
 	private void generatePreview() {
 		updatePreview();
-		
 		a1 = createA1();
 		sidebar.add(a1, BorderLayout.PAGE_END);
 		 	
@@ -362,11 +361,8 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			FileChannel fc = raf.getChannel();
 			buf = fc.map (FileChannel.MapMode.READ_ONLY, 0, fc.size());
 			PDFFile pdfFile = new PDFFile(buf);
-			
 			page = pdfFile.getPage(1);
-		            
 		    Rectangle2D r2d = page.getBBox();
-
 		    width = r2d.getWidth();
 		    height = r2d.getHeight();
 		    width /= 72.0;
@@ -378,18 +374,12 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 
 		    buf.clear();
 		    raf.close();
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-		}
+		} catch (IOException e1) { }
 		
 		if(livePreview != null && image != null){
 			livePreview.setIcon(new ImageIcon(image));
 			livePreview.setPreferredSize(new Dimension(544, 704));
 		}
-		
-		//fileTitle.setText(userTitle + ".pdf");
 	}
 	
 	@Override

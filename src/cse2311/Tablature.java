@@ -49,16 +49,15 @@ public class Tablature {
 	}
 
 	private Measure get_Last_Measure() {
-		if (get_Measures().size() != 0) {
+		if (get_Measures().size() != 0)
 			return get_Measures().get(get_Measures().size() - 1);
-		} else
+		else
 			return null;
 	}
 	
 	public void printMeasures(){
-		for (Measure m : this.get_Measures()){
+		for (Measure m : this.get_Measures())
 			m.printLines();
-		}
 	}
 
 	public int size() {

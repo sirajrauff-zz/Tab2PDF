@@ -12,7 +12,6 @@ public class Staff {
 	}
 
 	public void addToStaff(Measure m) {
-
 		this.appendToLines(m);
 		if (m.isRepeat())
 			this.getrepeatNum().add((m.getRepeatNum()));
@@ -41,10 +40,9 @@ public class Staff {
 	private void appendToLines(Measure m) {
 		int i = 0;
 		for (String line : m.get_Lines()) {
-			
-			if (!(this.get_Lines().size() <= i)) {
+			if (!(this.get_Lines().size() <= i))
 				this.get_Lines().get(i).append(this.barsAdded(m.getBarType(),line));
-			} else {
+			else {
 				this.addStringBuffer();
 				this.get_Lines().get(i).append(this.barsAdded(m.getBarType(),line));
 			}
@@ -81,9 +79,7 @@ public class Staff {
 	}
 
 	private void fixBars() {
-		int i = 0;
-		
-		for(i=0;i<this.get_Lines().size();i++){
+		for(int i = 0; i < this.get_Lines().size(); i++) {
 			String line = this.get_Lines().get(i).toString();
 			this.get_Lines().remove(i);
 			this.my_Lines.add(i,this.fixedLine(line));
@@ -100,7 +96,6 @@ public class Staff {
 	public ArrayList<StringBuffer> get_Lines() {
 		if (this.my_Lines == null)// Lazy initialization
 			this.my_Lines = new ArrayList<StringBuffer>();
-
 		return my_Lines;
 	}
 

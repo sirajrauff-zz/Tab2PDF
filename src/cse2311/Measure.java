@@ -29,21 +29,21 @@ public  class Measure {
 	}
 	
 	private void corrections(){
-		
 		this.checkRepeat();
 		this.checkBarType();
 		this.checkLength();//doest work perfectly
-		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
+		this.setWidth(this.get_Lines().get(0).length() * this.spacing);
 	}
 	
 	private boolean checkRepeat() {
 		StringBuffer temp = new StringBuffer(this.get_Lines().get(0));
-		if( temp.length() <2){
+		if(temp.length() < 2){
 			this.setRepeat(false);
-			return false;}
-		if ((temp.length()!=0 && temp.toString().charAt(temp.length()-2) == '+')){
+			return false;
+		}
+		if ((temp.length()!=0 && temp.toString().charAt(temp.length()-2) == '+')) {
 			this.setRepeat(true);
-			if ((temp.toString().charAt(temp.length()-1) > 47 && temp.toString().charAt(temp.length()-1) < 58)){
+			if ((temp.toString().charAt(temp.length()-1) > 47 && temp.toString().charAt(temp.length()-1) < 58)) {
 				this.setRepeatNum(Integer.parseInt(temp.substring(temp.length()-1)));
 				this.get_Lines().remove(0);
 				this.get_Lines().add(0, temp.substring(0, temp.length()-1).toString());
@@ -56,19 +56,17 @@ public  class Measure {
 
 	private void checkLength() {
 		int longest_Length = -1 ;
-		for (String s : this.get_Lines()){
-			
+		for (String s : this.get_Lines()) {
 			if (longest_Length == -1)
 				longest_Length =s.length();
 			else if(longest_Length>s.length())	
 				longest_Length =s.length();
 		}
-	
-		 ArrayList<String> temp = new  ArrayList<String>() ;
-		for (String s : this.get_Lines()){
-			if(s.charAt(s.length()-1) =='+'){
+		
+		ArrayList<String> temp = new  ArrayList<String>() ;
+		for (String s : this.get_Lines()) {
+			if(s.charAt(s.length()-1) =='+')
 				temp.add(s.substring(0,longest_Length) + "+");
-			}
 			else
 				temp.add(s.substring(0,longest_Length));
 		}
@@ -137,9 +135,8 @@ public  class Measure {
 	}
 	public void printLines(){
 		System.out.println(this.barType);
-		for (String myStr : this.get_Lines()) {
+		for (String myStr : this.get_Lines())
 			   System.out.println(myStr);
-			 }
 		System.out.println();
 	}
 
@@ -161,19 +158,14 @@ public  class Measure {
 	}
 
 	private void recalculateWidth() {
-		if (this.getBarType() == "Both"){
+		if (this.getBarType() == "Both")
 			this.width = 6.6f;	
-		}
-		else if (this.getBarType() == "Right") {
-			this.width = 4.3f;	
-			
-		}
-		else if (this.getBarType() == "Left") {
+		else if (this.getBarType() == "Right") 
 			this.width = 4.3f;
-			}
-		else {
+		else if (this.getBarType() == "Left")
+			this.width = 4.3f;
+		else
 			this.width = .5f;
-		}
 		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
 	}
 }
