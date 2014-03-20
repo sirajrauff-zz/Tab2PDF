@@ -158,11 +158,11 @@ public  class Measure {
 	}
 
 	private void recalculateWidth() {
-		if (this.getBarType() == "Both")
+		if ("Both".equals(this.getBarType()))
 			this.width = 6.6f;	
-		else if (this.getBarType() == "Right") 
+		else if ("Right".equals(this.getBarType())) 
 			this.width = 4.3f;
-		else if (this.getBarType() == "Left")
+		else if ("Left".equals(this.getBarType()))
 			this.width = 4.3f;
 		else
 			this.width = .5f;

@@ -16,7 +16,7 @@ public class Tablature {
 	}
 
 	public void addLineToLastMeasure(String g) {
-		if (this.get_Measures().size() != 0
+		if (!this.get_Measures().isEmpty()
 				&& this.get_Last_Measure().size() != 6) {
 			this.get_Last_Measure().addLine(g);
 		} else {
@@ -49,7 +49,7 @@ public class Tablature {
 	}
 
 	private Measure get_Last_Measure() {
-		if (get_Measures().size() != 0)
+		if (!get_Measures().isEmpty())
 			return get_Measures().get(get_Measures().size() - 1);
 		else
 			return null;

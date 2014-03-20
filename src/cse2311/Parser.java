@@ -1,8 +1,13 @@
 package cse2311;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,8 +19,34 @@ public class Parser {
 	String acceptedSymbols = "[\\x5c\\|\\-\\s,*\\+<>0-9^\\(\\)hp=gSs%ex/]+";
 	String correctLine = "^(\\||\\-|[0-9])("+acceptedSymbols+"(\\s?)+"+")(\\||\\-|[0-9])" ;
 	String measureSeparators = "[\\|]";
-
-	public Parser() { }
+        Logger logger;
+	public Parser() { 
+             logger = Logger.getLogger("MyLog");  
+        FileHandler fh;  
+          
+        try {  
+              
+            // This block configure the logger with handler and formatter  
+            fh = new FileHandler("MyLogFile.log");  
+            logger.addHandler(fh);  
+         
+            SimpleFormatter formatter = new SimpleFormatter();  
+            fh.setFormatter(formatter);  
+              
+         
+              
+        } catch (SecurityException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+          
+         
+        
+        
+        
+        
+        }
 
 	private String subsituteSymbols(String sections) {
 		char repeatNum = '=';
@@ -39,22 +70,30 @@ public class Parser {
 
 		Scanner s = new Scanner(file);
 		Tablature returnTab = new Tablature();
-
+                int i =0;
 		while (s.hasNext()) {
+                        i++;
 			String nextLine = s.nextLine();
 
-			if (nextLine.isEmpty()||  nextLine.matches("\\t")||nextLine.matches("\\s+"))
+			if (nextLine.isEmpty()||  nextLine.matches("\\t")||nextLine.matches("\\s+")){
+                            logger.info("Line "+i+"Wrongly Formated:" +nextLine);
 				continue;
-			
-			if(nextLine.length()<4)
+                        }
+			if(nextLine.length()<4){
+                            logger.info("Line "+i+"Wrongly Formated:" +nextLine);
 				continue;
-		
+                        }
 			if (readHeader(returnTab, nextLine))
 				continue;
-			if(nextLine.indexOf('-')==-1)
+                        
+			if(nextLine.indexOf('-')==-1){
+                            logger.info("Line "+i+"Wrongly Formated:" +nextLine);
 				continue;
-			if(nextLine.indexOf('|')==-1)
+                        }
+			if(nextLine.indexOf('|')==-1){
+                           logger.info("Line "+i+"Wrongly Formated:" +nextLine);
 				continue;
+                        }
 			if (nextLine.split(correctLine).length >0)
 				nextLine = nextLine.substring(0, nextLine.lastIndexOf('|')+1);
 			
@@ -73,7 +112,7 @@ public class Parser {
 				else if (StrTkn.countTokens() >0&& StrTkn.countTokens()<2)
 					returnTab.addLineToLastMeasure(StrTkn.nextToken());
 			} else
-				System.out.println( "UnSupported Symbol in " +nextLine);
+				logger.info("Line "+i+" Wrongly Formated:" +nextLine);
 		}
 		return returnTab;
 	}
@@ -90,7 +129,7 @@ public class Parser {
 		}
 		
 		if (nextLine.matches(spacingRegex)) {
-			returnTab.set_Spacing(Float.valueOf(nextLine.replaceAll("[A-Za-z=]+", "")));
+			returnTab.set_Spacing(Float.valueOf(nextLine.replaceAll("[A-Za-z=]+", ""))%10);
 			return true;
 		}
 		return false;

@@ -30,7 +30,7 @@ public class Staff {
 	
 	public int getTopInt() {
 		int i =-1;
-		if(this.getrepeatNum()!= null && this.getrepeatNum().size()!= 0 ){
+		if(this.getrepeatNum()!= null && !this.getrepeatNum().isEmpty() ){
 			i = this.getrepeatNum().get(0);
 			this.getrepeatNum().remove(0);
 		}
@@ -56,13 +56,13 @@ public class Staff {
 		String left = "D-|";
 		String right = "|-D";
 	
-		if(bar == "Both")
+		if("Both".equals(bar))
 			line= left + line+right;
-		if(bar == "Right")
+		if("Right".equals(bar))
 			line= single + line+right;
-		if(bar == "Left")
+		if("Left".equals(bar))
 			line= left + line+single;
-		if(bar == "Single")
+		if("Single".equals(bar))
 			line= single + line+single;
 		
 		return line;
@@ -73,9 +73,7 @@ public class Staff {
 	}
 
 	public boolean canFitAnother(Measure m) {
-		if (this.getWidth() + m.getWidth() < this.getPrintSpace())
-			return true;
-		return false;
+		return this.getWidth() + m.getWidth() < this.getPrintSpace();
 	}
 
 	private void fixBars() {
@@ -103,7 +101,7 @@ public class Staff {
 		return printSpace;
 	}
 
-	public void setPrintSpace(float printSpace) {
+	private void setPrintSpace(float printSpace) {
 		this.printSpace = printSpace;
 	}
 

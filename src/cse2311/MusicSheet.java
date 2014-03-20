@@ -19,7 +19,7 @@ public class MusicSheet {
 
 	private void makeStaffs(Tablature tab) {
 		for (Measure m: tab.get_Measures()){
-			if (this.get_Staffs().size()!=0 &&
+			if (!this.get_Staffs().isEmpty() &&
 				this.get_Last_Staff().canFitAnother(m)) {
 					this.get_Last_Staff().addToStaff(m);
 			} else {
@@ -34,7 +34,7 @@ public class MusicSheet {
 	}
 	
 	private Staff get_Last_Staff() {
-		if (get_Staffs().size() != 0)
+		if (!get_Staffs().isEmpty())
 			return get_Staffs().get(get_Staffs().size() - 1);
 		else
 			return null;

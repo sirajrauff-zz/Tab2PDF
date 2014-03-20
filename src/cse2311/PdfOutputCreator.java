@@ -30,14 +30,16 @@ public class PdfOutputCreator {
 
 	public void makePDF(MusicSheet ms) throws IOException, DocumentException {		
 		s = ms.getMy_Style();
+                fontSize=s.my_Font_Size;
 		this.spacing = ms.get_Spacing();
 		Document document = s.document;
 		
 		if (defaultLocation) {
 			write = PdfWriter.getInstance(document, new FileOutputStream(new File(ms.get_Title() + ".pdf")));
 		} else {
-			write = PdfWriter.getInstance(document, new FileOutputStream(
-					new File(outputLocation.getAbsolutePath() + "\\" + ms.get_Title() + ".pdf")));
+		System.out.println(outputLocation.getParent());
+                    write = PdfWriter.getInstance(document, new FileOutputStream(
+					new File(outputLocation.getParent() + "/" + ms.get_Title() + ".pdf")));
 		}
 		document.open();
 		write.open();
@@ -60,7 +62,7 @@ public class PdfOutputCreator {
 			for (StringBuffer linein : st.get_Lines()) {
 				j++;
 				String line = linein.toString();
-				// right margin
+				// left margin
 				drawHorLine(currX, currY, s.leftMargin, draw);
 				currX += s.leftMargin;
 
@@ -89,8 +91,7 @@ public class PdfOutputCreator {
 						
 					} else if (l == '+'&&j==0) {
 						String repeat = "Repeat " + st.getTopInt() + " times";
-						text(repeat,
-								currX - (repeat.length() * ms.get_Spacing()) + 18,
+						text(repeat,currX - 40f ,
 								currY + 1 + s.dist_Lines, s.my_Fontface, 7, draw);
 
 					} else if (l == '>') {
@@ -123,10 +124,11 @@ public class PdfOutputCreator {
 						lastWordY = currY;
 						
 						if ((l > 47 && l < 58) && (m > 47 && m < 58)) {
-							currX -=s.get_width(l)/2;
-							text(l + "", currX, currY, s.my_Fontface, fontSize,draw);
+							
+                                                        currX -=s.get_width(l)/2;
+							text(l + "", currX + 1f, currY, s.my_Fontface, fontSize,draw);
 							currX += s.get_width(l);
-							text(m + "", currX, currY,s.my_Fontface, fontSize, draw);
+							text(m + "", currX-.5f, currY,s.my_Fontface, fontSize, draw);
                                                         currX += s.get_width(m);
 							
 							drawHorLine(currX,currY,(2f * ms.get_Spacing())- (s.get_width(l)/2 + s.get_width(m)), draw);
@@ -135,8 +137,9 @@ public class PdfOutputCreator {
 							currX += (2f * ms.get_Spacing())- (s.get_width(l) + s.get_width(m));
 							
 							z++;
+                                                        
 						} else {
-							text(l + "", currX, currY, s.my_Fontface, fontSize,draw);
+							text(l + "", currX, currY, s.my_Fontface, fontSize, draw);
 							drawHorLine(currX + s.get_width(l), currY,ms.get_Spacing() - s.get_width(l), draw);
 							currX = currX + ms.get_Spacing();
 						}
@@ -153,7 +156,8 @@ public class PdfOutputCreator {
 			currY = currY - s.dist_Staffs;
 		}
 		document.close();
-		write.close();
+                
+                write.close();
 	}
 	
 	//currX =currX+ (ms.get_Spacing()-s.get_width(l)) + (ms.get_Spacing()-s.get_width(line.charAt(z-2))) + (ms.get_Spacing()-ms.get_Spacing()/5);
