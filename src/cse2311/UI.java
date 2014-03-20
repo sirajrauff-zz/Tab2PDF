@@ -1,75 +1,53 @@
 package cse2311;
 
-
-/**
- * 
- */
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.ImageIcon;
- 
 import javax.swing.JPanel;
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.PageSize;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 
-import cse2311.MusicSheet;
-import cse2311.Parser;
-import cse2311.PdfOutputCreator;
-import cse2311.Style;
-import cse2311.Tablature;
- 
 public class UI extends JFrame implements ActionListener, ChangeListener {
-	private static final long serialVersionUID = 1L;
-	float userSpacing;
-	boolean opened = false;
+   
+    private static final long serialVersionUID = 1L;
+    float userSpacing;
+    boolean opened = false;
+ 
     String filePath, userTitle, userSubtitle;
     JTextField fileTitle;
     File txtFile, userDirectory = null;
-	Tablature t;
-	MusicSheet ms;
+    Tablature t;
+    MusicSheet ms;
+    
     Parser c = new Parser();
-	Style s = new Style(new Document(PageSize.A4));
+    Style s = new Style(new Document(PageSize.A4));
 	
     /**
      * Create the GUI and show it.  For thread safety,
@@ -93,10 +71,11 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
         //Create and set up the content pane.
         UI demo = new UI();
         //frame.setJMenuBar(demo.createMenuBar());
+        
         frame.add(demo.createBody(), BorderLayout.CENTER);
  
         //Display the window.
-        frame.setResizable(false);
+        frame.setResizable(true);
         frame.setVisible(true);
         frame.pack();
         copy = frame;
@@ -224,7 +203,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		return temp;
     }
     
-    /** Returns an ImageIcon, or null if the path was invalid. */
+ 
     protected static ImageIcon createImageIcon(String path) {
         java.net.URL imgURL = UI.class.getResource(path);
         if (imgURL != null) {
@@ -247,9 +226,9 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			fileTitle.setText("Opening...");
 			if (prevDir != null)
 				openFile.setCurrentDirectory(new File(prevDir));
-			
-			openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));	
 			openFile.setAcceptAllFileFilterUsed(false);
+			openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));	
+			
 			int returnVal = openFile.showOpenDialog(this);
 			
 			txtFile = openFile.getSelectedFile();
@@ -350,6 +329,7 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 		livePreview.setPreferredSize(new Dimension(544, 704));
 		copy.pack();
 		opened = true;
+                deleteOld();
 	}
 
     PDFPage page;
@@ -380,10 +360,26 @@ public class UI extends JFrame implements ActionListener, ChangeListener {
 			livePreview.setIcon(new ImageIcon(image));
 			livePreview.setPreferredSize(new Dimension(544, 704));
 		}
+                deleteOld();
 	}
 	
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
 		// TODO update preview
 	}
+      public void deleteOld() {	
+    	try{
+ 
+    		File file = new File(userTitle+".pdf");
+ 
+    		file.delete();
+    		
+ 
+    	}catch(Exception e){
+ 
+    		e.printStackTrace();
+ 
+    	}
+ 
+    }
 }
