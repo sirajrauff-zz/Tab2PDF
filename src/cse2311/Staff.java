@@ -1,10 +1,10 @@
 package cse2311;
+
 import java.util.ArrayList;
 
 public class Staff {
-	private ArrayList<StringBuffer> my_Lines;
-	private float printSpace;
-	private float width;
+	private ArrayList<StringBuffer> myLines;
+	private float printSpace, width;
 	private ArrayList<Integer>  repeatNum ;
 
 	public Staff(float printSpace) {
@@ -19,7 +19,7 @@ public class Staff {
 	}
 
 	public ArrayList<Integer> getrepeatNum() {
-		if (this.repeatNum == null){// Lazy initialization
+		if (this.repeatNum == null){ // Lazy initialization
 				this.repeatNum = new ArrayList<Integer>();}
 		return repeatNum;
 	}
@@ -39,37 +39,37 @@ public class Staff {
 	
 	private void appendToLines(Measure m) {
 		int i = 0;
-		for (String line : m.get_Lines()) {
-			if (!(this.get_Lines().size() <= i))
-				this.get_Lines().get(i).append(this.barsAdded(m.getBarType(),line));
+		for (String line : m.getLines()) {
+			if (!(this.getLines().size() <= i))
+				this.getLines().get(i).append(this.barsAdded(m.getBarType(),line));
 			else {
 				this.addStringBuffer();
-				this.get_Lines().get(i).append(this.barsAdded(m.getBarType(),line));
+				this.getLines().get(i).append(this.barsAdded(m.getBarType(),line));
 			}
 			i++;
 		}
 		this.fixBars();
 	}
 
-	private String barsAdded(String bar,String line) {
+	private String barsAdded(String bar, String line) {
 		String single = "|";
 		String left = "D-|";
 		String right = "|-D";
 	
 		if("Both".equals(bar))
-			line= left + line+right;
+			line= left + line + right;
 		if("Right".equals(bar))
-			line= single + line+right;
+			line= single + line + right;
 		if("Left".equals(bar))
-			line= left + line+single;
+			line= left + line + single;
 		if("Single".equals(bar))
-			line= single + line+single;
+			line= single + line + single;
 		
 		return line;
 	}
 
 	public void addStringBuffer() {
-		this.get_Lines().add(new StringBuffer());
+		this.getLines().add(new StringBuffer());
 	}
 
 	public boolean canFitAnother(Measure m) {
@@ -77,10 +77,10 @@ public class Staff {
 	}
 
 	private void fixBars() {
-		for(int i = 0; i < this.get_Lines().size(); i++) {
-			String line = this.get_Lines().get(i).toString();
-			this.get_Lines().remove(i);
-			this.my_Lines.add(i,this.fixedLine(line));
+		for(int i = 0; i < this.getLines().size(); i++) {
+			String line = this.getLines().get(i).toString();
+			this.getLines().remove(i);
+			this.myLines.add(i, this.fixedLine(line));
 		}
 	}
 
@@ -91,10 +91,10 @@ public class Staff {
 		return new StringBuffer(line);
 	}	
 
-	public ArrayList<StringBuffer> get_Lines() {
-		if (this.my_Lines == null)// Lazy initialization
-			this.my_Lines = new ArrayList<StringBuffer>();
-		return my_Lines;
+	public ArrayList<StringBuffer> getLines() {
+		if (this.myLines == null)// Lazy initialization
+			this.myLines = new ArrayList<StringBuffer>();
+		return myLines;
 	}
 
 	public float getPrintSpace() {
@@ -114,7 +114,7 @@ public class Staff {
 	}
 
 	public void printLines() {
-		for (StringBuffer m : my_Lines) {
+		for (StringBuffer m : myLines) {
 			System.out.println(m.toString());
 		}
 		System.out.println();

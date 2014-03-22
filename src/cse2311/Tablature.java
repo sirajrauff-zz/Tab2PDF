@@ -1,24 +1,21 @@
 package cse2311;
 
-
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 public class Tablature {
-	private ArrayList<Measure> my_Measure;
-	private float my_Spacing = 5;
-	private String my_Title;
-	private String my_Subtitle;
+	private ArrayList<Measure> myMeasure;
+	private float mySpacing = 5;
+	private String myTitle, mySubtitle;
 
 	public Tablature() {
-		this.my_Subtitle = "Default";
-		this.my_Title = "Default";
+		this.mySubtitle = "Default";
+		this.myTitle = "Default";
 	}
 
 	public void addLineToLastMeasure(String g) {
-		if (!this.get_Measures().isEmpty()
-				&& this.get_Last_Measure().size() != 6) {
-			this.get_Last_Measure().addLine(g);
+		if (!this.getMeasures().isEmpty() && this.getLastMeasure().size() != 6) {
+			this.getLastMeasure().addLine(g);
 		} else {
 			this.addMeasure();
 			this.addLineToLastMeasure(g);
@@ -26,8 +23,7 @@ public class Tablature {
 	}
 
 	public void addMultiMeasureLine(StringTokenizer StrTkn) {
-	
-		if (this.get_Measures().size() < StrTkn.countTokens() || this.get_Last_Measure().size() == 6) {
+		if (this.getMeasures().size() < StrTkn.countTokens() || this.getLastMeasure().size() == 6) {
 			while (StrTkn.hasMoreTokens()) {
 				this.addMeasure();
 				this.addLineToLastMeasure(StrTkn.nextToken());
@@ -40,63 +36,63 @@ public class Tablature {
 	}
 
 	private void addMeasure() {
-		this.get_Measures().add(new Measure(this.get_Spacing()));
+		this.getMeasures().add(new Measure(this.getSpacing()));
 	}
 
-	private void addLineToMeasure(int index, String s) {
-		if(this.get_Measures().size()>=index)
-			this.get_Measures().get(get_Measures().size() - index).addLine(s);
+	private void addLineToMeasure(int index, String inputLine) {
+		if(this.getMeasures().size() >= index)
+			this.getMeasures().get(getMeasures().size() - index).addLine(inputLine);
 	}
 
-	private Measure get_Last_Measure() {
-		if (!get_Measures().isEmpty())
-			return get_Measures().get(get_Measures().size() - 1);
+	private Measure getLastMeasure() {
+		if (!getMeasures().isEmpty())
+			return getMeasures().get(getMeasures().size() - 1);
 		else
 			return null;
 	}
 	
-	public void printMeasures(){
-		for (Measure m : this.get_Measures())
+	public void printMeasures() {
+		for (Measure m : this.getMeasures())
 			m.printLines();
 	}
 
 	public int size() {
-		return this.get_Measures().size();
+		return this.getMeasures().size();
 	}
 
-	public float get_Spacing() {
-		return my_Spacing;
+	public float getSpacing() {
+		return mySpacing;
 	}
 
-	public ArrayList<Measure> get_Measures() {
-		if (this.my_Measure == null)// Lazy initialization
-			this.my_Measure = new ArrayList<Measure>();
-		return my_Measure;
+	public ArrayList<Measure> getMeasures() {
+		if (this.myMeasure == null) // Lazy initialization
+			this.myMeasure = new ArrayList<Measure>();
+		return myMeasure;
 	}
 
-	public void set_Measures(ArrayList<Measure> my_Measure) {
-		this.my_Measure = my_Measure;
+	public void setMeasures(ArrayList<Measure> myMeasure) {
+		this.myMeasure = myMeasure;
 	}
 
-	public void set_Spacing(float my_Spacing) {
-		for(Measure m : this.get_Measures())
-			m.setSpacing(my_Spacing);
-		this.my_Spacing = my_Spacing;
+	public void setSpacing(float mySpacing) {
+		for(Measure m : this.getMeasures())
+			m.setSpacing(mySpacing);
+		this.mySpacing = mySpacing;
 	}
 
-	public String get_Title() {
-		return my_Title;
+	public String getTitle() {
+		return myTitle;
 	}
 
-	public void set_Title(String my_Title) {
-		this.my_Title = my_Title;
+	public void setTitle(String myTitle) {
+		this.myTitle = myTitle;
 	}
 
-	public String get_Subtitle() {
-		return my_Subtitle;
+	public String getSubtitle() {
+		return mySubtitle;
 	}
 
-	public void set_Subtitle(String my_Subtitle) {
-		this.my_Subtitle = my_Subtitle;
+	public void setSubtitle(String mySubtitle) {
+		this.mySubtitle = mySubtitle;
 	}
 }

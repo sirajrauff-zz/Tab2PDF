@@ -3,24 +3,23 @@ package cse2311;
 import java.util.ArrayList;
 
 public  class Measure {
-	private ArrayList<String> my_Lines;
+	private ArrayList<String> myLines;
 	private String barType;
 	private boolean repeat;
 	private int repeatNum;
-	private float spacing;
-	private float width = 0;
+	private float spacing, width = 0;
 
-	public Measure(float f){
+	public Measure(float f) {
 		this.spacing = f;
 	}
 	
-	public Measure(String firstLine){
+	public Measure(String firstLine) {
 		this.addLine(firstLine);
 	}
 	
 	public boolean addLine(String line) {
-		if(get_Lines().size()<6){
-			get_Lines().add(line);
+		if(getLines().size() < 6){
+			getLines().add(line);
 				if(this.size() == 6)
 					this.corrections();
 			return true;
@@ -28,56 +27,56 @@ public  class Measure {
 		return false;
 	}
 	
-	private void corrections(){
+	private void corrections() {
 		this.checkRepeat();
 		this.checkBarType();
-		this.checkLength();//doest work perfectly
-		this.setWidth(this.get_Lines().get(0).length() * this.spacing);
+		this.checkLength();//doesn't work perfectly
+		this.setWidth(this.getLines().get(0).length() * this.spacing);
 	}
 	
 	private boolean checkRepeat() {
-		StringBuffer temp = new StringBuffer(this.get_Lines().get(0));
+		StringBuffer temp = new StringBuffer(this.getLines().get(0));
 		if(temp.length() < 2){
 			this.setRepeat(false);
 			return false;
 		}
-		if ((temp.length()!=0 && temp.toString().charAt(temp.length()-2) == '+')) {
+		if (((temp.length()!= 0) && (temp.toString().charAt(temp.length() - 2) == '+'))) {
 			this.setRepeat(true);
-			if ((temp.toString().charAt(temp.length()-1) > 47 && temp.toString().charAt(temp.length()-1) < 58)) {
-				this.setRepeatNum(Integer.parseInt(temp.substring(temp.length()-1)));
-				this.get_Lines().remove(0);
-				this.get_Lines().add(0, temp.substring(0, temp.length()-1).toString());
+			if (((temp.toString().charAt(temp.length()-1) > 47) && (temp.toString().charAt(temp.length() - 1) < 58))) {
+				this.setRepeatNum(Integer.parseInt(temp.substring(temp.length() - 1)));
+				this.getLines().remove(0);
+				this.getLines().add(0, temp.substring(0, temp.length() - 1).toString());
 			}
-
-		} else 
+		} 
+		else 
 			this.setRepeat(false);
 		return true;
 	}
 
 	private void checkLength() {
-		int longest_Length = -1 ;
-		for (String s : this.get_Lines()) {
-			if (longest_Length == -1)
-				longest_Length =s.length();
-			else if(longest_Length>s.length())	
-				longest_Length =s.length();
+		int longestLength = -1 ;
+		for (String s : this.getLines()) {
+			if (longestLength == -1)
+				longestLength = s.length();
+			else if (longestLength > s.length())	
+				longestLength = s.length();
 		}
 		
 		ArrayList<String> temp = new  ArrayList<String>() ;
-		for (String s : this.get_Lines()) {
-			if(s.charAt(s.length()-1) =='+')
-				temp.add(s.substring(0,longest_Length) + "+");
+		for (String s : this.getLines()) {
+			if(s.charAt(s.length() - 1) =='+')
+				temp.add(s.substring(0, longestLength) + "+");
 			else
-				temp.add(s.substring(0,longest_Length));
+				temp.add(s.substring(0, longestLength));
 		}
-		this.setMy_Lines(temp);
+		this.setMyLines(temp);
 	}
 
 	private void checkBarType() {
-		char left = this.get_Lines().get(2).charAt(0);
-		char right = this.get_Lines().get(2).charAt(this.get_Lines().get(2).length()-1);
+		char left = this.getLines().get(2).charAt(0);
+		char right = this.getLines().get(2).charAt(this.getLines().get(2).length()-1);
 	
-		if (left ==right && right == '*') {
+		if (left == right && right == '*') {
 			this.barType = "Both";
 			this.setWidth(6.6f);
 		}
@@ -91,7 +90,7 @@ public  class Measure {
 			this.setWidth(4.3f);
 		}
 		else {
-			this.barType ="Single";
+			this.barType = "Single";
 			this.setWidth(.5f);
 		}
 	}
@@ -109,7 +108,7 @@ public  class Measure {
 	}
 	
 	public int size() {
-		return get_Lines().size();
+		return getLines().size();
 	}
 
 	public void setRepeat(boolean repeat) {
@@ -124,18 +123,19 @@ public  class Measure {
 		this.repeatNum = repeatNum;
 	}
 	
-	public ArrayList<String> get_Lines() {
-		if(this.my_Lines == null)//Lazy initialization
-			this.my_Lines = new ArrayList<String>();
-		return this.my_Lines;
+	public ArrayList<String> getLines() {
+		if (this.myLines == null) //Lazy initialization
+			this.myLines = new ArrayList<String>();
+		return this.myLines;
 	}
 
-	public void setMy_Lines(ArrayList<String> my_Lines) {
-		this.my_Lines = my_Lines;
+	public void setMyLines(ArrayList<String> myLines) {
+		this.myLines = myLines;
 	}
-	public void printLines(){
+	
+	public void printLines() {
 		System.out.println(this.barType);
-		for (String myStr : this.get_Lines())
+		for (String myStr : this.getLines())
 			   System.out.println(myStr);
 		System.out.println();
 	}
@@ -166,6 +166,6 @@ public  class Measure {
 			this.width = 4.3f;
 		else
 			this.width = .5f;
-		this.setWidth(this.get_Lines().get(0).length()*this.spacing);
+		this.setWidth(this.getLines().get(0).length() * this.spacing);
 	}
 }
