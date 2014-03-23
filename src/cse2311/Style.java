@@ -7,7 +7,7 @@ import com.itextpdf.text.pdf.BaseFont;
 public class Style {
     public BaseFont myFontface;
 	private int myFontSize = 8, myTitleSize = 24, mySubTitleSize = 16;
-	private float distSections = 30f, distLines = 7f;
+	private float distMeasures = 30f, distLines = 7f;
 	float leftMargin = 36f, rightMargin = 36f;
 
 	public Style() {
@@ -46,12 +46,12 @@ public class Style {
 		return mySubTitleSize;
 	}
 	
-	public void setSectionDistance(float userDistance) {
-		distSections = userDistance;
+	public void setMeasureDistance(float userDistance) {
+		distMeasures = userDistance;
 	}
 	
 	public float getSectionDistance() {
-		return distSections;
+		return distMeasures;
 	}
 	
 	public void setLineDistance(float userDistance) {

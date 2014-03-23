@@ -62,10 +62,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     
     int view = 0, indexOfHelvetica;
     double width, height;
-    float defaultSpacing = 5, userSpacing, userMeasureDistance = 30f, userLineDistance = 7f;
-    boolean opened = false;
-    String filePath, userTitle, userSubtitle, prevDir, defaultTitle, defaultSubtitle;
-    File txtFile, userDirectory = null, output;
+    float defaultSpacing = 5;
+    boolean opened = false, allow;
+    String filePath, prevDir, defaultTitle, defaultSubtitle;
+    File txtFile, output;
     Tablature t;
     MusicSheet ms;
     Parser c = new Parser();
@@ -252,7 +252,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         fontTemp.add(fontSize);
     	
     	JLabel spacingLabel = new JLabel("<html><u>Spacing"); //Spacing
-    	numberSpacing = new JSlider(1, 99, (int) (userSpacing * 10));
+    	numberSpacing = new JSlider(1, 99, (int) (t.getSpacing() * 10));
     	numberSpacing.setMinorTickSpacing(10);
     	numberSpacing.setPaintTicks(true);
     	numberSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
@@ -269,7 +269,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	measureSpacing.addMouseListener(this);
     	measureSpacing.setToolTipText("Set spacing between measures in the tablature");
     	JPanel spacingStaffsTemp = new JPanel();
-    	spacingStaffsTemp.add(new JLabel("  Sections:"));
+    	spacingStaffsTemp.add(new JLabel("  Measures:"));
     	spacingStaffsTemp.add(measureSpacing);
     	
     	lineSpacing = new JSlider(20, 210, 70); //Line spacing
@@ -419,25 +419,25 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				try {
 					t = c.readFile(txtFile);
-			        userTitle = defaultTitle = t.getTitle();
-			        userSubtitle = defaultSubtitle = t.getSubtitle();
-			        userSpacing = defaultSpacing = t.getSpacing();
+			        defaultTitle = t.getTitle();
+			        defaultSubtitle = t.getSubtitle();
+			        defaultSpacing = t.getSpacing();
 					generatePDF(defaultZoom);
 					
 			        save.setEnabled(true);
 			        print.setEnabled(true);
 			        saveMenu.setEnabled(true);
 			        printMenu.setEnabled(true);
-			        fileTitle.setText("Opened " + userTitle + ".txt");
-					frame.setTitle("Tab2PDF - " + userTitle + ".pdf");
+			        fileTitle.setText("Opened " + t.getTitle() + ".txt");
+					frame.setTitle("Tab2PDF - " + t.getTitle() + ".pdf");
 				} catch (IOException e2) {
 					e2.printStackTrace();
 				}
 
-				title.setText(userTitle);
-				author.setText(userSubtitle);
-				measureSpacing.setValue((int) userMeasureDistance * 10);
-				lineSpacing.setValue((int) userLineDistance * 10);
+				title.setText(defaultTitle);
+				author.setText(defaultSubtitle);
+				measureSpacing.setValue(300);
+				lineSpacing.setValue(70);
 			}
 			else
 				fileTitle.setText("Cannot open selected file.");
@@ -445,7 +445,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		
 		else if (e.getSource().equals(save) || e.getSource().equals(saveMenu)) {
 			JFileChooser saveFile = new JFileChooser();
-			output = new File("temp.pdf");
+			output = new File(t.getTitle() + ".pdf");
             saveFile.setAcceptAllFileFilterUsed(false);
 			saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
 			saveFile.setCurrentDirectory(new File(prevDir));
@@ -458,7 +458,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             	if (!destFile.getAbsolutePath().endsWith(".pdf"))
             		destFile = new File(destFile.getAbsolutePath().concat(".pdf"));
             		
-            	boolean allow = true;
+            	allow = true;
             	if (destFile.exists())
             		allow = JOptionPane.showConfirmDialog(null, "File already exists, overwrite?") == JOptionPane.OK_OPTION;
     			
@@ -466,12 +466,13 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             		FileChannel source = null;
  	                FileChannel destination = null;
                 	try {
-	                    source = new FileInputStream(output).getChannel();
+	                    source = new FileInputStream(new File("temp.pdf")).getChannel();
 	                    destination = new FileOutputStream(destFile).getChannel();
 	                    destination.transferFrom(source, 0, source.size());
 
-	        			fileTitle.setText("Saved " + userTitle + " to " + destFile.getParent());
+	        			fileTitle.setText("Saved " + t.getTitle() + " to " + destFile.getParent());
                 	} catch(Exception ex) { 
+                		JOptionPane.showMessageDialog(frame, "Cannot save, file in use.");
                 	} finally {
  	                    if(source != null) {
  	                        try {
@@ -526,7 +527,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 					e1.printStackTrace();
 				}
 			}
-			fileTitle.setText("Printed " + userTitle + ".pdf");
+			fileTitle.setText("Printed " + t.getTitle() + ".pdf");
 		}
 		
 		else if (e.getSource().equals(fontSize) ||e.getSource().equals(fontSizeTitle) 
@@ -554,17 +555,12 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			fontSizeTitle.setSelectedIndex(10); //Reset GUI
 			fontSizeAuthor.setSelectedIndex(6);
 			title.setText(defaultTitle);
-			userTitle = defaultTitle;
 			author.setText(defaultSubtitle);
-			userSubtitle = defaultSubtitle;
 			fontType.setSelectedIndex(indexOfHelvetica);
 			fontSize.setSelectedIndex(1);
-			numberSpacing.setValue((int) (defaultSpacing * 10));
-			userSpacing = defaultSpacing;
+			numberSpacing.setValue(50);
 			measureSpacing.setValue(300);
-			userMeasureDistance = 30f;
 			lineSpacing.setValue(70);
-			userLineDistance = 7f;
 			leftMargin.setValue(36);
 			rightMargin.setValue(36);
 
@@ -574,18 +570,17 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			s.setFontSize(8);
 			s.setMyTitleSize(24);
 			s.setMySubTitleSize(16);
-			s.setLineDistance(userLineDistance);
-			s.setSectionDistance(userMeasureDistance);
+			s.setLineDistance(7f);
+			s.setMeasureDistance(30f);
 			
 			generatePDF(defaultZoom);
+			fileTitle.setText("Values reset to default.");
 		}
 	}
 	
 	private void generatePDF(int zoomLevel) {
 		try {
 			PdfOutputCreator pdfout = new PdfOutputCreator();
-			s.setLineDistance(userLineDistance);
-			s.setSectionDistance(userMeasureDistance);
 			ms = new MusicSheet(t, s);
 			pdfout.makePDF(ms);
 		} catch (IOException | DocumentException e1) {
@@ -697,10 +692,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if (e.getSource().equals(title) || e.getSource().equals(author)) {
-			userTitle = title.getText();
-			userSubtitle = author.getText();
-			t.setTitle(userTitle);
-			t.setSubtitle(userSubtitle);
+			t.setTitle(title.getText());
+			t.setSubtitle(author.getText());
 			generatePDF(zoomSlide.getValue());
 		}
 		
@@ -741,16 +734,15 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	        updatePreview(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(numberSpacing)) {
-			userSpacing = numberSpacing.getValue() / 10;
-			t.setSpacing(userSpacing);
+			t.setSpacing(numberSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(measureSpacing)) {
-			userMeasureDistance = ((float) (measureSpacing.getValue()) / 10f);
+			s.setMeasureDistance((float) (measureSpacing.getValue() / 10f));
 			generatePDF(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(lineSpacing)) {
-			userLineDistance = ((float) (lineSpacing.getValue()) / 10);
+			s.setLineDistance((float) (lineSpacing.getValue() / 10));
 			generatePDF(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(leftMargin)) {
