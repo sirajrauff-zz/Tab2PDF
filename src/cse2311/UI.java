@@ -17,8 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -44,6 +42,7 @@ import com.itextpdf.text.DocumentException;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
+import java.util.Hashtable;
 
 public class UI extends JFrame implements ActionListener, KeyListener, MouseListener, FocusListener {
     private static final long serialVersionUID = 1L;
@@ -216,8 +215,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	fontSizeTitle = new JComboBox<Integer>(fontSizes);
     	fontSizeTitle.setSelectedIndex(10);
     	fontSizeTitle.setToolTipText("Change font size of the title");
+        fontSizeTitle.addActionListener(this);
     	title = new JTextField(15);
     	title.addKeyListener(this);
+ 
     	title.setToolTipText("Change title of the tablature");
     	JPanel titleTemp = new JPanel();
     	titleTemp.add(new JLabel("    Title: "));
@@ -532,7 +533,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		
 		else if (e.getSource().equals(fontSize) ||e.getSource().equals(fontSizeTitle) 
 				|| e.getSource().equals(fontSizeAuthor) || e.getSource().equals(fontType)) {
-			s.myFontface = FontSelector.getFont(fontType.getSelectedIndex());
+	    s.myFontface = FontSelector.getFont(fontType.getSelectedIndex());
             s.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
             s.setMyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
             s.setMySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
@@ -552,9 +553,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 		
 		else if (e.getSource().equals(reset)) {
-			fontSizeTitle.setSelectedIndex(10); //Reset GUI
+			
+                        fontSizeTitle.setSelectedIndex(10); //Reset GUI
 			fontSizeAuthor.setSelectedIndex(6);
-			title.setText(defaultTitle);
+                        title.setText(defaultTitle);
 			author.setText(defaultSubtitle);
 			fontType.setSelectedIndex(indexOfHelvetica);
 			fontSize.setSelectedIndex(1);
@@ -563,6 +565,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			lineSpacing.setValue(70);
 			leftMargin.setValue(36);
 			rightMargin.setValue(36);
+                        zoomSlide.setValue(defaultZoom);
 
 			t.setTitle(defaultTitle); //Reset tab
 			t.setSubtitle(defaultSubtitle);
@@ -572,6 +575,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			s.setMySubTitleSize(16);
 			s.setLineDistance(7f);
 			s.setMeasureDistance(30f);
+                        s.setleftMargin(36f);
+                        s.setrightMargin(36f);
+                        
 			
 			generatePDF(defaultZoom);
 			fileTitle.setText("Values reset to default.");
@@ -746,11 +752,11 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			generatePDF(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(leftMargin)) {
-			s.leftMargin = (float) leftMargin.getValue();
+			s.setleftMargin((float) leftMargin.getValue());
 			generatePDF(zoomSlide.getValue());
         }
 		else if (e.getSource().equals(rightMargin)) {
-			s.rightMargin = (float) rightMargin.getValue() ;
+			s.setrightMargin((float) rightMargin.getValue());
 			generatePDF(zoomSlide.getValue());
 		}
 	}
