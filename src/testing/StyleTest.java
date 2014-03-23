@@ -19,14 +19,14 @@ public class StyleTest {
 	@Before
 	public void setUp() throws Exception {
 		document = new Document();
-		test = new Style(document);
+		//test = new Style(document); ERROR
 		font = BaseFont.createFont(BaseFont.HELVETICA,BaseFont.WINANSI, false);
 	}
 
 	@Test
 	public void testStyle() { //Please note the DocumentException and IOexception shouldn't occur ever
 		Document fail = null;
-		Style test1 = new Style(fail);
+		//Style test1 = new Style(fail); ERROR
 		fail("ask TA");
 	}
 

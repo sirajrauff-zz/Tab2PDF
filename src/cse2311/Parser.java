@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.FileHandler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
@@ -25,7 +24,7 @@ public class Parser {
         logger = Logger.getLogger("MyLog");  
         FileHandler fh;  
         try { // This block configure the logger with handler and formatter  
-            fh = new FileHandler("logs/MyLogFile"+System.currentTimeMillis()+".log");  
+            fh = new FileHandler("logs/MyLogFile " + System.currentTimeMillis() + ".log");  
             logger.addHandler(fh);  
          
             SimpleFormatter formatter = new SimpleFormatter();  

@@ -3,7 +3,6 @@ package cse2311;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -18,7 +17,7 @@ public class PdfOutputCreator {
 	int fontSize = 8;
 	float spacing;
 	Style s;
-        String fileTilte;
+    String fileTitle;
 	File outputLocation;
 	PdfWriter write;
 	
@@ -31,8 +30,7 @@ public class PdfOutputCreator {
 		Document document = new Document(PageSize.A4);
 		FileOutputStream documentStream;
 		
-		write = PdfWriter.getInstance(document, documentStream = new FileOutputStream(new File(" .pdf")));
-		
+		write = PdfWriter.getInstance(document, documentStream = new FileOutputStream(new File("temp.pdf")));
 		document.open();
 		write.open();
 		PdfContentByte draw = write.getDirectContent();
@@ -40,8 +38,8 @@ public class PdfOutputCreator {
 		printTitle(ms.getTitle(), ms.getSubtitle(), document);
 
 		float locationX = 0.0f;
-		float locationY = document.top()- (s.getmySubTitleSize()+s.getmyTitleSize()+50f);
-		float lastWordX = locationX;// location of last printed num/letter for arc
+		float locationY = document.top() - (s.getMySubTitleSize() + s.getMyTitleSize() + 50f);
+		float lastWordX = locationX; // location of last printed number/letter for arc
 		float lastWordY = locationY;
 
 		for (Staff st : ms.getStaffs()) {
@@ -53,11 +51,9 @@ public class PdfOutputCreator {
 			int j = -1;
 			for (StringBuffer linein : st.getLines()) {
 				j++;
-				String line = linein.toString();
-				// left margin
-				drawHorLine(locationX, locationY, s.leftMargin, draw);
+				String line = linein.toString(); 
+				drawHorLine(locationX, locationY, s.leftMargin, draw); // left margin
 				locationX += s.leftMargin;
-                               
 
 				for (int z = 0; z < line.length(); z++) {
 					char l = line.charAt(z);
@@ -151,20 +147,13 @@ public class PdfOutputCreator {
 		documentStream.close();
 	}
 	
-	/*currX = currX + (spacing - s.getwidth(l)) + (spacing - s.getwidth(line.charAt(z - 2))) 
-					+ (ms.get_Spacing() - spacing / 5);*/
 	private void printTitle(String title, String subtitle, Document document)
 			throws DocumentException {
-		Font fonts =new Font(s.myFontface,s.getmyTitleSize());
-				
-           
-		Paragraph Title = new Paragraph(title,fonts);
+		Paragraph Title = new Paragraph(title, new Font(s.myFontface, s.getMyTitleSize()));
 		Title.setAlignment(1);
 		document.add(Title);
-               
-                fonts.setSize(s.getmySubTitleSize());
-		Paragraph subTitle = new Paragraph(subtitle,fonts);
-
+		
+		Paragraph subTitle = new Paragraph(subtitle, new Font(s.myFontface, s.getMySubTitleSize()));
 		subTitle.setAlignment(1);
 		document.add(subTitle);
 	}
@@ -221,8 +210,8 @@ public class PdfOutputCreator {
 	}
 
 	private void drawDiagonal(float currX, float currY, PdfContentByte draw) {
-		draw.moveTo(currX +2.5f, currY-2f);
-		draw.lineTo(currX+spacing-.5f,  currY+2f);
+		draw.moveTo(currX + 2.5f, currY - 2f);
+		draw.lineTo(currX+spacing - 0.5f, currY + 2f);
 		draw.stroke();
 
 	}

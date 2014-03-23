@@ -1,13 +1,12 @@
 package cse2311;
 
 import java.io.IOException;
-
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.BaseFont;
 
 public class Style {
     public BaseFont myFontface;
-	private int myFontSize = 8,myTitleSize=24,mySubTitleSize=8;
+	private int myFontSize = 8, myTitleSize = 24, mySubTitleSize = 16;
 	private float distSections = 30f, distLines = 7f;
 	float leftMargin = 36f, rightMargin = 36f;
 
@@ -17,32 +16,33 @@ public class Style {
 		} catch (DocumentException | IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public float getPrintSpace() {
 		return 595f - leftMargin - rightMargin;
 	}
 	
-	public void setFontSize(int userSize){
+	public void setFontSize(int userSize) {
 		myFontSize = userSize;
 	}
 	
 	public int getFontSize() {
 		return myFontSize;
 	}
-        public void setmyTitleSize(int userSize){
-		myTitleSize = userSize;
+	
+    public void setMyTitleSize(int userSize) {
+    	myTitleSize = userSize;
 	}
 	
-	public int getmyTitleSize() {
+	public int getMyTitleSize() {
 		return myTitleSize;
 	}
-        public void setmySubTitleSize(int userSize){
+    
+	public void setMySubTitleSize(int userSize) {
 		mySubTitleSize = userSize;
 	}
 	
-	public int getmySubTitleSize() {
+	public int getMySubTitleSize() {
 		return mySubTitleSize;
 	}
 	

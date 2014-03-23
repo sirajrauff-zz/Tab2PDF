@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -32,7 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
- 
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
@@ -40,13 +40,10 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.PageSize;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
-import com.sun.pdfview.PagePanel;
 
 public class UI extends JFrame implements ActionListener, KeyListener, MouseListener, FocusListener {
     private static final long serialVersionUID = 1L;
@@ -57,17 +54,17 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JTextField fileTitle, title, author, zoom;
     JPanel body, sidebar, a1, b1, livePreview, livePreview2;
 	JScrollPane a2;
-    JComboBox fontType;
-    JComboBox<Integer> fontSizeTitle, fontSizeAuthor,fontSize;
-    JSlider numberSpacing, sectionSpacing, lineSpacing, zoomSlide,leftMargin,rightMargin;
-    JButton open, help, save, print;
+    JComboBox<String> fontType;
+    JComboBox<Integer> fontSizeTitle, fontSizeAuthor, fontSize;
+    JSlider numberSpacing, measureSpacing, lineSpacing, zoomSlide, leftMargin, rightMargin;
+    JButton open, help, save, print, reset;
     JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu;
     
-    int view = 0;
+    int view = 0, indexOfHelvetica;
     double width, height;
-    float userSpacing, userSectionDistance, userLineDistance;
+    float defaultSpacing = 5, userSpacing, userMeasureDistance = 30f, userLineDistance = 7f;
     boolean opened = false;
-    String filePath, userTitle, userSubtitle, prevDir;
+    String filePath, userTitle, userSubtitle, prevDir, defaultTitle, defaultSubtitle;
     File txtFile, userDirectory = null, output;
     Tablature t;
     MusicSheet ms;
@@ -108,6 +105,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         frame.setResizable(false);
         frame.setVisible(true);
         frame.pack();
+        frame.setLocationRelativeTo(null);
     }
     
     public JMenuBar createMenuBar() {
@@ -177,148 +175,140 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         return body;
     }
     
-    public  JPanel createB1() {
-    	 JPanel temp = new JPanel(new GridLayout(2,2,10,10));
-    	 temp.setOpaque(true);
-    	 
-         //create a jpanel with open, save, help and more buttons
-    	 ImageIcon icon = createImageIcon("images/open48.png");
-         open = new JButton("Open", icon);
-         open.setToolTipText("Open ASCII tablature to convert");
-         open.addActionListener(this);
-                  
-         icon = createImageIcon("images/save48.png");
-         save = new JButton("Save", icon);
-         save.setToolTipText("Save PDF");
-         save.addActionListener(this);
-         save.setEnabled(false);
-         
-         icon = createImageIcon("images/help48.png");
-         help = new JButton("Help", icon);
-         help.setToolTipText("Help");
-         help.addActionListener(this);
-         
-         icon = createImageIcon("images/print48.png");
-         print = new JButton("Print", icon);
-         print.setToolTipText("Print opened music sheet");
-         print.addActionListener(this);
-         print.setEnabled(false);
-         
-         //Add the text area to the content pane.
-         temp.add(open);
-         temp.add(save);
-         temp.add(help);
-         temp.add(print);
-         temp.setBorder(new TitledBorder(new EtchedBorder(), "Buttons"));
-         return temp;
+    public JPanel createB1() {
+    	JPanel temp = new JPanel(new GridLayout(2,2,10,10));
+    	temp.setOpaque(true);
+    	
+    	//create a jpanel with open, save, help and more buttons
+    	ImageIcon icon = createImageIcon("images/open48.png");
+    	open = new JButton("Open", icon);
+    	open.setToolTipText("Open ASCII tablature to convert");
+    	open.addActionListener(this);
+    	
+    	icon = createImageIcon("images/save48.png");
+    	save = new JButton("Save", icon);
+    	save.setToolTipText("Save this tablature as a PDF");
+    	save.addActionListener(this);
+    	save.setEnabled(false);
+    	
+    	icon = createImageIcon("images/help48.png");
+    	help = new JButton("Help", icon);
+    	help.setToolTipText("Click here for instructions to use this program");
+    	help.addActionListener(this);
+    	
+    	icon = createImageIcon("images/print48.png");
+    	print = new JButton("Print", icon);
+    	print.setToolTipText("Print this tablature");
+    	print.addActionListener(this);
+    	print.setEnabled(false);
+    	
+    	//Add the text area to the content pane.
+    	temp.add(open);
+    	temp.add(save);
+    	temp.add(help);
+    	temp.add(print);
+    	temp.setBorder(new TitledBorder(new EtchedBorder(), "Buttons"));
+    	return temp;
     }
     
     public JPanel editBox() {
-    	JPanel temp = new JPanel(new BorderLayout());
-    	temp.setLayout(new BoxLayout(temp, BoxLayout.Y_AXIS));
-    	temp.setBorder(new TitledBorder(new EtchedBorder(), "Edit"));
-    	
-    	title = new JTextField(15);
-    	Integer[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48};
+    	Integer[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48}; //Title box
     	fontSizeTitle = new JComboBox<Integer>(fontSizes);
     	fontSizeTitle.setSelectedIndex(10);
-    	
+    	fontSizeTitle.setToolTipText("Change font size of the title");
+    	title = new JTextField(15);
+    	title.addKeyListener(this);
+    	title.setToolTipText("Change title of the tablature");
     	JPanel titleTemp = new JPanel();
     	titleTemp.add(new JLabel("    Title: "));
     	titleTemp.add(title);
     	titleTemp.add(fontSizeTitle);
     	
-    	title.addKeyListener(this);
-    	fontSizeTitle.addActionListener(this);
-    	
-    	author = new JTextField(15);
-    	fontSizeAuthor = new JComboBox<Integer>(fontSizes);
+    	fontSizeAuthor = new JComboBox<Integer>(fontSizes); //Author Box
     	fontSizeAuthor.setSelectedIndex(6);
-        
-        
-    	
+    	fontSizeAuthor.addActionListener(this);
+    	fontSizeAuthor.setToolTipText("Change font size of the Author");
+    	author = new JTextField(15);
+    	author.addKeyListener(this);
+    	author.setToolTipText("Set Author of Tablature");
     	JPanel authorTemp = new JPanel();
     	authorTemp.add(new JLabel("Author: "));
     	authorTemp.add(author);
     	authorTemp.add(fontSizeAuthor);
     	
-    
-  
-        
-    	fontSizeAuthor.addActionListener(this);
-    	author.addKeyListener(this);
-    	
     	String fonts[] = FontSelector.Fonts;
-    	fontType = new JComboBox(fonts);
-    	//fontType.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXXXXX");
-    	int indexOfArial = (Arrays.asList(fonts)).indexOf("Helvetica");
-    	fontType.setSelectedIndex(indexOfArial);
-        
+    	fontType = new JComboBox<String>(fonts);
+    	indexOfHelvetica = (Arrays.asList(fonts)).indexOf("Helvetica");
+    	fontType.setSelectedIndex(indexOfHelvetica);
+    	fontType.addActionListener(this);
+    	fontType.setToolTipText("Set font used for the tablature");
         fontSize = new JComboBox<Integer>(fontSizes);
     	fontSize.setSelectedIndex(1);
-        
         fontSize.addActionListener(this);
-    	
+        fontSize.setToolTipText("Set font size used in tablature");
     	JPanel fontTemp = new JPanel();
     	fontTemp.add(new JLabel("    Font: "));
     	fontTemp.add(fontType);
         fontTemp.add(fontSize);
-    	fontType.addActionListener(this);
     	
-    	JLabel spacingLabel = new JLabel("<html><u>Spacing");
-    	numberSpacing = new JSlider(1, 99, (int) userSpacing * 10);
+    	JLabel spacingLabel = new JLabel("<html><u>Spacing"); //Spacing
+    	numberSpacing = new JSlider(1, 99, (int) (userSpacing * 10));
     	numberSpacing.setMinorTickSpacing(10);
     	numberSpacing.setPaintTicks(true);
     	numberSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
     	numberSpacing.addMouseListener(this);
-    	
+    	numberSpacing.setToolTipText("Set spacing of numbers/symbols in tablature");
     	JPanel spacingBarsTemp = new JPanel();
     	spacingBarsTemp.add(new JLabel("   Numbers:"));
     	spacingBarsTemp.add(numberSpacing);
     	
-    	sectionSpacing = new JSlider(140, 900, 300);
-    	sectionSpacing.setMinorTickSpacing(30);
-    	sectionSpacing.setPaintTicks(true);
-    	sectionSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
-    	sectionSpacing.addMouseListener(this);
-        
-        
-    	
+    	measureSpacing = new JSlider(140, 900, 300); //Section spacing
+    	measureSpacing.setMinorTickSpacing(90);
+    	measureSpacing.setPaintTicks(true);
+    	measureSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
+    	measureSpacing.addMouseListener(this);
+    	measureSpacing.setToolTipText("Set spacing between measures in the tablature");
     	JPanel spacingStaffsTemp = new JPanel();
     	spacingStaffsTemp.add(new JLabel("  Sections:"));
-    	spacingStaffsTemp.add(sectionSpacing);
+    	spacingStaffsTemp.add(measureSpacing);
     	
-    	lineSpacing = new JSlider(20, 210, 70);
-    	lineSpacing.setMinorTickSpacing(10);
+    	lineSpacing = new JSlider(20, 210, 70); //Line spacing
+    	lineSpacing.setMinorTickSpacing(20);
     	lineSpacing.setPaintTicks(true);
     	lineSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
     	lineSpacing.addMouseListener(this);
-    	
+    	lineSpacing.setToolTipText("Set spacing between lines in a measure");
     	JPanel spacingLinesTemp = new JPanel();
     	spacingLinesTemp.add(new JLabel("     Lines:"));
     	spacingLinesTemp.add(lineSpacing);
        
-        leftMargin = new JSlider(0, 290, 39);
-    	leftMargin.setMinorTickSpacing(30);
+        leftMargin = new JSlider(0, 160, 36); //Left margin offset
+    	leftMargin.setMinorTickSpacing(16);
     	leftMargin.setPaintTicks(true);
     	leftMargin.setPreferredSize(new Dimension(defWidth, defHeight));
     	leftMargin.addMouseListener(this);
-    	
+    	leftMargin.setToolTipText("Set margin from the left side of the page");
         JPanel LeftMarginStaffsTemp = new JPanel();
     	LeftMarginStaffsTemp.add(new JLabel("  Left Margin:"));
     	LeftMarginStaffsTemp.add(leftMargin);
         
-        rightMargin = new JSlider(0, 290, 39);
-    	rightMargin.setMinorTickSpacing(30);
+        rightMargin = new JSlider(0, 160, 36); //Right margin offset
+    	rightMargin.setMinorTickSpacing(16);
     	rightMargin.setPaintTicks(true);
     	rightMargin.setPreferredSize(new Dimension(defWidth, defHeight));
     	rightMargin.addMouseListener(this);
-    	
+    	rightMargin.setToolTipText("Set margin from the right side of the page");
         JPanel RightMarginStaffsTemp = new JPanel();
     	RightMarginStaffsTemp.add(new JLabel("  Right Margin:"));
     	RightMarginStaffsTemp.add(rightMargin);
-
     	
+		reset = new JButton("Reset");
+	    reset.setToolTipText("Reset all values to default");
+	    reset.addActionListener(this);
+
+    	JPanel temp = new JPanel(new BorderLayout());
+    	temp.setLayout(new BoxLayout(temp, BoxLayout.Y_AXIS));
+    	temp.setBorder(new TitledBorder(new EtchedBorder(), "Edit"));
     	temp.add(titleTemp, temp);
     	temp.add(authorTemp, temp);
     	temp.add(fontTemp, temp);
@@ -328,7 +318,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	temp.add(spacingLinesTemp, temp);
         temp.add(LeftMarginStaffsTemp, temp);
     	temp.add(RightMarginStaffsTemp, temp);
-    return temp;
+    	temp.add(reset);
+    	return temp;
     }
     
     public JPanel viewBox() {
@@ -337,20 +328,29 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 
     	zoom = new JTextField(5);
     	zoom.setText(defaultZoom + "%");
-    	
-    	zoomSlide = new JSlider(JSlider.HORIZONTAL, 0, 400, defaultZoom);
-    	zoomSlide.setMajorTickSpacing(100);
-    	zoomSlide.setMinorTickSpacing(50);
-    	zoomSlide.setPaintTicks(true);
-    	zoomSlide.setPaintLabels(true);
-    	
-    	zoomSlide.addMouseListener(this);
+    	zoom.setToolTipText("Set level of zoom for preview");
     	zoom.addKeyListener(this);
     	zoom.addFocusListener(this);
     	
+    	Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+    	labelTable.put(1, new JLabel("0%"));
+    	labelTable.put(101, new JLabel("100%"));
+    	labelTable.put(201, new JLabel("200%"));
+    	labelTable.put(301, new JLabel("300%"));
+    	labelTable.put(400, new JLabel("400%"));
+    	
+    	zoomSlide = new JSlider(JSlider.HORIZONTAL, 1, 400, defaultZoom);
+    	zoomSlide.setMajorTickSpacing(100);
+    	zoomSlide.setMinorTickSpacing(50);
+    	zoomSlide.setPaintTicks(true);
+    	zoomSlide.setLabelTable(labelTable);
+    	zoomSlide.setPaintLabels(true);
+    	zoomSlide.addMouseListener(this);
+    	zoomSlide.setToolTipText("Set level of zoom for preview");
+    	
     	temp.add(zoom);
     	temp.add(zoomSlide);
-    	temp.setPreferredSize(new Dimension((int) ((int) b1.getWidth()/1.5 - 10) , 100));
+    	temp.setPreferredSize(new Dimension((int) ((int) b1.getWidth() / 1.5 - 10) , 100));
 
 		return temp;
     }
@@ -358,7 +358,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     public JScrollPane createA2() throws IOException {
     	
     	pageLabel.add(new JLabel());
-    	if (image.size() > 0){
+    	if (image.size() > 0) {
     		for (int i = 0; i < image.size(); i++)
     			pageLabel.get(i).setIcon(new ImageIcon(image.get(i)));
     	}
@@ -387,7 +387,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		return temp;
     }
  
-    /** Returns an ImageIcon, or null if the path was invalid. */
+    /** 
+     * Returns an ImageIcon, or null if the path was invalid. 
+     * */
     protected static ImageIcon createImageIcon(String path) {
         java.net.URL imgURL = UI.class.getResource(path);
         if (imgURL != null) {
@@ -417,12 +419,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				try {
 					t = c.readFile(txtFile);
-			        userTitle = t.getTitle();
-			        userSubtitle = t.getSubtitle();
-			        userSpacing = t.getSpacing();
-			        userSectionDistance = 30f;
-			        userLineDistance = 7f;
-					generatePDF();
+			        userTitle = defaultTitle = t.getTitle();
+			        userSubtitle = defaultSubtitle = t.getSubtitle();
+			        userSpacing = defaultSpacing = t.getSpacing();
+					generatePDF(defaultZoom);
 					
 			        save.setEnabled(true);
 			        print.setEnabled(true);
@@ -433,26 +433,20 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 				} catch (IOException e2) {
 					e2.printStackTrace();
 				}
-				
-				if (opened == true)
-					updatePreview(defaultZoom);
-				else {
-					expandView();
-				}
 
 				title.setText(userTitle);
 				author.setText(userSubtitle);
-				sectionSpacing.setValue((int) userSectionDistance * 10);
+				measureSpacing.setValue((int) userMeasureDistance * 10);
 				lineSpacing.setValue((int) userLineDistance * 10);
 			}
-			else {
+			else
 				fileTitle.setText("Cannot open selected file.");
-			}
 		}
+		
 		else if (e.getSource().equals(save) || e.getSource().equals(saveMenu)) {
 			JFileChooser saveFile = new JFileChooser();
-			output = new File(" .pdf");
-                        saveFile.setAcceptAllFileFilterUsed(false);
+			output = new File("temp.pdf");
+            saveFile.setAcceptAllFileFilterUsed(false);
 			saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
 			saveFile.setCurrentDirectory(new File(prevDir));
 			saveFile.setSelectedFile(output);
@@ -465,9 +459,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             		destFile = new File(destFile.getAbsolutePath().concat(".pdf"));
             		
             	boolean allow = true;
-            	if (destFile.exists()){
-            		allow = JOptionPane.showConfirmDialog(null, "That files exists. Overwrite?") == JOptionPane.OK_OPTION;
-            	}
+            	if (destFile.exists())
+            		allow = JOptionPane.showConfirmDialog(null, "File already exists, overwrite?") == JOptionPane.OK_OPTION;
     			
             	if (allow) {	            		
             		FileChannel source = null;
@@ -500,15 +493,16 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             		fileTitle.setText("Save failed");
             } 			
 		}
+		
 		else if (e.getSource().equals(help) || e.getSource().equals(helpMenu)) {
 			try {
 				File htmlFile = new File("help/index.html");
 				java.awt.Desktop.getDesktop().browse(htmlFile.toURI());
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
+		
 		else if (e.getSource().equals(print) || e.getSource().equals(printMenu)) {
 			fileTitle.setText("Printing...");
 			PDFPrintPage pages = new PDFPrintPage(pdfFile);
@@ -529,47 +523,79 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 				try {
 					pjob.print();
 				} catch (PrinterException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 			fileTitle.setText("Printed " + userTitle + ".pdf");
 		}
-		else if (e.getSource().equals(fontSize) ||e.getSource().equals(fontSizeTitle) || e.getSource().equals(fontSizeAuthor) || e.getSource().equals(fontType)) {
-			
-			s.myFontface=FontSelector.getFont(fontType.getSelectedIndex());
-                        s.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
-                        s.setmyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
-                        s.setmySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
-                        generatePDF();
-                        updatePreview(zoomSlide.getValue());
-                        
+		
+		else if (e.getSource().equals(fontSize) ||e.getSource().equals(fontSizeTitle) 
+				|| e.getSource().equals(fontSizeAuthor) || e.getSource().equals(fontType)) {
+			s.myFontface = FontSelector.getFont(fontType.getSelectedIndex());
+            s.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
+            s.setMyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
+            s.setMySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
+            generatePDF(zoomSlide.getValue());
 		}
-		else if (e.getSource().equals(aboutMenu)){
+		
+		else if (e.getSource().equals(aboutMenu)) {
 			ImageIcon icon = createImageIcon("images/logo.png");
 			JOptionPane.showMessageDialog(frame,
-				    "<html><center>Version: 3.0.6 \n"
-				    + "Thank you for using our Tablature to PDF software, which is far superior than Group 1 and Group 2 \n"
-				    + "Group 3: Calvin Tran, Jason Kuffaur, Mohamed Nasar, Muhammad Shah, Siraj Rauf, Umer Zahoor, Waleed Azhar\n"
-				    + "Special thanks to iText team, Pdf-renderer team, and Tango icon set team",
-				    "About",
-				    JOptionPane.INFORMATION_MESSAGE,
-				    icon);
+			    "<html><center>Version: 3.0.6 \n"
+			    + "Thank you for using our Tablature to PDF software. \n"
+			    + "Group 3: Calvin Tran, Jason Kuffaur, Mohamed Nasar, Muhammad Shah, Siraj Rauf, Umer Zahoor, Waleed Azhar\n"
+			    + "Special thanks to iText team, Pdf-renderer team, and Tango icon set team",
+			    "About",
+			    JOptionPane.INFORMATION_MESSAGE,
+			    icon);
+		}
+		
+		else if (e.getSource().equals(reset)) {
+			fontSizeTitle.setSelectedIndex(10); //Reset GUI
+			fontSizeAuthor.setSelectedIndex(6);
+			title.setText(defaultTitle);
+			userTitle = defaultTitle;
+			author.setText(defaultSubtitle);
+			userSubtitle = defaultSubtitle;
+			fontType.setSelectedIndex(indexOfHelvetica);
+			fontSize.setSelectedIndex(1);
+			numberSpacing.setValue((int) (defaultSpacing * 10));
+			userSpacing = defaultSpacing;
+			measureSpacing.setValue(300);
+			userMeasureDistance = 30f;
+			lineSpacing.setValue(70);
+			userLineDistance = 7f;
+			leftMargin.setValue(36);
+			rightMargin.setValue(36);
+
+			t.setTitle(defaultTitle); //Reset tab
+			t.setSubtitle(defaultSubtitle);
+			t.setSpacing(defaultSpacing);
+			s.setFontSize(8);
+			s.setMyTitleSize(24);
+			s.setMySubTitleSize(16);
+			s.setLineDistance(userLineDistance);
+			s.setSectionDistance(userMeasureDistance);
+			
+			generatePDF(defaultZoom);
 		}
 	}
 	
-	private void generatePDF() {
+	private void generatePDF(int zoomLevel) {
 		try {
 			PdfOutputCreator pdfout = new PdfOutputCreator();
-			
 			s.setLineDistance(userLineDistance);
-			s.setSectionDistance(userSectionDistance);
+			s.setSectionDistance(userMeasureDistance);
 			ms = new MusicSheet(t, s);
 			pdfout.makePDF(ms);
 		} catch (IOException | DocumentException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		if (opened == true)
+			updatePreview(zoomLevel);
+		else 
+			expandView();
 	}
 
 	private void expandView() {
@@ -592,8 +618,14 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int height = (int) (screenSize.getHeight() / 1.5);
 		int width = (int) (screenSize.getWidth() / 1.5);
+		if (height < 675)
+			height = 675;
+		if (width < 1070)
+			width = 1070;
+		
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.pack();
+        frame.setLocationRelativeTo(null);
 		opened = true;
 	}
 	
@@ -607,13 +639,13 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		image.clear();
 
 		try {
-			raf = new RandomAccessFile (new File ( " .pdf"), "r");
+			raf = new RandomAccessFile (new File ("temp.pdf"), "r");
 			byte[] b = new byte[(int) raf.length()];
 			raf.read(b);
 			buf = ByteBuffer.wrap(b);
 			pdfFile = new PDFFile(buf);
 			
-			for (int i = 1; i <= pdfFile.getNumPages(); i++){
+			for (int i = 1; i <= pdfFile.getNumPages(); i++) {
 				page = pdfFile.getPage(i);
 			    Rectangle2D r2d = page.getBBox();
 			    width = r2d.getWidth();
@@ -631,8 +663,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		    raf.close();
 		} catch (IOException e1) { }
 		
-		if(image.size() > 0){
-			for (int i = 0; i < image.size(); i++){
+		if(image.size() > 0) {
+			for (int i = 0; i < image.size(); i++) {
 				ImageIcon temp = new ImageIcon(image.get(i));
 				JLabel temp2 = new JLabel();
 				temp2.setIcon(temp);
@@ -643,9 +675,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		if (livePreview == null)
 			livePreview = new JPanel();
     	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
-    	if (pageLabel != null){
+    	if (pageLabel != null) {
     		livePreview.removeAll();
-        	for (int i = 0; i < pageLabel.size(); i++){
+        	for (int i = 0; i < pageLabel.size(); i++) {
         		livePreview.add(pageLabel.get(i));
         		livePreview.add(new JLabel(""));
     		}
@@ -653,13 +685,14 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	frame.invalidate();
     	frame.validate();
     	frame.repaint();
+		fileTitle.setText("Updated preview.");
     }
 	
     @Override
-	public void keyTyped(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) { }
 
 	@Override
-	public void keyPressed(KeyEvent e) {}
+	public void keyPressed(KeyEvent e) { }
 	
 	@Override
 	public void keyReleased(KeyEvent e) {
@@ -668,23 +701,20 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			userSubtitle = author.getText();
 			t.setTitle(userTitle);
 			t.setSubtitle(userSubtitle);
-			generatePDF();
-			updatePreview(zoomSlide.getValue());
+			generatePDF(zoomSlide.getValue());
 		}
+		
 		else if (e.getSource().equals(zoom)) {
-			String temp = zoom.getText().replaceAll("%", "");
-			int zTemp;
-			if (temp.length() > 0) {
-				zTemp = Integer.parseInt(temp);
-				if (zTemp != 0)
-					updatePreview(zTemp);
-				else
-					zoom.setText(defaultZoom + "%");
-				
-				if (zTemp > 400)
+			String userZoom = zoom.getText().replaceAll("%", "");
+			if (userZoom.length() > 0 && Integer.parseInt(userZoom) != 0) {
+				int temp = Integer.parseInt(userZoom);
+				updatePreview(temp);
+				if (temp > 400) {
 					zoomSlide.setValue(400);
+					zoom.setText("400%");
+				}
 				else
-					zoomSlide.setValue(zTemp);
+					zoomSlide.setValue(temp);
 			}
 			else {
 				zoom.setText(defaultZoom + "%");
@@ -706,38 +736,31 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if (e.getSource().equals(zoomSlide)){
-			if (zoomSlide.getValue() == 0)
-				zoomSlide.setValue(1);
+		if (e.getSource().equals(zoomSlide)) {
 			zoom.setText(zoomSlide.getValue() + "%");
 	        updatePreview(zoomSlide.getValue());
 		}
-		else if (e.getSource().equals(numberSpacing)){
+		else if (e.getSource().equals(numberSpacing)) {
 			userSpacing = numberSpacing.getValue() / 10;
 			t.setSpacing(userSpacing);
-			generatePDF();
-			updatePreview(zoomSlide.getValue());
+			generatePDF(zoomSlide.getValue());
 		}
-		else if (e.getSource().equals(sectionSpacing)){
-			userSectionDistance = ((float) sectionSpacing.getValue()) / 10f;
-			generatePDF();
-			updatePreview(zoomSlide.getValue());
+		else if (e.getSource().equals(measureSpacing)) {
+			userMeasureDistance = ((float) (measureSpacing.getValue()) / 10f);
+			generatePDF(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(lineSpacing)) {
-			userLineDistance = ((float) lineSpacing.getValue()) / 10;
-			generatePDF();
-			updatePreview(zoomSlide.getValue());
-		}else if (e.getSource().equals(leftMargin)) {
-			s.leftMargin = ((float) leftMargin.getValue());
-			generatePDF();
-			updatePreview(zoomSlide.getValue());
-		
-                }else if (e.getSource().equals(rightMargin)) {
-			s.rightMargin = ((float) rightMargin.getValue()) ;
-			generatePDF();
-			updatePreview(zoomSlide.getValue());
+			userLineDistance = ((float) (lineSpacing.getValue()) / 10);
+			generatePDF(zoomSlide.getValue());
 		}
-                
+		else if (e.getSource().equals(leftMargin)) {
+			s.leftMargin = (float) leftMargin.getValue();
+			generatePDF(zoomSlide.getValue());
+        }
+		else if (e.getSource().equals(rightMargin)) {
+			s.rightMargin = (float) rightMargin.getValue() ;
+			generatePDF(zoomSlide.getValue());
+		}
 	}
 
 	@Override
