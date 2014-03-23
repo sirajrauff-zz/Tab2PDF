@@ -10,52 +10,52 @@ public  class Measure {
 	private float spacing, width = 0;
 
 	public Measure(float f) {
-		this.spacing = f;
+		spacing = f;
 	}
 	
 	public Measure(String firstLine) {
-		this.addLine(firstLine);
+		addLine(firstLine);
 	}
 	
 	public boolean addLine(String line) {
 		if(getLines().size() < 6){
 			getLines().add(line);
-				if(this.size() == 6)
-					this.corrections();
+				if(size() == 6)
+					corrections();
 			return true;
 		}
 		return false;
 	}
 	
 	private void corrections() {
-		this.checkRepeat();
-		this.checkBarType();
-		this.checkLength();//doesn't work perfectly
-		this.setWidth(this.getLines().get(0).length() * this.spacing);
+		checkRepeat();
+		checkBarType();
+		checkLength();//doesn't work perfectly
+		setWidth(getLines().get(0).length() * spacing);
 	}
 	
 	private boolean checkRepeat() {
-		StringBuffer temp = new StringBuffer(this.getLines().get(0));
+		StringBuffer temp = new StringBuffer(getLines().get(0));
 		if(temp.length() < 2){
-			this.setRepeat(false);
+			setRepeat(false);
 			return false;
 		}
 		if (((temp.length()!= 0) && (temp.toString().charAt(temp.length() - 2) == '+'))) {
-			this.setRepeat(true);
-			if (((temp.toString().charAt(temp.length()-1) > 47) && (temp.toString().charAt(temp.length() - 1) < 58))) {
-				this.setRepeatNum(Integer.parseInt(temp.substring(temp.length() - 1)));
-				this.getLines().remove(0);
-				this.getLines().add(0, temp.substring(0, temp.length() - 1).toString());
+			setRepeat(true);
+			if (((temp.toString().charAt(temp.length() - 1) > 47) && (temp.toString().charAt(temp.length() - 1) < 58))) {
+				setRepeatNum(Integer.parseInt(temp.substring(temp.length() - 1)));
+				getLines().remove(0);
+				getLines().add(0, temp.substring(0, temp.length() - 1).toString());
 			}
 		} 
 		else 
-			this.setRepeat(false);
+			setRepeat(false);
 		return true;
 	}
 
 	private void checkLength() {
 		int longestLength = -1 ;
-		for (String s : this.getLines()) {
+		for (String s : getLines()) {
 			if (longestLength == -1)
 				longestLength = s.length();
 			else if (longestLength > s.length())	
@@ -63,35 +63,31 @@ public  class Measure {
 		}
 		
 		ArrayList<String> temp = new  ArrayList<String>() ;
-		for (String s : this.getLines()) {
-			if(s.charAt(s.length() - 1) =='+')
+		for (String s : getLines()) {
+			if(s.charAt(s.length() - 1) == '+')
 				temp.add(s.substring(0, longestLength) + "+");
 			else
 				temp.add(s.substring(0, longestLength));
 		}
-		this.setMyLines(temp);
+		setMyLines(temp);
 	}
 
 	private void checkBarType() {
-		char left = this.getLines().get(2).charAt(0);
-		char right = this.getLines().get(2).charAt(this.getLines().get(2).length()-1);
+		char left = getLines().get(2).charAt(0);
+		char right = getLines().get(2).charAt(getLines().get(2).length()-1);
 	
 		if (left == right && right == '*') {
-			this.barType = "Both";
-			this.setWidth(6.6f);
-		}
-		
-		else if (left != right && right == '*') {
-			this.barType = "Right";
-			this.setWidth(4.3f);
-		}
-		else if (left != right && left == '*') {
-			this.barType = "Left";
-			this.setWidth(4.3f);
-		}
-		else {
-			this.barType = "Single";
-			this.setWidth(.5f);
+			barType = "Both";
+			setWidth(6.6f);
+		} else if (left != right && right == '*') {
+			barType = "Right";
+			setWidth(4.3f);
+		} else if (left != right && left == '*') {
+			barType = "Left";
+			setWidth(4.3f);
+		} else {
+			barType = "Single";
+			setWidth(.5f);
 		}
 	}
 	
@@ -99,8 +95,8 @@ public  class Measure {
 		return width;
 	}
 
-	private void setWidth(float width) {
-		this.width += width;
+	private void setWidth(float userWidth) {
+		width += userWidth;
 	}
 
 	public boolean isRepeat() {
@@ -111,31 +107,31 @@ public  class Measure {
 		return getLines().size();
 	}
 
-	public void setRepeat(boolean repeat) {
-		this.repeat = repeat;
+	public void setRepeat(boolean userRepeat) {
+		repeat = userRepeat;
 	}
 
 	public int getRepeatNum() {
 		return repeatNum;
 	}
 
-	public void setRepeatNum(int repeatNum) {
-		this.repeatNum = repeatNum;
+	public void setRepeatNum(int userRepeatNum) {
+		repeatNum = userRepeatNum;
 	}
 	
 	public ArrayList<String> getLines() {
-		if (this.myLines == null) //Lazy initialization
-			this.myLines = new ArrayList<String>();
-		return this.myLines;
+		if (myLines == null) //Lazy initialization
+			myLines = new ArrayList<String>();
+		return myLines;
 	}
 
-	public void setMyLines(ArrayList<String> myLines) {
-		this.myLines = myLines;
+	public void setMyLines(ArrayList<String> userLines) {
+		myLines = userLines;
 	}
 	
 	public void printLines() {
-		System.out.println(this.barType);
-		for (String myStr : this.getLines())
+		System.out.println(barType);
+		for (String myStr : getLines())
 			   System.out.println(myStr);
 		System.out.println();
 	}
@@ -144,28 +140,28 @@ public  class Measure {
 		return barType;
 	}
 
-	public void setBarType(String barType) {
-		this.barType = barType;
+	public void setBarType(String userBarType) {
+		barType = userBarType;
 	}
 
 	public float getSpacing() {
 		return spacing;
 	}
 
-	public void setSpacing(float spacing) {
-		this.spacing = spacing;
-		this.recalculateWidth();
+	public void setSpacing(float userSpacing) {
+		spacing = userSpacing;
+		recalculateWidth();
 	}
 
 	private void recalculateWidth() {
-		if ("Both".equals(this.getBarType()))
-			this.width = 6.6f;	
-		else if ("Right".equals(this.getBarType())) 
-			this.width = 4.3f;
-		else if ("Left".equals(this.getBarType()))
-			this.width = 4.3f;
+		if ("Both".equals(getBarType()))
+			width = 6.6f;	
+		else if ("Right".equals(getBarType())) 
+			width = 4.3f;
+		else if ("Left".equals(getBarType()))
+			width = 4.3f;
 		else
-			this.width = .5f;
-		this.setWidth(this.getLines().get(0).length() * this.spacing);
+			width = .5f;
+		setWidth(getLines().get(0).length() * spacing);
 	}
 }

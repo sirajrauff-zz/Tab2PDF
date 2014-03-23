@@ -18,11 +18,11 @@ public class Parser {
 	String acceptedSymbols = "[\\x5c\\|\\-\\s,*\\+<>0-9^\\(\\)hp=gSs%ex/]+";
 	String correctLine = "^(\\||\\-|[0-9])("+acceptedSymbols+"(\\s?)+"+")(\\||\\-|[0-9])" ;
 	String measureSeparators = "[\\|]";
-    Logger logger;
+	FileHandler fh;
+	Logger logger;
     
 	public Parser() { 
         logger = Logger.getLogger("MyLog");  
-        FileHandler fh;  
         try { // This block configure the logger with handler and formatter  
             fh = new FileHandler("logs/MyLogFile " + System.currentTimeMillis() + ".log");  
             logger.addHandler(fh);  

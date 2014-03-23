@@ -5,34 +5,34 @@ import java.util.ArrayList;
 public class Staff {
 	private ArrayList<StringBuffer> myLines;
 	private float printSpace, width;
-	private ArrayList<Integer>  repeatNum ;
+	private ArrayList<Integer>  repeatNum;
 
 	public Staff(float printSpace) {
-		this.setPrintSpace(printSpace);
+		setPrintSpace(printSpace);
 	}
 
 	public void addToStaff(Measure m) {
-		this.appendToLines(m);
+		appendToLines(m);
 		if (m.isRepeat())
-			this.getrepeatNum().add((m.getRepeatNum()));
-		this.setWidth(m.getWidth());
+			getrepeatNum().add((m.getRepeatNum()));
+		setWidth(m.getWidth());
 	}
 
 	public ArrayList<Integer> getrepeatNum() {
-		if (this.repeatNum == null){ // Lazy initialization
-				this.repeatNum = new ArrayList<Integer>();}
+		if (repeatNum == null) // Lazy initialization
+				repeatNum = new ArrayList<Integer>();
 		return repeatNum;
 	}
 
-	public void setrepeatNum(ArrayList<Integer> repeatNum) {
-		this.repeatNum = repeatNum;
+	public void setrepeatNum(ArrayList<Integer> userNum) {
+		repeatNum = userNum;
 	}
 	
 	public int getTopInt() {
 		int i =-1;
-		if(this.getrepeatNum()!= null && !this.getrepeatNum().isEmpty() ){
-			i = this.getrepeatNum().get(0);
-			this.getrepeatNum().remove(0);
+		if(getrepeatNum()!= null && !getrepeatNum().isEmpty() ){
+			i = getrepeatNum().get(0);
+			getrepeatNum().remove(0);
 		}
 		return i;
 	}
@@ -40,15 +40,15 @@ public class Staff {
 	private void appendToLines(Measure m) {
 		int i = 0;
 		for (String line : m.getLines()) {
-			if (!(this.getLines().size() <= i))
-				this.getLines().get(i).append(this.barsAdded(m.getBarType(),line));
+			if (!(getLines().size() <= i))
+				getLines().get(i).append(barsAdded(m.getBarType(),line));
 			else {
-				this.addStringBuffer();
-				this.getLines().get(i).append(this.barsAdded(m.getBarType(),line));
+				addStringBuffer();
+				getLines().get(i).append(barsAdded(m.getBarType(),line));
 			}
 			i++;
 		}
-		this.fixBars();
+		fixBars();
 	}
 
 	private String barsAdded(String bar, String line) {
@@ -57,30 +57,30 @@ public class Staff {
 		String right = "|-D";
 	
 		if("Both".equals(bar))
-			line= left + line + right;
+			line = left + line + right;
 		if("Right".equals(bar))
-			line= single + line + right;
+			line = single + line + right;
 		if("Left".equals(bar))
-			line= left + line + single;
+			line = left + line + single;
 		if("Single".equals(bar))
-			line= single + line + single;
+			line = single + line + single;
 		
 		return line;
 	}
 
 	public void addStringBuffer() {
-		this.getLines().add(new StringBuffer());
+		getLines().add(new StringBuffer());
 	}
 
 	public boolean canFitAnother(Measure m) {
-		return this.getWidth() + m.getWidth() < this.getPrintSpace();
+		return getWidth() + m.getWidth() < getPrintSpace();
 	}
 
 	private void fixBars() {
-		for(int i = 0; i < this.getLines().size(); i++) {
-			String line = this.getLines().get(i).toString();
-			this.getLines().remove(i);
-			this.myLines.add(i, this.fixedLine(line));
+		for(int i = 0; i < getLines().size(); i++) {
+			String line = getLines().get(i).toString();
+			getLines().remove(i);
+			myLines.add(i, fixedLine(line));
 		}
 	}
 
@@ -92,8 +92,8 @@ public class Staff {
 	}	
 
 	public ArrayList<StringBuffer> getLines() {
-		if (this.myLines == null)// Lazy initialization
-			this.myLines = new ArrayList<StringBuffer>();
+		if (myLines == null)// Lazy initialization
+			myLines = new ArrayList<StringBuffer>();
 		return myLines;
 	}
 
@@ -101,16 +101,16 @@ public class Staff {
 		return printSpace;
 	}
 
-	private void setPrintSpace(float printSpace) {
-		this.printSpace = printSpace;
+	private void setPrintSpace(float userPrintSpace) {
+		printSpace = userPrintSpace;
 	}
 
 	public float getWidth() {
 		return width;
 	}
 
-	private void setWidth(float width) {
-		this.width += width;
+	private void setWidth(float userWidth) {
+		width += userWidth;
 	}
 
 	public void printLines() {

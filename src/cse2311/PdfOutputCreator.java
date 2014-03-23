@@ -3,6 +3,7 @@ package cse2311;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -16,17 +17,19 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class PdfOutputCreator {
 	int fontSize = 8;
 	float spacing;
-	Style s;
+	MusicSheet ms;
     String fileTitle;
 	File outputLocation;
 	PdfWriter write;
+	Style s;
 	
 	public PdfOutputCreator() {	}
 
-	public void makePDF(MusicSheet ms) throws IOException, DocumentException {		
-		s = ms.getMyStyle();
-		fontSize = s.getFontSize();
-		this.spacing = ms.getSpacing();
+	public void makePDF(Tablature userTab, Style userStyle) throws IOException, DocumentException {
+		s = userStyle;
+		ms = new MusicSheet(userTab, s);
+		fontSize = userStyle.getFontSize();
+		this.spacing = userTab.getSpacing();
 		Document document = new Document(PageSize.A4);
 		FileOutputStream documentStream;
 		
@@ -35,15 +38,15 @@ public class PdfOutputCreator {
 		write.open();
 		PdfContentByte draw = write.getDirectContent();
 
-		printTitle(ms.getTitle(), ms.getSubtitle(), document);
+		printTitle(userTab.getTitle(), userTab.getSubtitle(), document);
 
 		float locationX = 0.0f;
-		float locationY = document.top() - (s.getMySubTitleSize() + s.getMyTitleSize() + 50f);
+		float locationY = document.top() - (userStyle.getMySubTitleSize() + userStyle.getMyTitleSize() + 50f);
 		float lastWordX = locationX; // location of last printed number/letter for arc
 		float lastWordY = locationY;
 
 		for (Staff st : ms.getStaffs()) {
-			if (locationY - s.getSectionDistance() - (6 * s.getLineDistance()) < 0) {
+			if (locationY - userStyle.getSectionDistance() - (6 * userStyle.getLineDistance()) < 0) {
 				document.newPage();
 				locationY = document.top();
 			}
@@ -52,8 +55,8 @@ public class PdfOutputCreator {
 			for (StringBuffer linein : st.getLines()) {
 				j++;
 				String line = linein.toString(); 
-				drawHorLine(locationX, locationY, s.leftMargin, draw); // left margin
-				locationX += s.leftMargin;
+				drawHorLine(locationX, locationY, userStyle.leftMargin, draw); // left margin
+				locationX += userStyle.leftMargin;
 
 				for (int z = 0; z < line.length(); z++) {
 					char l = line.charAt(z);
@@ -69,9 +72,9 @@ public class PdfOutputCreator {
 					} else if (l == '|') {
 						if (j > 0) {
 							if (z >= 2 && line.charAt(z - 2) == 'D')
-								drawVerLine(locationX - 2.7f, locationY, s.getLineDistance(), draw);
+								drawVerLine(locationX - 2.7f, locationY, userStyle.getLineDistance(), draw);
 							else
-								drawVerLine(locationX, locationY, s.getLineDistance(), draw);
+								drawVerLine(locationX, locationY, userStyle.getLineDistance(), draw);
 						}
 						
 					}  else if (l == '*') {
@@ -85,7 +88,7 @@ public class PdfOutputCreator {
 						
 					} else if (l == '+' && j == 0) {
 						String repeat = "Repeat " + st.getTopInt() + " times";
-						text(repeat,locationX - 40f, locationY + 1 + s.getLineDistance(), s.myFontface, 7, draw);
+						text(repeat,locationX - 40f, locationY + 1 + userStyle.getLineDistance(), userStyle.myFontface, 7, draw);
 
 					} else if (l == '>') {
 						drawDiamond(locationX, locationY, draw);
@@ -98,38 +101,38 @@ public class PdfOutputCreator {
 					}  else if (l == 'p' && line.charAt(z - 1) == '|') {
 						drawHorLine(locationX, locationY, spacing, draw);
 						createBezierCurves(draw, lastWordX, lastWordY, locationX);
-						text(l + "", locationX - 1.12f, locationY + 9f, s.myFontface, 4, draw);
+						text(l + "", locationX - 1.12f, locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
 						
 					} else if (l == 'p' || l == 'h') {
 						createBezierCurves(draw, lastWordX, lastWordY, locationX);
 						drawHorLine(locationX, locationY, spacing, draw);
-						text(l + "", locationX + 1, locationY + 9f, s.myFontface, 4, draw);
+						text(l + "", locationX + 1, locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
 						
 					} else if (l == 'D') {
 						if (j != 0)
-							drawThick(locationX, locationY, s.getLineDistance(), draw);
+							drawThick(locationX, locationY, userStyle.getLineDistance(), draw);
 						
 					} else {
 						lastWordX = locationX;
 						lastWordY = locationY;
 						if ((l > 47 && l < 58) && (m > 47 && m < 58)) {
-							locationX -= s.getWidth(l) / 2;
-							text(l + "", locationX + 1f, locationY, s.myFontface, fontSize,draw);
-							locationX += s.getWidth(l);
-							text(m + "", locationX- .5f, locationY,s.myFontface, fontSize, draw);
-							locationX += s.getWidth(m);
+							locationX -= userStyle.getWidth(l) / 2;
+							text(l + "", locationX + 1f, locationY, userStyle.myFontface, fontSize,draw);
+							locationX += userStyle.getWidth(l);
+							text(m + "", locationX- .5f, locationY,userStyle.myFontface, fontSize, draw);
+							locationX += userStyle.getWidth(m);
 							
-							drawHorLine(locationX, locationY, (2f * spacing) - (s.getWidth(l) / 2 + s.getWidth(m)), draw);
+							drawHorLine(locationX, locationY, (2f * spacing) - (userStyle.getWidth(l) / 2 + userStyle.getWidth(m)), draw);
                             
-							locationX += s.getWidth(l) / 2;
-							locationX += (2f * spacing) - (s.getWidth(l) + s.getWidth(m));
+							locationX += userStyle.getWidth(l) / 2;
+							locationX += (2f * spacing) - (userStyle.getWidth(l) + userStyle.getWidth(m));
 							
 							z++;                       
 						} else {
-							text(l + "", locationX, locationY, s.myFontface, fontSize, draw);
-							drawHorLine(locationX + s.getWidth(l), locationY, spacing - s.getWidth(l), draw);
+							text(l + "", locationX, locationY, userStyle.myFontface, fontSize, draw);
+							drawHorLine(locationX + userStyle.getWidth(l), locationY, spacing - userStyle.getWidth(l), draw);
 							locationX = locationX + spacing;
 						}
 					}
@@ -137,10 +140,10 @@ public class PdfOutputCreator {
 				drawHorLine(locationX, locationY, document.getPageSize().getWidth() - locationX, draw);
 				locationX = 0.0f;
 				if (j != 5)
-					locationY = locationY - s.getLineDistance();
+					locationY = locationY - userStyle.getLineDistance();
 			}
 			locationX = 0.0f;
-			locationY = locationY - s.getSectionDistance();
+			locationY = locationY - userStyle.getSectionDistance();
 		}
 		document.close();
 		write.close();

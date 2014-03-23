@@ -22,23 +22,23 @@ public class Style {
 		return 595f - leftMargin - rightMargin;
 	}
 	
-	public void setleftMargin(float userSize) {
-		 leftMargin= userSize;
+	public void setLeftMargin(float userSize) {
+		 leftMargin = userSize;
 	}
 	
-	public float getleftMargin() {
+	public float getLeftMargin() {
 		return leftMargin;
-        }
+    }
         
-        public void setrightMargin(float userSize) {
-		 rightMargin= userSize;
+    public void setRightMargin(float userSize) {
+		 rightMargin = userSize;
 	}
 	
-	public float getrightMargin() {
+	public float getRightMargin() {
 		return rightMargin;
-        }
+    }
         
-        public void setFontSize(int userSize) {
+    public void setFontSize(int userSize) {
 		myFontSize = userSize;
 	}
 	

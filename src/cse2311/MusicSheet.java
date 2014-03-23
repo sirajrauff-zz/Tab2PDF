@@ -4,15 +4,10 @@ import java.util.ArrayList;
 
 public class MusicSheet {
 	private ArrayList<Staff> myStaffs;
-	private float mySpacing;
-	private String myTitle, mySubtitle;
 	private Style myStyle;
 	
 	public MusicSheet(Tablature tab, Style s){
-		this.setMyStyle(s);
-		this.setTitle(tab.getTitle());
-		this.setSubtitle(tab.getSubtitle());
-		mySpacing = tab.getSpacing();
+		myStyle = s;
 		this.makeStaffs(tab);
 	}
 
@@ -28,7 +23,7 @@ public class MusicSheet {
 	}
 	
 	private void addStaff() {
-		this.getStaffs().add(new Staff(this.getMyStyle().getPrintSpace()));
+		this.getStaffs().add(new Staff(myStyle.getPrintSpace()));
 	}
 	
 	private Staff getLastStaff() {
@@ -48,39 +43,12 @@ public class MusicSheet {
 		this.myStaffs = myStaffs;
 	}
 
-	public float getSpacing() {
-		return mySpacing;
-	}
-
-	public String getTitle() {
-		return myTitle;
-	}
-	
-	public void setTitle(String myTitle) {
-		this.myTitle = myTitle;
-	}
-
-	public String getSubtitle() {
-		return mySubtitle;
-	}
-
 	public void print(Object s) {
 		System.out.println(s);
 	}
 
-	public void setSubtitle(String mySubtitle) {
-		this.mySubtitle = mySubtitle;
-	}
 	public void printStaff() {
 		for (Staff s : this.getStaffs())
 			s.printLines();
-	}
-
-	public Style getMyStyle() {
-		return myStyle;
-	}
-
-	public void setMyStyle(Style myStyle) {
-		this.myStyle = myStyle;
 	}
 }
