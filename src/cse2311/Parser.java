@@ -25,7 +25,7 @@ public class Parser {
         logger = Logger.getLogger("MyLog");  
         FileHandler fh;  
         try { // This block configure the logger with handler and formatter  
-            fh = new FileHandler("MyLogFile.log");  
+            fh = new FileHandler("logs/MyLogFile"+System.currentTimeMillis()+".log");  
             logger.addHandler(fh);  
          
             SimpleFormatter formatter = new SimpleFormatter();  
@@ -47,7 +47,6 @@ public class Parser {
 		out = out.replaceAll("\\|\\|\\|", "T");
 		out = out.replaceAll("\\|[0-9]", "+" + repeatNum + "|");
 		out = out.replaceAll("<", "-");
-		out = out.replaceAll("s", "/");
 		out = out.replaceAll("\\s", ",");
 		
 		return out;

@@ -13,8 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -60,8 +58,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JPanel body, sidebar, a1, b1, livePreview, livePreview2;
 	JScrollPane a2;
     JComboBox fontType;
-    JComboBox<Integer> fontSizeTitle, fontSizeAuthor;
-    JSlider numberSpacing, sectionSpacing, lineSpacing, zoomSlide;
+    JComboBox<Integer> fontSizeTitle, fontSizeAuthor,fontSize;
+    JSlider numberSpacing, sectionSpacing, lineSpacing, zoomSlide,leftMargin,rightMargin;
     JButton open, help, save, print;
     JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu;
     
@@ -74,7 +72,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     Tablature t;
     MusicSheet ms;
     Parser c = new Parser();
-    Style s = new Style(new Document(PageSize.A4));
+    Style s = new Style();
     
 	PDFPage page;
     PDFFile pdfFile;
@@ -221,7 +219,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	temp.setBorder(new TitledBorder(new EtchedBorder(), "Edit"));
     	
     	title = new JTextField(15);
-    	Integer[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72};
+    	Integer[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48};
     	fontSizeTitle = new JComboBox<Integer>(fontSizes);
     	fontSizeTitle.setSelectedIndex(10);
     	
@@ -236,24 +234,35 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	author = new JTextField(15);
     	fontSizeAuthor = new JComboBox<Integer>(fontSizes);
     	fontSizeAuthor.setSelectedIndex(6);
+        
+        
     	
     	JPanel authorTemp = new JPanel();
     	authorTemp.add(new JLabel("Author: "));
     	authorTemp.add(author);
     	authorTemp.add(fontSizeAuthor);
     	
+    
+  
+        
     	fontSizeAuthor.addActionListener(this);
     	author.addKeyListener(this);
     	
-    	String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+    	String fonts[] = FontSelector.Fonts;
     	fontType = new JComboBox(fonts);
     	//fontType.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXXXXXXXXX");
-    	int indexOfArial = (Arrays.asList(fonts)).indexOf("Arial");
+    	int indexOfArial = (Arrays.asList(fonts)).indexOf("Helvetica");
     	fontType.setSelectedIndex(indexOfArial);
+        
+        fontSize = new JComboBox<Integer>(fontSizes);
+    	fontSize.setSelectedIndex(1);
+        
+        fontSize.addActionListener(this);
     	
     	JPanel fontTemp = new JPanel();
     	fontTemp.add(new JLabel("    Font: "));
     	fontTemp.add(fontType);
+        fontTemp.add(fontSize);
     	fontType.addActionListener(this);
     	
     	JLabel spacingLabel = new JLabel("<html><u>Spacing");
@@ -272,6 +281,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	sectionSpacing.setPaintTicks(true);
     	sectionSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
     	sectionSpacing.addMouseListener(this);
+        
+        
     	
     	JPanel spacingStaffsTemp = new JPanel();
     	spacingStaffsTemp.add(new JLabel("  Sections:"));
@@ -286,6 +297,27 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	JPanel spacingLinesTemp = new JPanel();
     	spacingLinesTemp.add(new JLabel("     Lines:"));
     	spacingLinesTemp.add(lineSpacing);
+       
+        leftMargin = new JSlider(0, 290, 39);
+    	leftMargin.setMinorTickSpacing(30);
+    	leftMargin.setPaintTicks(true);
+    	leftMargin.setPreferredSize(new Dimension(defWidth, defHeight));
+    	leftMargin.addMouseListener(this);
+    	
+        JPanel LeftMarginStaffsTemp = new JPanel();
+    	LeftMarginStaffsTemp.add(new JLabel("  Left Margin:"));
+    	LeftMarginStaffsTemp.add(leftMargin);
+        
+        rightMargin = new JSlider(0, 290, 39);
+    	rightMargin.setMinorTickSpacing(30);
+    	rightMargin.setPaintTicks(true);
+    	rightMargin.setPreferredSize(new Dimension(defWidth, defHeight));
+    	rightMargin.addMouseListener(this);
+    	
+        JPanel RightMarginStaffsTemp = new JPanel();
+    	RightMarginStaffsTemp.add(new JLabel("  Right Margin:"));
+    	RightMarginStaffsTemp.add(rightMargin);
+
     	
     	temp.add(titleTemp, temp);
     	temp.add(authorTemp, temp);
@@ -294,7 +326,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	temp.add(spacingBarsTemp, temp);
     	temp.add(spacingStaffsTemp, temp);
     	temp.add(spacingLinesTemp, temp);
-		return temp;
+        temp.add(LeftMarginStaffsTemp, temp);
+    	temp.add(RightMarginStaffsTemp, temp);
+    return temp;
     }
     
     public JPanel viewBox() {
@@ -417,9 +451,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 		else if (e.getSource().equals(save) || e.getSource().equals(saveMenu)) {
 			JFileChooser saveFile = new JFileChooser();
-			output = new File(t.getTitle() + ".pdf");
+			output = new File(" .pdf");
+                        saveFile.setAcceptAllFileFilterUsed(false);
 			saveFile.setFileFilter(new FileNameExtensionFilter("PDF documents", "pdf"));
-			saveFile.setAcceptAllFileFilterUsed(false);
 			saveFile.setCurrentDirectory(new File(prevDir));
 			saveFile.setSelectedFile(output);
 			int returnVal = saveFile.showSaveDialog(this);
@@ -501,11 +535,15 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			}
 			fileTitle.setText("Printed " + userTitle + ".pdf");
 		}
-		else if (e.getSource().equals(fontSizeTitle) || e.getSource().equals(fontSizeAuthor) || e.getSource().equals(fontType)) {
-			fileTitle.setText(fontType.getSelectedItem().toString());
-			// TODO Waleed set font here, remember to use something like userFont the same way we do spacing
-			// 		since we're instantiating the Style object every time we generate a PDF.
-			//		E.g. set userFont = some font, then in generate PDF s.setFont() (add this method?) = userFont;
+		else if (e.getSource().equals(fontSize) ||e.getSource().equals(fontSizeTitle) || e.getSource().equals(fontSizeAuthor) || e.getSource().equals(fontType)) {
+			
+			s.myFontface=FontSelector.getFont(fontType.getSelectedIndex());
+                        s.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
+                        s.setmyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
+                        s.setmySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
+                        generatePDF();
+                        updatePreview(zoomSlide.getValue());
+                        
 		}
 		else if (e.getSource().equals(aboutMenu)){
 			ImageIcon icon = createImageIcon("images/logo.png");
@@ -523,7 +561,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	private void generatePDF() {
 		try {
 			PdfOutputCreator pdfout = new PdfOutputCreator();
-			s = new Style(new Document(PageSize.A4));
+			
 			s.setLineDistance(userLineDistance);
 			s.setSectionDistance(userSectionDistance);
 			ms = new MusicSheet(t, s);
@@ -569,7 +607,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		image.clear();
 
 		try {
-			raf = new RandomAccessFile (new File (userTitle + ".pdf"), "r");
+			raf = new RandomAccessFile (new File ( " .pdf"), "r");
 			byte[] b = new byte[(int) raf.length()];
 			raf.read(b);
 			buf = ByteBuffer.wrap(b);
@@ -689,7 +727,17 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			userLineDistance = ((float) lineSpacing.getValue()) / 10;
 			generatePDF();
 			updatePreview(zoomSlide.getValue());
+		}else if (e.getSource().equals(leftMargin)) {
+			s.leftMargin = ((float) leftMargin.getValue());
+			generatePDF();
+			updatePreview(zoomSlide.getValue());
+		
+                }else if (e.getSource().equals(rightMargin)) {
+			s.rightMargin = ((float) rightMargin.getValue()) ;
+			generatePDF();
+			updatePreview(zoomSlide.getValue());
 		}
+                
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -17,6 +18,7 @@ public class PdfOutputCreator {
 	int fontSize = 8;
 	float spacing;
 	Style s;
+        String fileTilte;
 	File outputLocation;
 	PdfWriter write;
 	
@@ -26,10 +28,10 @@ public class PdfOutputCreator {
 		s = ms.getMyStyle();
 		fontSize = s.getFontSize();
 		this.spacing = ms.getSpacing();
-		Document document = s.document;
+		Document document = new Document(PageSize.A4);
 		FileOutputStream documentStream;
-		//System.out.print(System.getProperty("os.name", "generic").toLowerCase());
-		write = PdfWriter.getInstance(document, documentStream = new FileOutputStream(new File(ms.getTitle() + ".pdf")));
+		
+		write = PdfWriter.getInstance(document, documentStream = new FileOutputStream(new File(" .pdf")));
 		
 		document.open();
 		write.open();
@@ -38,14 +40,14 @@ public class PdfOutputCreator {
 		printTitle(ms.getTitle(), ms.getSubtitle(), document);
 
 		float locationX = 0.0f;
-		float locationY = s.document.top() - 70;
+		float locationY = document.top()- (s.getmySubTitleSize()+s.getmyTitleSize()+50f);
 		float lastWordX = locationX;// location of last printed num/letter for arc
 		float lastWordY = locationY;
 
 		for (Staff st : ms.getStaffs()) {
 			if (locationY - s.getSectionDistance() - (6 * s.getLineDistance()) < 0) {
 				document.newPage();
-				locationY = s.document.top();
+				locationY = document.top();
 			}
 
 			int j = -1;
@@ -55,6 +57,7 @@ public class PdfOutputCreator {
 				// left margin
 				drawHorLine(locationX, locationY, s.leftMargin, draw);
 				locationX += s.leftMargin;
+                               
 
 				for (int z = 0; z < line.length(); z++) {
 					char l = line.charAt(z);
@@ -79,7 +82,7 @@ public class PdfOutputCreator {
 						drawCircle(locationX, locationY, draw);
 						locationX = locationX + spacing;
 
-					} else if (l == '/') {
+					} else if (l == 's') {
 						drawHorLine(locationX, locationY, spacing, draw);
 						drawDiagonal(locationX, locationY, draw);
 						locationX = locationX + spacing;
@@ -152,19 +155,15 @@ public class PdfOutputCreator {
 					+ (ms.get_Spacing() - spacing / 5);*/
 	private void printTitle(String title, String subtitle, Document document)
 			throws DocumentException {
-		Font[] fonts = {
-				new Font(),
-				/* new Font(fontfamily, size, type, color) */
-				new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD,
-						new BaseColor(/* Red */0, /* Green */0, /* Blue */0)),
-				new Font(Font.FontFamily.HELVETICA, 16, Font.NORMAL,
-						new BaseColor(/* Red */0, /* Green */0, /* Blue */0)), };
-
-		Paragraph Title = new Paragraph(title, fonts[1]);
+		Font fonts =new Font(s.myFontface,s.getmyTitleSize());
+				
+           
+		Paragraph Title = new Paragraph(title,fonts);
 		Title.setAlignment(1);
-
 		document.add(Title);
-		Paragraph subTitle = new Paragraph(subtitle, fonts[2]);
+               
+                fonts.setSize(s.getmySubTitleSize());
+		Paragraph subTitle = new Paragraph(subtitle,fonts);
 
 		subTitle.setAlignment(1);
 		document.add(subTitle);
@@ -222,12 +221,10 @@ public class PdfOutputCreator {
 	}
 
 	private void drawDiagonal(float currX, float currY, PdfContentByte draw) {
-		draw.moveTo(currX, currY);
-		draw.lineTo(currX, currY);
+		draw.moveTo(currX +2.5f, currY-2f);
+		draw.lineTo(currX+spacing-.5f,  currY+2f);
 		draw.stroke();
-		draw.moveTo(currX, currY);
-		draw.lineTo(currX, currY);
-		draw.stroke();
+
 	}
 
 	private void text(String text, float currX, float currY, BaseFont font, int fontsize, PdfContentByte draw) 
