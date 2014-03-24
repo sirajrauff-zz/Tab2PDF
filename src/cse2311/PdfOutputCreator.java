@@ -39,12 +39,13 @@ public class PdfOutputCreator {
 		write.open();
 		PdfContentByte draw = write.getDirectContent();
 
-		printTitle(userTab.getTitle(), userTab.getSubtitle(), document);
+		
 
 		float locationX = 0.0f;
-		float locationY = document.top() - (userStyle.getMySubTitleSize() + userStyle.getMyTitleSize() + 50f);
+		float locationY = document.top();
 		float lastWordX = locationX; // location of last printed number/letter for arc
 		float lastWordY = locationY;
+                locationY-= printTitle(userTab.getTitle(), userTab.getSubtitle(), document);//cant pass and change primatives so i had to do this
 
 		for (Staff st : ms.getStaffs()) {
 			if (locationY - userStyle.getSectionDistance() - (6 * userStyle.getLineDistance()) < 0) {
@@ -108,7 +109,7 @@ public class PdfOutputCreator {
 					} else if (l == 'p' || l == 'h') {
 						createBezierCurves(draw, lastWordX, lastWordY, locationX,l);
 						drawHorLine(locationX, locationY, spacing, draw);
-						text(l + "", locationX + 1, locationY + 9f, userStyle.myFontface, 4, draw);
+						text(l + "", locationX + spacing/2 - s.getWidth(l), locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
 						
 					} else if (l == 'D') {
@@ -152,15 +153,21 @@ public class PdfOutputCreator {
 		documentStream.close();
 	}
 	
-	private void printTitle(String title, String subtitle, Document document)
+	private float printTitle(String title, String subtitle, Document document)
 			throws DocumentException {
+                float moveY=0.0f;
 		Paragraph Title = new Paragraph(title, new Font(s.myFontface, s.getMyTitleSize()));
+               // Title.setLeading(3f, 0.0f);
 		Title.setAlignment(1);
 		document.add(Title);
-		
+                moveY += Title.getLeading();
 		Paragraph subTitle = new Paragraph(subtitle, new Font(s.myFontface, s.getMySubTitleSize()));
-		subTitle.setAlignment(1);
+		//Title.setLeading(3f, 0.0f);
+                subTitle.setAlignment(1);
 		document.add(subTitle);
+                moveY +=subTitle.getLeading();
+                moveY += 20f;
+            return moveY;
 	}
 
 	private void drawHorLine(float currX, float currY, float toX, PdfContentByte draw) {
@@ -172,7 +179,8 @@ public class PdfOutputCreator {
 	}
 
 	private void drawVerLine(float currX, float currY, float toY, PdfContentByte draw) {
-		draw.setLineWidth(.5f);
+		
+                draw.setLineWidth(.5f);
 		draw.moveTo(currX + 1.5f, currY);
 		draw.lineTo(currX + 1.5f, currY + toY);
 		draw.stroke();
