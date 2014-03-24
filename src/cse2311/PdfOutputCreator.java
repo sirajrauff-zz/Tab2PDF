@@ -101,12 +101,12 @@ public class PdfOutputCreator {
 						
 					}  else if (l == 'p' && line.charAt(z - 1) == '|') {
 						drawHorLine(locationX, locationY, spacing, draw);
-						createBezierCurves(draw, lastWordX, lastWordY, locationX);
+						createBezierCurves(draw, lastWordX, lastWordY, locationX,l);
 						text(l + "", locationX - 1.12f, locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
 						
 					} else if (l == 'p' || l == 'h') {
-						createBezierCurves(draw, lastWordX, lastWordY, locationX);
+						createBezierCurves(draw, lastWordX, lastWordY, locationX,l);
 						drawHorLine(locationX, locationY, spacing, draw);
 						text(l + "", locationX + 1, locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
@@ -232,7 +232,17 @@ public class PdfOutputCreator {
 		draw.restoreState();
 	}
 
-	private void createBezierCurves(PdfContentByte cb, float x0, float y0, float x1) {
-		cb.arc(x0 + 2f, y0 + 5f, x1 + 7f, y0 - 1.5f, 40, 100);
+	private void createBezierCurves(PdfContentByte draw, float x0, float y0, float x1,char c) {
+		
+           
+            draw.moveTo(x0 + s.getWidth(c), y0 +s.getHeight()/2);//Start Point
+            
+            float third = ((x1+spacing)-(x0 + s.getWidth(c))) / 3.0f;
+            
+           // Control Point 1, Control Point 2, End Point
+            draw.curveTo(
+                    x0+s.getWidth(c)+third, y0+s.getHeight()/1.5f,  // Control Point 1
+                    x0+s.getWidth(c)+(2*third),y0+s.getHeight()/1.5f,  // Control Point 2
+                    x1+spacing, y0 +s.getHeight()/2);//End Point
 	}
 }
