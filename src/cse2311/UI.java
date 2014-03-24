@@ -54,7 +54,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	private static final int defaultZoom = 100;
 	final int defWidth = 180, defHeight = 30;
     static JFrame frame;
-    
+    //---GUI------------------------------------------------------------------------------
     JTextField fileTitle, title, author, zoom;
     JPanel body, sidebar, a1, b1, livePreview, livePreview2;
 	JScrollPane a2;
@@ -63,7 +63,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JSlider numberSpacing, measureSpacing, lineSpacing, zoomSlide, leftMargin, rightMargin;
     JButton open, help, save, print, reset;
     JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu;
-    
+    //---VARIABLES------------------------------------------------------------------------
     int view = 0, indexOfHelvetica;
     double width, height;
     float defaultSpacing = 5;
@@ -73,7 +73,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     Tablature t;
     Parser c = new Parser();
     Style s = new Style();
-    
+    //---PREVIEW--------------------------------------------------------------------------
 	PDFPage page;
     PDFFile pdfFile;
     ArrayList<Image> image = new ArrayList<Image>();
@@ -178,10 +178,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     }
     
     /**
-     * Creates initial body to hold core buttons and JTextField
+     * Creates the content pane to be
      * @return JPanel
      */
-    public JPanel createBody() { //Create the content-pane-to-be.
+    public JPanel createBody() { 
         body = new JPanel(new BorderLayout());
         sidebar = new JPanel(new BorderLayout());
         b1 = createB1();
@@ -243,6 +243,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	fontSizeTitle.setToolTipText("Change font size of the title");
         fontSizeTitle.addActionListener(this);
     	title = new JTextField(15);
+		title.setText(defaultTitle);
     	title.addKeyListener(this);
     	title.setToolTipText("Change title of the tablature");
     	JPanel titleTemp = new JPanel();
@@ -255,6 +256,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	fontSizeAuthor.addActionListener(this);
     	fontSizeAuthor.setToolTipText("Change font size of the Author");
     	author = new JTextField(15);
+		author.setText(defaultSubtitle);
     	author.addKeyListener(this);
     	author.setToolTipText("Set Author of Tablature");
     	JPanel authorTemp = new JPanel();
@@ -469,11 +471,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         		}
 		        if (opened)
 		        	reset();
-		        else {
-		    		title.setText(defaultTitle);
-		    		author.setText(defaultSubtitle);
+		        else
 		        	opened = true;
-		        }
 			}
 			else
 				fileTitle.setText("Open cancelled.");
