@@ -17,7 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,12 +37,10 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.itextpdf.text.DocumentException;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
-
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -470,11 +467,13 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             		Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
 							"Could not open " + prevDir, e1);
         		}
-
-				title.setText(defaultTitle);
-				author.setText(defaultSubtitle);
-				measureSpacing.setValue(300);
-				lineSpacing.setValue(70);
+		        if (opened)
+		        	reset();
+		        else {
+		    		title.setText(defaultTitle);
+		    		author.setText(defaultSubtitle);
+		        	opened = true;
+		        }
 			}
 			else
 				fileTitle.setText("Open cancelled.");
@@ -593,34 +592,38 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 		
 		else if (e.getSource().equals(reset)) {
-			fontSizeTitle.setSelectedIndex(10); //Reset GUI
-			fontSizeAuthor.setSelectedIndex(6);
-			title.setText(defaultTitle);
-			author.setText(defaultSubtitle);
-			fontType.setSelectedIndex(indexOfHelvetica);
-			fontSize.setSelectedIndex(1);
-			numberSpacing.setValue(50);
-			measureSpacing.setValue(300);
-			lineSpacing.setValue(70);
-			leftMargin.setValue(36);
-			rightMargin.setValue(36);
-			zoomSlide.setValue(defaultZoom);
-			zoom.setText("100%");
-
 			t.setTitle(defaultTitle); //Reset tab
 			t.setSubtitle(defaultSubtitle);
 			t.setSpacing(defaultSpacing);
-			s.setFontSize(8);
-			s.setMyTitleSize(24);
-			s.setMySubTitleSize(16);
-			s.setLineDistance(7f);
-			s.setMeasureDistance(30f);
-            s.setLeftMargin(36f);
-            s.setRightMargin(36f);
-			
-			generatePDF(defaultZoom);
-			fileTitle.setText("Values reset to default.");
+			reset();
 		}
+	}
+
+	private void reset() {
+		s.setFontSize(8);
+		s.setMyTitleSize(24);
+		s.setMySubTitleSize(16);
+		s.setLineDistance(7f);
+		s.setMeasureDistance(30f);
+		s.setLeftMargin(36f);
+		s.setRightMargin(36f);
+		
+		fontSizeTitle.setSelectedIndex(10); //Reset GUI
+		fontSizeAuthor.setSelectedIndex(6);
+		title.setText(defaultTitle);
+		author.setText(defaultSubtitle);
+		fontType.setSelectedIndex(indexOfHelvetica);
+		fontSize.setSelectedIndex(1);
+		numberSpacing.setValue(50);
+		measureSpacing.setValue(300);
+		lineSpacing.setValue(70);
+		leftMargin.setValue(36);
+		rightMargin.setValue(36);
+		zoomSlide.setValue(defaultZoom);
+		zoom.setText("100%");
+
+		generatePDF(defaultZoom);
+		fileTitle.setText("Values reset to default.");
 	}
 	
 	/**
@@ -673,7 +676,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.pack();
         frame.setLocationRelativeTo(null);
-		opened = true;
 	}
 	
     /**
