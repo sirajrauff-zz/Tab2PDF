@@ -2,7 +2,11 @@ package testing;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +15,6 @@ import cse2311.Measure;
 import cse2311.Staff;
 
 public class StaffTest {
-
 	public Measure m, m1;
 	public ArrayList<StringBuffer> myLines;
 	public Staff test;
@@ -25,19 +28,22 @@ public class StaffTest {
 	}
 	
 	@Test
+	public void testStaff() {
+		Staff check = new Staff(5f);
+		assertEquals(check.getPrintSpace(), 5f, 0.0);
+	}
+	
+	@Test
 	public void testAddToStaff() {
-		
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
     	m.addLine("||---3--------2--------0-----0-0-----|");
 		m.addLine("*------2-0----2-0------2-0-----2-----*");
 		m.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m.addLine("|--------2-0------2-0------2-0----2-*|"); 
 		m.addLine("||---3--------2--------0-----0-0-----|");
-		
 		test.addToStaff(m);
 		
 		ArrayList<StringBuffer> result = new ArrayList<StringBuffer>();
-		
 		result.add(new StringBuffer("D-||----2-0------2-0------2-0-----2--*||-D"));
 		result.add(new StringBuffer("D-||---3--------2--------0-----0-0-----|-D"));
 		result.add(new StringBuffer("D-|*------2-0----2-0------2-0-----2-----*|-D"));
@@ -45,12 +51,11 @@ public class StaffTest {
 		result.add(new StringBuffer("D-|--------2-0------2-0------2-0----2-*|-D")); 
 		result.add(new StringBuffer("D-||---3--------2--------0-----0-0-----|-D"));
 		
-	    
-		for(int i = 0; i < result.size(); i++) {
+		for (int i = 0; i < result.size(); i++) {
 			if(test.getLines().get(i).toString().compareTo(result.get(i).toString()) != 0)
-				fail(); 
+				fail();
 		}
-	    assertTrue(true);  
+		assertTrue(true);  
 	}
 	
 	@Test
@@ -63,25 +68,22 @@ public class StaffTest {
 		m.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m.addLine("|--------2-0------2-0------2-0----2-*|"); 
 		m.addLine("||---3--------2--------0-----0-0-----|");
-		
 		test.addToStaff(m);
 	
 		Measure m2 = new Measure(5f);
-		
 		m2.addLine("||----2-0------2-0------2-0-----2--*||+3");
     	m2.addLine("||---3--------2--------0-----0-0-----|");
 		m2.addLine("*------2-0----2-0------2-0-----2-----*");
 		m2.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m2.addLine("|--------2-0------2-0------2-0----2-*|"); 
 		m2.addLine("||---3--------2--------0-----0-0-----|");
-		
 		test.addToStaff(m2);
+		
 		assertSame(test.getrepeatNum().get(1) , 3);
 	}
 	
 	@Test
 	public void testSetrepeatNum() {
-		
 		ArrayList<Integer> repeat1 = new ArrayList<Integer>();
 		repeat1.add(5);
 		repeat1.add(59);
@@ -106,7 +108,6 @@ public class StaffTest {
 		test.setrepeatNum(repeat1);
 		assertEquals(test.getrepeatNum(), repeat1);
 		
-	
 		m.addLine("||----2-0------2-0------2-0-----2--*||+8");
     	m.addLine("||---3--------2--------0-----0-0-----|+93");
 		m.addLine("*------2-0----2-0------2-0-----2-----*+11");
@@ -116,16 +117,18 @@ public class StaffTest {
 		
 		test.addToStaff(m);
 		
-	    for(int i = 0; i < repeat3.size(); i++)
+	    for (int i = 0; i < repeat3.size(); i++) 
 			assertEquals(test.getrepeatNum().get(i), repeat3.get(i));
+	    
 		test.setrepeatNum(repeat2);
-		for(int i = 0; i < repeat2.size(); i++)
+		for (int i = 0; i < repeat2.size(); i++) 
 			assertEquals(test.getrepeatNum().get(i), repeat2.get(i));
 	}
 	
 	@Test
 	public void testGetTopInt() {
 		m1 = new Measure(5f);
+		Measure m2 = new Measure(5f);
 		
 		m.addLine("||----2-0------2-0------2-0-----2--*||+8");
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
@@ -134,38 +137,45 @@ public class StaffTest {
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
 		
-    	m1.addLine("||---3--------2--------0-----0-0-----|+93");
+    	m1.addLine("||---3--------2--------0-----0-0-----|+3");
     	m1.addLine("||---3--------2--------0-----0-0-----|");
     	m1.addLine("||---3--------2--------0-----0-0-----|");
     	m1.addLine("||---3--------2--------0-----0-0-----|");
     	m1.addLine("||---3--------2--------0-----0-0-----|");
     	m1.addLine("||---3--------2--------0-----0-0-----|");
 		
+    	m2.addLine("||---3--------2--------0-----0-0-----|+9");
+    	m2.addLine("||---3--------2--------0-----0-0-----|");
+    	m2.addLine("||---3--------2--------0-----0-0-----|");
+    	m2.addLine("||---3--------2--------0-----0-0-----|");
+    	m2.addLine("||---3--------2--------0-----0-0-----|");
+    	m2.addLine("||---3--------2--------0-----0-0-----|");
+    	
 		test.addToStaff(m);
 		test.addToStaff(m1);
+		test.addToStaff(m2);
 				
 		assertEquals(test.getTopInt(), 8);
-		assertEquals(test.getTopInt(), 93);
+		assertEquals(test.getTopInt(), 3);
+		assertEquals(test.getTopInt(), 9);
 		assertEquals(test.getTopInt(), -1);
 	}
 	
 	@Test
 	public void testAddStringBuffer() {
-		
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
     	m.addLine("||---3--------2--------0-----0-0-----|");
 		m.addLine("*------2-0----2-0------2-0-----2-----*");
 		m.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m.addLine("|--------2-0------2-0------2-0----2-*|"); 
-		
 		test.addToStaff(m);
 		test.addStringBuffer();
+		
 		assertEquals(test.getLines().size(), 6);
 	}
 	
 	@Test
 	public void testCanFitAnother() {
-		
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
     	m.addLine("||---3--------2--------0-----0-0-----|");
 		m.addLine("*------2-0----2-0------2-0-----2-----*");
@@ -181,11 +191,8 @@ public class StaffTest {
 		assertTrue(result);
 		test.addToStaff(m);
 		
-		//testwidth 226.6
-		//m1 width 151.6
-		
-		m1.addLine("||-----3-----1-----0-----0-||");
-    	m1.addLine("||-3-----3-----3-----3------|");
+		m1.addLine("||-----3-----1-----0-----0-||"); //testwidth 226.6
+    	m1.addLine("||-3-----3-----3-----3------|"); //m1 width 151.6
 		m1.addLine("*-3-----3-----3-----3---2-0-*");
 		m1.addLine("||*--0-3--------3-----3-----|");
 		m1.addLine("|-3-----3-----3-----3---2-0*|"); 
@@ -196,19 +203,16 @@ public class StaffTest {
 		}
 	
 	@Test
-	public void testgetLines() {
-		
+	public void testGetLines() {
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
     	m.addLine("||---3--------2--------0-----0-0-----|");
 		m.addLine("*------2-0----2-0------2-0-----2-----*");
 		m.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m.addLine("|--------2-0------2-0------2-0----2-*|"); 
 		m.addLine("||---3--------2--------0-----0-0-----|");
-		
 		test.addToStaff(m);
 		
 		ArrayList<StringBuffer> result = new ArrayList<StringBuffer>();
-		
 		result.add(new StringBuffer("D-||----2-0------2-0------2-0-----2--*||-D"));
 		result.add(new StringBuffer("D-||---3--------2--------0-----0-0-----|-D"));
 		result.add(new StringBuffer("D-|*------2-0----2-0------2-0-----2-----*|-D"));
@@ -216,69 +220,56 @@ public class StaffTest {
 		result.add(new StringBuffer("D-|--------2-0------2-0------2-0----2-*|-D")); 
 		result.add(new StringBuffer("D-||---3--------2--------0-----0-0-----|-D"));
 		
-	    
-		for(int i = 0; i < result.size(); i++) {
-			if(test.getLines().get(i).toString().compareTo(result.get(i).toString()) != 0) 
+		for (int i = 0; i < result.size(); i++) {
+			if(test.getLines().get(i).toString().compareTo(result.get(i).toString()) != 0)
 				fail(); 
-			}
+		}
 	    assertTrue(true);  
 	}
 	
 	@Test
-	public void testGetPrintSpace() {
-		//PrintSpace equals 100f as defined in the initialization of test in the setup method
+	public void testGetPrintSpace() { //PrintSpace equals 100f as defined in the initialization of test in the setup method
 		assertEquals(test.getPrintSpace(), 300f, 0.0);
 	}
 	
-	/*@Test
-	public void testSetPrintSpace() {
-		
-		//PrintSpace equals 100f as defined in the initialization of test in the setup method
-		assertEquals(test.getPrintSpace(), 300f, 0.0);
-		
-		test.setPrintSpace(500f);
-	
-		//PrintSpace equals 100f as defined in the initialization of test in the setup method	
-		assertEquals(test.getPrintSpace(), 500f, 0.0);
-	}*/
-	
 	@Test
 	public void testGetWidth() {
-		
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
     	m.addLine("||---3--------2--------0-----0-0-----|");
 		m.addLine("*------2-0----2-0------2-0-----2-----*");
 		m.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m.addLine("|--------2-0------2-0------2-0----2-*|"); 
 		m.addLine("||---3--------2--------0-----0-0-----|");
-		
 		test.addToStaff(m);
+		
 		assertEquals(test.getWidth(), 196.6f, 0.0);
 	}
 	
 	@Test
 	public void testPrintLines() {
-		
 		m.addLine("||----2-0------2-0------2-0-----2--*||");
     	m.addLine("||---3--------2--------0-----0-0-----|");
 		m.addLine("*------2-0----2-0------2-0-----2-----*");
 		m.addLine("||*----2-0------2-0------2-0-----2--*|");
 		m.addLine("|--------2-0------2-0------2-0----2-*|"); 
 		m.addLine("||---3--------2--------0-----0-0-----|");
-		
 		test.addToStaff(m);
-		/*
-		 * Expected results
-		 * 
-			D-||----2-0------2-0------2-0-----2--*||-D
-			D-||---3--------2--------0-----0-0-----|-D
-			D-|*------2-0----2-0------2-0-----2-----*|-D
-			D-||*----2-0------2-0------2-0-----2--*|-D
-			D-|--------2-0------2-0------2-0----2-*|-D 
-			D-||---3--------2--------0-----0-0-----|-D
 		
-		*/
-		test.printLines();
-		assertTrue(true);
+		try {
+			PrintStream log = new PrintStream(new File("test files/staff/testprintlines.txt"));
+			System.setOut(log);
+			test.printLines();
+			
+			Scanner input = new Scanner(new File("test files/staff/testprintlines.txt"));
+			
+			assertEquals(input.nextLine(), "D-||----2-0------2-0------2-0-----2--*||-D");
+			assertEquals(input.nextLine(), "D-||---3--------2--------0-----0-0-----|-D");
+			assertEquals(input.nextLine(), "D-|*------2-0----2-0------2-0-----2-----*|-D");
+			assertEquals(input.nextLine(), "D-||*----2-0------2-0------2-0-----2--*|-D");
+			assertEquals(input.nextLine(), "D-|--------2-0------2-0------2-0----2-*|-D");
+			assertEquals(input.nextLine(), "D-||---3--------2--------0-----0-0-----|-D");
+			
+			input.close();
+		} catch (FileNotFoundException e) { e.printStackTrace(); }
 	}
 }

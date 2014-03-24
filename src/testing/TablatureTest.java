@@ -1,15 +1,14 @@
 package testing;
 
 import static org.junit.Assert.*;
-
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.StringTokenizer;
-
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-
 import cse2311.Measure;
 import cse2311.Tablature;
 
@@ -29,10 +28,16 @@ public class TablatureTest {
 	}
 	
 	@Test
+	public void testTablature() {
+		assertEquals(test.getTitle(), "Default");
+		assertEquals(test.getSubtitle(), "Default");
+	}
+	
+	@Test
 	public void testAddLineToLastMeasure() {
 		assertEquals(test.size(), 0);
-		String g = "||*-----<5>-----------<7>----------------------------*||";
 		
+		String g = "||*-----<5>-----------<7>----------------------------*||";
 		test.addLineToLastMeasure(g);
 		assertEquals(test.getMeasures().get(0).getLines().get(0), g);
 		
@@ -67,11 +72,39 @@ public class TablatureTest {
 		
 		test.addMultiMeasureLine(sample);
 		
-		assertEquals(test.getMeasures().get(0).getLines().get(0), one );
-		assertEquals(test.getMeasures().get(1).getLines().get(0), two );
-		assertEquals(test.getMeasures().get(2).getLines().get(0), three );
-		
-		fail("redo with system output check");
+		assertEquals(test.getMeasures().get(0).getLines().get(0), one);
+		assertEquals(test.getMeasures().get(1).getLines().get(0), two);
+		assertEquals(test.getMeasures().get(2).getLines().get(0), three);
+	}
+	
+	@Test
+	public void testPrintMeasures() {
+		try {
+			PrintStream log = new PrintStream(new File("test files/tablature/printMeasures.txt"));
+			System.setOut(log);
+			
+			String g = "||*-----<5>-----------<7>----------------------------*||";
+			test.addLineToLastMeasure(g);			
+			test.addLineToLastMeasure(g);
+			test.addLineToLastMeasure(g);			
+			test.addLineToLastMeasure(g);			
+			test.addLineToLastMeasure(g);		
+			test.addLineToLastMeasure(g);	
+			test.printMeasures();
+			
+			Scanner input = new Scanner(new File("test files/tablature/printMeasures.txt"));
+			
+			assertEquals(input.nextLine(), "Single");
+			assertEquals(input.nextLine(), g);
+			assertEquals(input.nextLine(), g);
+			assertEquals(input.nextLine(), g);
+			assertEquals(input.nextLine(), g);
+			assertEquals(input.nextLine(), g);
+			assertEquals(input.nextLine(), g);
+			
+			input.close();
+		}
+		catch (FileNotFoundException e) { e.printStackTrace(); }
 	}
 	
 	@Test
@@ -79,7 +112,6 @@ public class TablatureTest {
 		assertEquals(test.size(), 0);
 		
 		String g = "||*-----<5>-----------<7>----------------------------*||";
-		
 		test.addLineToLastMeasure(g);
 		test.addLineToLastMeasure(g);
 		test.addLineToLastMeasure(g);
@@ -92,7 +124,6 @@ public class TablatureTest {
 		test.addLineToLastMeasure(g);
 		
 		assertEquals(test.size(), 2);
-	
 	}
 	
 	@Test
@@ -103,20 +134,18 @@ public class TablatureTest {
 	@Test
 	public void testGetMeasures() {
 		String g = "||*-----<5>-----------<7>----------------------------*||";
-		
 		test.addLineToLastMeasure(g);
 		test.addLineToLastMeasure(g);
 		test.addLineToLastMeasure(g);
 		
-		for(int i = 0; i <test.getMeasures().size(); i++) {
-			if(test.getMeasures().get(0).getLines().get(i).compareTo(g) !=  0)
+		for (int i = 0; i <test.getMeasures().size(); i++) {
+			if (test.getMeasures().get(0).getLines().get(i).compareTo(g) !=  0)
 				fail();
 		}
 	}
 	
 	@Test
 	public void testSetMeasures() {
-
 		m1.addLine("*--------------------------------2---------------------*");
 		m1.addLine("||*-----<5>-----------<7>----------------------------*||");
 		m1.addLine("||-0-----------7-----------------------------0---------|");

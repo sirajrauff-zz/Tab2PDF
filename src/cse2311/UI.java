@@ -432,10 +432,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         if (imgURL != null) {
             return new ImageIcon(imgURL);
         } else {
-				/*Logger.getLogger(UI.class.getName()).log(Level.WARNING, "Image " + path + " not found");
-				 * TODO implement log
-				 * DO YOU EVEN LOG BRO
-				 */
+			Logger.getLogger(UI.class.getName()).log(Level.WARNING, "Image " + path + " not found");
             return null;
         }
     }
@@ -470,10 +467,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 					frame.setTitle("Tab2PDF - " + t.getTitle() + ".pdf");
 				} catch (IOException e1) { 
             		JOptionPane.showMessageDialog(frame, "Cannot open file!");
-            		/*Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
-					*		"Could not open " + prevDir, e1);
-					*TODO implement log
-					*/
+            		Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
+							"Could not open " + prevDir, e1);
         		}
 
 				title.setText(defaultTitle);
@@ -514,30 +509,24 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	        			fileTitle.setText("Saved " + t.getTitle() + ".pdf to " + destFile.getParent());
                 	} catch(Exception ex) { 
                 		JOptionPane.showMessageDialog(frame, "File in use! Cannot save.");
+	        			Logger.getLogger(UI.class.getName()).log(Level.WARNING, "Saving of " + t.getTitle() 
+	        					+ ".pdf to " + destFile.getParent() + " failed", ex);
 	        			fileTitle.setText("Save failed.");
-	        			/*Logger.getLogger(UI.class.getName()).log(Level.WARNING, "Saving of " + t.getTitle() 
-	        			*		+ ".pdf to " + destFile.getParent() + " failed", null);
-	        			*TODO implement log
-    					*/
                 	} finally {
  	                    if (source != null) {
  	                        try {
  								source.close();
  							} catch (IOException e1) {
- 								/*Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
- 								*		"FileInputStream for saving will not close", e1);
- 								*TODO implement log
- 								*/
+ 								Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
+									"FileInputStream for saving will not close", e1);
  							}
  	                    }
  	                    if (destination != null) {
  	                    	try {
  	                        	destination.close();
  	                    	} catch (IOException e1) {
- 	                    		/*Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
- 								*		"FileOutputStream for saving will not close", e1);
- 								*TODO implement log
- 								*/
+ 	                    		Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
+									"FileOutputStream for saving will not close", e1);
  	                    	}
  	                    }
  	                }
@@ -576,6 +565,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 					fileTitle.setText("Printed " + t.getTitle() + ".pdf");
 				} catch (PrinterException e1) {
 					JOptionPane.showMessageDialog(frame, "Failed to print " + t.getTitle() + ".pdf");
+					Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
+							"Printing of " + t.getTitle() + ".pdf failed.", e1);
 				}
 			}
 		}
@@ -667,8 +658,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			a2 = createA2();
 			body.add(a2, BorderLayout.CENTER);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Logger.getLogger(UI.class.getName()).log(Level.SEVERE, e1.getMessage());
 		}
 		
 		frame.setResizable(true);
@@ -749,6 +739,15 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		fileTitle.setText("Updated preview.");
     }
 	
+    public static boolean isInteger(String s) {
+	    try { 
+	        Integer.parseInt(s); 
+	    } catch(NumberFormatException e) { 
+	        return false; 
+	    }
+	    return true;
+	}
+    
     @Override
 	public void keyTyped(KeyEvent e) { }
 
@@ -765,7 +764,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		
 		else if (e.getSource().equals(zoom)) {
 			String userZoom = zoom.getText().replaceAll("%", "");
-			if (userZoom.length() > 0 && Integer.parseInt(userZoom) != 0) {
+			if (isInteger(userZoom) && userZoom.length() > 0 && Integer.parseInt(userZoom) != 0) {
 				int temp = Integer.parseInt(userZoom);
 				updatePreview(temp);
 				if (temp > 400) {
