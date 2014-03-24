@@ -19,7 +19,7 @@ public class PdfOutputCreator {
 	float spacing;
 	MusicSheet ms;
     String fileTitle;
-	File outputLocation;
+	File outputLocation, temporary;
 	PdfWriter write;
 	Style s;
 	
@@ -32,8 +32,9 @@ public class PdfOutputCreator {
 		this.spacing = userTab.getSpacing();
 		Document document = new Document(PageSize.A4);
 		FileOutputStream documentStream;
+		temporary = new File("temp.pdf");
 		
-		write = PdfWriter.getInstance(document, documentStream = new FileOutputStream(new File("temp.pdf")));
+		write = PdfWriter.getInstance(document, documentStream = new FileOutputStream(temporary));
 		document.open();
 		write.open();
 		PdfContentByte draw = write.getDirectContent();
@@ -145,6 +146,7 @@ public class PdfOutputCreator {
 			locationX = 0.0f;
 			locationY = locationY - userStyle.getSectionDistance();
 		}
+		temporary.deleteOnExit();
 		document.close();
 		write.close();
 		documentStream.close();
