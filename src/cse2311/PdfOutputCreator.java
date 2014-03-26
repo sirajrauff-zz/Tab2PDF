@@ -46,7 +46,7 @@ public class PdfOutputCreator {
 		float lastWordX = locationX; // location of last printed number/letter for arc
 		float lastWordY = locationY;
                 locationY-= printTitle(userTab.getTitle(), userTab.getSubtitle(), document);//cant pass and change primatives so i had to do this
-
+               
 		for (Staff st : ms.getStaffs()) {
 			if (locationY - userStyle.getSectionDistance() - (6 * userStyle.getLineDistance()) < 0) {
 				document.newPage();
@@ -74,7 +74,7 @@ public class PdfOutputCreator {
 					} else if (l == '|') {
 						if (j > 0) {
 							if (z >= 2 && line.charAt(z - 2) == 'D')
-								drawVerLine(locationX - 2.7f, locationY, userStyle.getLineDistance(), draw);
+                                                              drawVerLine(locationX - 2.7f, locationY, userStyle.getLineDistance(), draw);
 							else
 								drawVerLine(locationX, locationY, userStyle.getLineDistance(), draw);
 						}
@@ -109,7 +109,7 @@ public class PdfOutputCreator {
 					} else if (l == 'p' || l == 'h') {
 						createBezierCurves(draw, lastWordX, lastWordY, locationX,l);
 						drawHorLine(locationX, locationY, spacing, draw);
-						text(l + "", locationX + spacing/2 - s.getWidth(l), locationY + 9f, userStyle.myFontface, 4, draw);
+						text(l + "", locationX , locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
 						
 					} else if (l == 'D') {
