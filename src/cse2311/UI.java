@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
@@ -73,8 +74,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JButton open, help, save, print, reset;
     JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu;
 	JMenu fileMenu;
+	Timer timer;
     //---VARIABLES------------------------------------------------------------------------
-    int view = 0, indexOfHelvetica;
+    int view = 0, indexOfHelvetica, delay = 1000, userZoom;
     double width, height;
     float defaultSpacing = 5;
     boolean opened = false, allow;
@@ -340,7 +342,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	numberSpacing.addMouseListener(this);
     	numberSpacing.setToolTipText("Set spacing of numbers/symbols in tablature");
     	JPanel spacingBarsTemp = new JPanel();
-    	spacingBarsTemp.add(new JLabel("   Numbers:"));
+    	spacingBarsTemp.add(new JLabel("Numbers:      "));
     	spacingBarsTemp.add(numberSpacing);
     	
     	measureSpacing = new JSlider(140, 900, 300); //Section spacing
@@ -350,7 +352,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	measureSpacing.addMouseListener(this);
     	measureSpacing.setToolTipText("Set spacing between measures in the tablature");
     	JPanel spacingStaffsTemp = new JPanel();
-    	spacingStaffsTemp.add(new JLabel("  Measures:"));
+    	spacingStaffsTemp.add(new JLabel("Measures:     "));
     	spacingStaffsTemp.add(measureSpacing);
     	
     	lineSpacing = new JSlider(20, 210, 70); //Line spacing
@@ -360,27 +362,27 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	lineSpacing.addMouseListener(this);
     	lineSpacing.setToolTipText("Set spacing between lines in a measure");
     	JPanel spacingLinesTemp = new JPanel();
-    	spacingLinesTemp.add(new JLabel("     Lines:"));
+    	spacingLinesTemp.add(new JLabel("Lines:            "));
     	spacingLinesTemp.add(lineSpacing);
        
-        leftMargin = new JSlider(0, 160, 36); //Left margin offset
-    	leftMargin.setMinorTickSpacing(16);
+        leftMargin = new JSlider(0, 200, 36); //Left margin offset
+    	leftMargin.setMinorTickSpacing(20);
     	leftMargin.setPaintTicks(true);
     	leftMargin.setPreferredSize(new Dimension(defWidth, defHeight));
     	leftMargin.addMouseListener(this);
     	leftMargin.setToolTipText("Set margin from the left side of the page");
         JPanel LeftMarginStaffsTemp = new JPanel();
-    	LeftMarginStaffsTemp.add(new JLabel("  Left Margin:"));
+    	LeftMarginStaffsTemp.add(new JLabel(" Left Margin:    "));
     	LeftMarginStaffsTemp.add(leftMargin);
         
-        rightMargin = new JSlider(0, 160, 36); //Right margin offset
-    	rightMargin.setMinorTickSpacing(16);
+        rightMargin = new JSlider(0, 200, 36); //Right margin offset
+    	rightMargin.setMinorTickSpacing(20);
     	rightMargin.setPaintTicks(true);
     	rightMargin.setPreferredSize(new Dimension(defWidth, defHeight));
     	rightMargin.addMouseListener(this);
     	rightMargin.setToolTipText("Set margin from the right side of the page");
         JPanel RightMarginStaffsTemp = new JPanel();
-    	RightMarginStaffsTemp.add(new JLabel("  Right Margin:"));
+    	RightMarginStaffsTemp.add(new JLabel("Right Margin: "));
     	RightMarginStaffsTemp.add(rightMargin);
     	
 		reset = new JButton("Reset"); //Reset button
@@ -413,7 +415,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 
     	zoom = new JTextField(5);
     	zoom.setText(defaultZoom + "%");
-    	zoom.setEditable(false);
     	zoom.setToolTipText("Set level of zoom for preview");
     	zoom.addKeyListener(this);
     	zoom.addFocusListener(this);
@@ -800,6 +801,13 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		if (width < 1070)
 			width = 1070;
 		
+		timer = new Timer(delay, new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		fileTitle.setText("Updating title/author");
+                setVariables();
+            }
+        });
+		
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.pack();
         frame.setLocationRelativeTo(null);
@@ -865,18 +873,29 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	frame.invalidate();
     	frame.validate();
     	frame.repaint();
-		fileTitle.setText("Updated preview.");
     }
-	
-    public static boolean isInteger(String s) {
-	    try { 
-	        Integer.parseInt(s); 
-	    } catch(NumberFormatException e) { 
-	        return false; 
-	    }
-	    return true;
+
+	public void setVariables() {
+		t.setTitle(title.getText());
+		t.setSubtitle(author.getText());
+		timer.stop();
+		if (zoom.getText().length() > 0) {
+			try {
+				userZoom = Integer.parseInt(zoom.getText().replaceAll("%", ""));
+				if (userZoom > 400)
+					userZoom = 400;
+				else if (userZoom < 1)
+					userZoom = defaultZoom;
+				zoomSlide.setValue(userZoom);
+				zoom.setText(userZoom + "%");
+			}
+			catch (NumberFormatException nfe) {
+				zoom.setText(zoomSlide.getValue() + "%");
+			}
+		}
+		generatePDF(zoomSlide.getValue());
 	}
-    
+	
     @Override
 	public void keyTyped(KeyEvent e) { }
 
@@ -885,11 +904,14 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getSource().equals(title) || e.getSource().equals(author)) {
-			t.setTitle(title.getText());
-			t.setSubtitle(author.getText());
-			generatePDF(zoomSlide.getValue());
-		}
+		if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+			setVariables();
+			timer.stop();
+		} else if (timer.isRunning()) {
+			if(timer.getInitialDelay() > 0)
+				timer.restart();
+		} else 
+			timer.start();
 	}
 	
 	@Override
@@ -913,22 +935,27 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		else if (e.getSource().equals(numberSpacing)) {
 			t.setSpacing(numberSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
+			fileTitle.setText("Updated spacing");
 		}
 		else if (e.getSource().equals(measureSpacing)) {
 			s.setMeasureDistance((float) (measureSpacing.getValue() / 10f));
 			generatePDF(zoomSlide.getValue());
+			fileTitle.setText("Updated measure spacing");
 		}
 		else if (e.getSource().equals(lineSpacing)) {
 			s.setLineDistance((float) (lineSpacing.getValue() / 10));
 			generatePDF(zoomSlide.getValue());
+			fileTitle.setText("Updated line spacing");
 		}
 		else if (e.getSource().equals(leftMargin)) {
 			s.setLeftMargin((float) leftMargin.getValue());
 			generatePDF(zoomSlide.getValue());
+			fileTitle.setText("Left Margin adjusted");
         }
 		else if (e.getSource().equals(rightMargin)) {
 			s.setRightMargin((float) rightMargin.getValue());
 			generatePDF(zoomSlide.getValue());
+			fileTitle.setText("Right Margin adjusted");
 		}
 	}
 
