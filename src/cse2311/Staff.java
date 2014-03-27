@@ -85,11 +85,11 @@ public class Staff {
 	}
 
 	private StringBuffer fixedLine(String line) {
-		line = line.replace("T","|-|-|");
-		line = line.replace("DD","D");
-                line = line.replace("|D","D");
-                line = line.replace("D|","D");
-		line = line.replace("||","|");
+		line = line.replace("T", "|-|-|");
+		line = line.replace("DD", "D");
+        line = line.replace("|D", "D");
+        line = line.replace("D|", "D");
+		line = line.replace("||", "|");
 		return new StringBuffer(line);
 	}	
 

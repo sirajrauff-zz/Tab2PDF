@@ -9,16 +9,20 @@ import java.awt.print.Paper;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -67,7 +71,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JComboBox<Integer> fontSizeTitle, fontSizeAuthor, fontSize;
     JSlider numberSpacing, measureSpacing, lineSpacing, zoomSlide, leftMargin, rightMargin;
     JButton open, help, save, print, reset;
-    JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu;
+    JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu;
+	JMenu fileMenu;
     //---VARIABLES------------------------------------------------------------------------
     int view = 0, indexOfHelvetica;
     double width, height;
@@ -111,12 +116,26 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         frame.setLayout(new BorderLayout());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        //set look and feel to os's look and feel
+        //set look and feel to OS's look and feel, if it fails will just use the default Java look and feel
         try	{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) { }
         
-        //Create and set up the content pane.
+        recentFile = new File("recent.txt");
+        try {
+        	if (!recentFile.exists())
+        		recentFile.createNewFile();
+			fileReader = new FileReader(recentFile);
+        	bufferedReader = new BufferedReader(fileReader);
+        	String line;
+			while((line = bufferedReader.readLine()) != null) {
+                recent.add(line);
+            }
+			fileReader.close();
+			bufferedReader.close();
+		} catch (IOException e) { }
+
+		//Create and set up the content pane.
         UI demo = new UI();
         frame.setJMenuBar(demo.createMenuBar());
         frame.add(demo.createBody(), BorderLayout.CENTER);
@@ -163,6 +182,29 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         printMenu.setEnabled(false);
         menu.add(printMenu);
         
+		menu.addSeparator();
+	    fileMenu = new JMenu("Recent");
+	    if (recent.size() != 0) {
+	        int index = 1;
+	        for(Iterator<String> itr = recent.iterator(); itr.hasNext() && index <= 6;)  {
+	        	File temp = new File(itr.next());
+	        	JMenuItem temp2 = new JMenuItem(index + "." + temp.getName());
+	        	temp2.addActionListener(this);
+	        	recentMenu.add(temp2);
+	        	fileMenu.add(temp2);
+	        	index++;
+		    }
+		}
+		else 
+	    	fileMenu.setEnabled(false);
+	    menu.add(fileMenu);
+
+        menu.addSeparator();
+        icon = createImageIcon("images/exit16.png");
+        exitMenu = new JMenuItem("Exit", icon);
+        exitMenu.addActionListener(this);
+        menu.add(exitMenu);
+		
         //Build second menu for options
         menu = new JMenu("Options");
         menuBar.add(menu);
@@ -467,32 +509,17 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				try {
-					t = c.readFile(txtFile);
-			        defaultTitle = t.getTitle();
-			        defaultSubtitle = t.getSubtitle();
-			        defaultSpacing = t.getSpacing();
-					generatePDF(defaultZoom);
-					
-			        save.setEnabled(true);
-			        print.setEnabled(true);
-			        saveMenu.setEnabled(true);
-			        printMenu.setEnabled(true);
-			        fileTitle.setText("Opened " + t.getTitle() + ".txt");
-					frame.setTitle("Tab2PDF - " + t.getTitle() + ".pdf");
+					open(txtFile);
 				} catch (IOException e1) { 
             		JOptionPane.showMessageDialog(frame, "Cannot open file!");
             		Logger.getLogger(UI.class.getName()).log(Level.SEVERE, 
 							"Could not open " + prevDir, e1);
         		}
-		        if (opened)
-		        	reset();
-		        else
-		        	opened = true;
 			}
 			else
 				fileTitle.setText("Open cancelled.");
 		}
-		
+
 		else if (e.getSource().equals(save) || e.getSource().equals(saveMenu)) {
 			JFileChooser saveFile = new JFileChooser();
 			output = new File(t.getTitle() + ".pdf");
@@ -610,6 +637,92 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			t.setSubtitle(defaultSubtitle);
 			t.setSpacing(defaultSpacing);
 			reset();
+		}
+		
+		else if (fileMenu.getItem(0) != null && fileMenu.getItem(0).equals(e.getSource())) {
+			try {
+				open(new File(recent.get(0)));
+			} catch (FileNotFoundException e1) { }
+		}
+		else if (fileMenu.getItem(1) != null && fileMenu.getItem(1).equals(e.getSource())) {
+			try {
+				open(new File(recent.get(1)));
+			} catch (FileNotFoundException e1) { }
+		}
+		else if (fileMenu.getItem(2) != null && fileMenu.getItem(2).equals(e.getSource())) {
+			try {
+				open(new File(recent.get(2)));
+			} catch (FileNotFoundException e1) { }
+		}
+		else if (fileMenu.getItem(3) != null && fileMenu.getItem(3).equals(e.getSource())) {
+			try {
+				open(new File(recent.get(3)));
+			} catch (FileNotFoundException e1) { }
+		}
+		else if (fileMenu.getItem(4) != null && fileMenu.getItem(4).equals(e.getSource())) {
+			try {
+				open(new File(recent.get(4)));
+			} catch (FileNotFoundException e1) { }
+		}
+		else if (fileMenu.getItem(5) != null && fileMenu.getItem(5).equals(e.getSource())) {
+			try {
+				open(new File(recent.get(6)));
+			} catch (FileNotFoundException e1) { }
+		}
+	}
+
+	private void open(File userFile) throws FileNotFoundException {
+		t = c.readFile(userFile);
+		defaultTitle = t.getTitle();
+		defaultSubtitle = t.getSubtitle();
+		defaultSpacing = t.getSpacing();
+		generatePDF(defaultZoom);
+		fileTitle.setText("Opened " + t.getTitle() + ".txt");
+		frame.setTitle("Tab2PDF - " + t.getTitle() + ".pdf");
+		
+        if (opened)
+        	reset();
+        else {
+        	opened = true;
+			fileMenu.setEnabled(true);
+			save.setEnabled(true);
+			print.setEnabled(true);
+			saveMenu.setEnabled(true);
+			printMenu.setEnabled(true);
+        }
+        
+        if (!recent.contains(userFile.getAbsolutePath())) {
+			recent.add(0, userFile.getAbsolutePath());
+			while (recent.size() > 6)
+				recent.remove(6);
+		}
+		else {
+			recent.remove(userFile.getAbsolutePath());
+			recent.add(0, userFile.getAbsolutePath());
+		}
+		
+		try {
+			FileWriter fw = new FileWriter(recentFile.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);		
+			for (String item: recent) {
+			    bw.append(item);
+				bw.newLine();
+			}
+			bw.close();
+			fw.close();
+		} catch (IOException e1) { }
+		
+		if (fileMenu != null) 
+			fileMenu.removeAll();
+		
+	    int index = 1;
+	    for (String item: recent) {
+	    	File temp = new File(item);
+	    	JMenuItem temp2 = new JMenuItem(index + ". " + temp.getName());
+	    	temp2.addActionListener(this);
+	    	recentMenu.add(temp2);
+	    	fileMenu.add(temp2);
+	    	index++;
 		}
 	}
 

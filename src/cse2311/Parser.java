@@ -25,8 +25,7 @@ public class Parser {
         logger = Logger.getLogger("MyLog");  
         try { // This block configure the logger with handler and formatter  
             fh = new FileHandler("logs/MyLogFile " + System.currentTimeMillis() + ".log");  
-            logger.addHandler(fh);  
-         
+            logger.addHandler(fh);
             SimpleFormatter formatter = new SimpleFormatter();  
             fh.setFormatter(formatter);  
         } catch (SecurityException | IOException e) {  
@@ -62,43 +61,39 @@ public class Parser {
 
 			if (nextLine.isEmpty())
 				continue;
-			
-			if (nextLine.matches("\\t") || nextLine.matches("\\s+")) {
-				logger.info("Line " + i + " Wrongly Formated:" + nextLine);
+			else if (readHeader(returnTab, nextLine))
 				continue;
-			}
-			if (nextLine.length() < 4){
-				logger.info("Line " + i + " Wrongly Formated:" + nextLine);
+			else if (nextLine.matches("\\t") || nextLine.matches("\\s+")) {
+				logger.info("Line " + i + " ignored, no content:" + nextLine);
 				continue;
-			}
-			if (readHeader(returnTab, nextLine))
+			} else if (nextLine.length() < 4) {
+				logger.info("Line " + i + " too short:" + nextLine);
 				continue;
-			if (nextLine.indexOf('-') == -1) {
-				logger.info("Line " + i + " Wrongly Formated:" + nextLine);
+			} else if (nextLine.indexOf('-') == -1) {
+				logger.info("Line " + i + " ignored, no line:" + nextLine);
 				continue;
-			}
-			if (nextLine.indexOf('|') == -1){
-				logger.info("Line " + i + " Wrongly Formated:" + nextLine);
+			} else if (nextLine.indexOf('|') == -1) {
+				logger.info("Line " + i + " has no seperating characters `|`:" + nextLine);
 				continue;
-			}
-			if (nextLine.split(correctLine).length > 0)
-				nextLine = nextLine.substring(0, nextLine.lastIndexOf('|') + 1);
-			char r = 92;
-			nextLine= nextLine.replace(r,'-');
-			r = ']';
-			nextLine= nextLine.replace(r,')');
-			r = '[';
-			nextLine= nextLine.replace(r,'(');
-			
-			if (nextLine.matches(correctLine)) {
+			} else if (nextLine.matches(correctLine)) {
 				nextLine = subsituteSymbols(nextLine);
-				StringTokenizer StrTkn = new StringTokenizer(nextLine,measureSeparators);
+				StringTokenizer StrTkn = new StringTokenizer(nextLine, measureSeparators);
 				if (StrTkn.countTokens() > 1)
 					returnTab.addMultiMeasureLine(StrTkn);
 				else if ((StrTkn.countTokens() > 0) && (StrTkn.countTokens() < 2))
 					returnTab.addLineToLastMeasure(StrTkn.nextToken());
 			} else
-				logger.info("Line " + i + " Wrongly Formated:" + nextLine);
+				logger.info("Line " + i + " ignored:" + nextLine);
+			
+			if (nextLine.split(correctLine).length > 0)
+				nextLine = nextLine.substring(0, nextLine.lastIndexOf('|') + 1);
+			
+			char r = 92;
+			nextLine= nextLine.replace(r, '-');
+			r = ']';
+			nextLine= nextLine.replace(r, ')');
+			r = '[';
+			nextLine= nextLine.replace(r, '(');
 		}
 		s.close();
 		return returnTab;

@@ -39,13 +39,11 @@ public class PdfOutputCreator {
 		write.open();
 		PdfContentByte draw = write.getDirectContent();
 
-		
-
 		float locationX = 0.0f;
 		float locationY = document.top();
 		float lastWordX = locationX; // location of last printed number/letter for arc
 		float lastWordY = locationY;
-                locationY-= printTitle(userTab.getTitle(), userTab.getSubtitle(), document);//cant pass and change primatives so i had to do this
+        locationY -= printTitle(userTab.getTitle(), userTab.getSubtitle(), document);
                
 		for (Staff st : ms.getStaffs()) {
 			if (locationY - userStyle.getSectionDistance() - (6 * userStyle.getLineDistance()) < 0) {
@@ -74,7 +72,7 @@ public class PdfOutputCreator {
 					} else if (l == '|') {
 						if (j > 0) {
 							if (z >= 2 && line.charAt(z - 2) == 'D')
-                                                              drawVerLine(locationX - 2.7f, locationY, userStyle.getLineDistance(), draw);
+								drawVerLine(locationX - 2.7f, locationY, userStyle.getLineDistance(), draw);
 							else
 								drawVerLine(locationX, locationY, userStyle.getLineDistance(), draw);
 						}
@@ -102,12 +100,12 @@ public class PdfOutputCreator {
 						
 					}  else if (l == 'p' && line.charAt(z - 1) == '|') {
 						drawHorLine(locationX, locationY, spacing, draw);
-						createBezierCurves(draw, lastWordX, lastWordY, locationX,l);
+						createBezierCurves(draw, lastWordX, lastWordY, locationX, l);
 						text(l + "", locationX - 1.12f, locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
 						
 					} else if (l == 'p' || l == 'h') {
-						createBezierCurves(draw, lastWordX, lastWordY, locationX,l);
+						createBezierCurves(draw, lastWordX, lastWordY, locationX, l);
 						drawHorLine(locationX, locationY, spacing, draw);
 						text(l + "", locationX , locationY + 9f, userStyle.myFontface, 4, draw);
 						locationX = locationX + spacing;
@@ -155,19 +153,17 @@ public class PdfOutputCreator {
 	
 	private float printTitle(String title, String subtitle, Document document)
 			throws DocumentException {
-                float moveY=0.0f;
-		Paragraph Title = new Paragraph(title, new Font(s.myFontface, s.getMyTitleSize()));
-               // Title.setLeading(3f, 0.0f);
+        float moveY = 0.0f;
+		Paragraph Title = new Paragraph(title, new Font(s.myFontface, s.getMyTitleSize())); // Title.setLeading(3f, 0.0f);
 		Title.setAlignment(1);
 		document.add(Title);
-                moveY += Title.getLeading();
-		Paragraph subTitle = new Paragraph(subtitle, new Font(s.myFontface, s.getMySubTitleSize()));
-		//Title.setLeading(3f, 0.0f);
-                subTitle.setAlignment(1);
+        moveY += Title.getLeading();
+		Paragraph subTitle = new Paragraph(subtitle, new Font(s.myFontface, s.getMySubTitleSize())); //Title.setLeading(3f, 0.0f);
+        subTitle.setAlignment(1);
 		document.add(subTitle);
-                moveY +=subTitle.getLeading();
-                moveY += 20f;
-            return moveY;
+        moveY += subTitle.getLeading();
+        moveY += 20f;
+        return moveY;
 	}
 
 	private void drawHorLine(float currX, float currY, float toX, PdfContentByte draw) {
@@ -179,8 +175,7 @@ public class PdfOutputCreator {
 	}
 
 	private void drawVerLine(float currX, float currY, float toY, PdfContentByte draw) {
-		
-                draw.setLineWidth(.5f);
+		draw.setLineWidth(.5f);
 		draw.moveTo(currX + 1.5f, currY);
 		draw.lineTo(currX + 1.5f, currY + toY);
 		draw.stroke();
@@ -240,17 +235,12 @@ public class PdfOutputCreator {
 		draw.restoreState();
 	}
 
-	private void createBezierCurves(PdfContentByte draw, float x0, float y0, float x1,char c) {
-		
-           
-            draw.moveTo(x0 + s.getWidth(c), y0 +s.getHeight()/2);//Start Point
-            
+	private void createBezierCurves(PdfContentByte draw, float x0, float y0, float x1, char c) {
+            draw.moveTo(x0 + s.getWidth(c), y0 +s.getHeight() / 2); //Start Point
             float third = ((x1+spacing)-(x0 + s.getWidth(c))) / 3.0f;
-            
-           // Control Point 1, Control Point 2, End Point
-            draw.curveTo(
-                    x0+s.getWidth(c)+third, y0+s.getHeight()/1.5f,  // Control Point 1
-                    x0+s.getWidth(c)+(2*third),y0+s.getHeight()/1.5f,  // Control Point 2
-                    x1+spacing, y0 +s.getHeight()/2);//End Point
+            draw.curveTo( // Control Point 1, Control Point 2, End Point
+                    x0 + s.getWidth(c) + third, y0 + s.getHeight() / 1.5f, // Control Point 1
+                    x0 + s.getWidth(c) + (2 * third), y0 + s.getHeight() / 1.5f, // Control Point 2
+                    x1 + spacing, y0 + s.getHeight() / 2); //End Point
 	}
 }

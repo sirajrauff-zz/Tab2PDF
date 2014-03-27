@@ -74,7 +74,7 @@ public  class Measure {
 
 	private void checkBarType() {
 		char left = getLines().get(2).charAt(0);
-		char right = getLines().get(2).charAt(getLines().get(2).length()-1);
+		char right = getLines().get(2).charAt(getLines().get(2).length() - 1);
 	
 		if (left == right && right == '*') {
 			barType = "Both";
