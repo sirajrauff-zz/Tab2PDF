@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  */
 public class FontSelector {
   final static public String Fonts[] = {
-"(FREEWIND)", "Monospace", "ALBA____", "Moon Flower", "Carnevalee Freakshow",	
+"(FREEWIND)", "Moon Flower", "Carnevalee Freakshow",	
 "PWPerspective", "Champagne & Limousines", "Park Lane NF", "Dolce Vita", 
 "Please write me a song", "Duty Cycle",	"Prisma", "Font (el&font bubble)",	
 "Sketch_Block", "Freshman",	"budmo jiggler", "Magnolia Light", "geek",

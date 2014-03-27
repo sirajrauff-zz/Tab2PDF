@@ -8,15 +8,18 @@ import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -37,10 +40,12 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.itextpdf.text.DocumentException;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
+
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,6 +83,12 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     PDFFile pdfFile;
     ArrayList<Image> image = new ArrayList<Image>();
     ArrayList<JLabel> pageLabel = new ArrayList<JLabel>();
+    //---RECENTLY-USED--------------------------------------------------------------------
+    static FileReader fileReader;
+    static BufferedReader bufferedReader;
+    static File recentFile;
+    static ArrayList<String> recent = new ArrayList<String>();
+    ArrayList<JMenuItem> recentMenu = new ArrayList<JMenuItem>();
 	
     /**
      * Only used to instantiate the program
@@ -360,6 +371,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 
     	zoom = new JTextField(5);
     	zoom.setText(defaultZoom + "%");
+    	zoom.setEditable(false);
     	zoom.setToolTipText("Set level of zoom for preview");
     	zoom.addKeyListener(this);
     	zoom.addFocusListener(this);
@@ -387,8 +399,11 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		return temp;
     }
     
+    /**
+     * @return JScrollPane for live preview
+     * @throws IOException
+     */
     public JScrollPane createA2() throws IOException {
-    	
     	pageLabel.add(new JLabel());
     	if (image.size() > 0) {
     		for (int i = 0; i < image.size(); i++)
@@ -761,23 +776,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			t.setTitle(title.getText());
 			t.setSubtitle(author.getText());
 			generatePDF(zoomSlide.getValue());
-		}
-		
-		else if (e.getSource().equals(zoom)) {
-			String userZoom = zoom.getText().replaceAll("%", "");
-			if (isInteger(userZoom) && userZoom.length() > 0 && Integer.parseInt(userZoom) != 0) {
-				int temp = Integer.parseInt(userZoom);
-				updatePreview(temp);
-				if (temp > 400) {
-					zoomSlide.setValue(400);
-					zoom.setText("400%");
-				}
-				else
-					zoomSlide.setValue(temp);
-			}
-			else {
-				zoom.setText(defaultZoom + "%");
-			}
 		}
 	}
 	
