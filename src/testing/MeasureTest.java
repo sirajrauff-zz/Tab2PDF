@@ -12,7 +12,6 @@ import cse2311.Measure;
 
 /**
  * @author Jason
- * 
  * JUnit test case for the Measure class
  */
 public class MeasureTest {

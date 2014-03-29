@@ -9,7 +9,6 @@ import cse2311.FontSelector;
 
 /**
  * @author Jason
- * 
  * Test class for the FontSelector Class
  */
 public class FontSelectorTest {

@@ -13,8 +13,7 @@ import cse2311.Staff;
 
 /**
  * @author Jason
- *
- *Test class for the Staff Class
+ * Test class for the Staff Class
  */
 public class StaffTest {
 	private Measure m, m1;

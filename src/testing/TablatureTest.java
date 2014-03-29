@@ -14,7 +14,6 @@ import cse2311.Tablature;
 
 /**
  * @author Jason
- * 
  * Test class for the Tablature class
  */
 public class TablatureTest {
