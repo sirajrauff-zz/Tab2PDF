@@ -10,13 +10,13 @@ import java.util.logging.Logger;
  * @author Waleed Azhar
  */
 public class FontSelector {
-  final static public String Fonts[] = {
-"(FREEWIND)", "Moon Flower", "Carnevalee Freakshow",	
-"PWPerspective", "Champagne & Limousines", "Park Lane NF", "Dolce Vita", 
-"Please write me a song", "Duty Cycle",	"Prisma", "Font (el&font bubble)",	
-"Sketch_Block", "Freshman",	"budmo jiggler", "Magnolia Light", "geek",
-"Minecraftia", "gunplay rg", "Helvetica", "Times New Roman", "Courier"};
-   
+	final static public String Fonts[] = {
+		"(FREEWIND)", "Moon Flower", "Carnevalee Freakshow",	
+		"PWPerspective", "Champagne & Limousines", "Park Lane NF", "Dolce Vita", 
+		"Please write me a song", "Duty Cycle",	"Prisma", "Font (el&font bubble)",	
+		"Sketch_Block", "Freshman",	"budmo jiggler", "Magnolia Light", "geek",
+		"Minecraftia", "gunplay rg", "Helvetica", "Times New Roman", "Courier"};
+		   
    public static BaseFont getFont(int index) {
       try {
           if (Fonts[index] == "Helvetica") {
