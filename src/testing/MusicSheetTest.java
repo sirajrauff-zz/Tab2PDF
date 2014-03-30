@@ -62,7 +62,7 @@ public class MusicSheetTest {
 	}
 	
 	/**
-	 * Test class for MusicSheet(Tablature tab, Style s) which is constructor for the class. This method is tested
+	 * Test class for MusicSheet(Tablature tab, Style s) which is the constructor for the class. This method is tested
 	 * by asserting that the test instance of musicSheet contains the expected value.
 	 */
 	@Test
@@ -133,9 +133,7 @@ public class MusicSheetTest {
 	public void testPrint() {
 		try {
 			log = new PrintStream(new File("test files/music sheet/testPrint.txt"));
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
+		} catch (FileNotFoundException e1) { }
 
 		System.setOut(log);
 		
@@ -161,9 +159,7 @@ public class MusicSheetTest {
 	public void testPrintStaff() {
 		try {
 			log = new PrintStream(new File("test files/music sheet/testPrintStaff.txt"));
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace();
-		}
+		} catch (FileNotFoundException e1) { }
 		
 		System.setOut(log);
 		test.getStaffs().get(0).printLines();
@@ -185,8 +181,6 @@ public class MusicSheetTest {
 			assertEquals(input.nextLine(), result);
 			assertEquals(input.nextLine(), result1);
 			assertEquals(input.nextLine(), result2);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}	
+		} catch (FileNotFoundException e) { }	
 	}
 }

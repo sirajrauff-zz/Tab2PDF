@@ -1,8 +1,11 @@
 package cse2311;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.FileHandler;
@@ -18,19 +21,23 @@ public class Parser {
 	String acceptedSymbols = "[\\x5c\\|\\-\\s,*\\+<>0-9^\\(\\)hp=gSs%ex/]+";
 	String correctLine = "^(\\||\\-|[0-9])("+acceptedSymbols+"(\\s?)+"+")(\\||\\-|[0-9])" ;
 	String measureSeparators = "[\\|]";
+	String logPath;
 	FileHandler fh;
+	File temp;
 	Logger logger;
+	Boolean logEmpty = true;
     
 	public Parser() { 
-        logger = Logger.getLogger("MyLog");  
+        logger = Logger.getLogger("MyLog");
         try { // This block configure the logger with handler and formatter  
-            fh = new FileHandler("logs/MyLogFile " + System.currentTimeMillis() + ".log");  
+        	logPath = "logs/MyLogFile " + System.currentTimeMillis() + ".log";
+            fh = new FileHandler("logs/temp.log");  
             logger.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();  
-            fh.setFormatter(formatter);  
-        } catch (SecurityException | IOException e) {  
-            e.printStackTrace();  
-        }
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        	temp = new File ("logs/temp.log");
+			temp.deleteOnExit();
+        } catch (SecurityException | IOException e) { }
 	}
 
 	private String subsituteSymbols(String sections) {
@@ -49,6 +56,7 @@ public class Parser {
 		
 		return out;
 	}
+	
 
 	public Tablature readFile(File file) throws FileNotFoundException {
 		Scanner s = new Scanner(file);
@@ -65,15 +73,19 @@ public class Parser {
 				continue;
 			else if (nextLine.matches("\\t") || nextLine.matches("\\s+")) {
 				logger.info("Line " + i + " ignored, no content:" + nextLine);
+				logEmpty = false;
 				continue;
 			} else if (nextLine.length() < 4) {
 				logger.info("Line " + i + " too short:" + nextLine);
+				logEmpty = false;
 				continue;
 			} else if (nextLine.indexOf('-') == -1) {
 				logger.info("Line " + i + " ignored, no line:" + nextLine);
+				logEmpty = false;
 				continue;
 			} else if (nextLine.indexOf('|') == -1) {
 				logger.info("Line " + i + " has no seperating characters `|`:" + nextLine);
+				logEmpty = false;
 				continue;
 			} else if (nextLine.matches(correctLine)) {
 				nextLine = subsituteSymbols(nextLine);
@@ -82,8 +94,10 @@ public class Parser {
 					returnTab.addMultiMeasureLine(StrTkn);
 				else if ((StrTkn.countTokens() > 0) && (StrTkn.countTokens() < 2))
 					returnTab.addLineToLastMeasure(StrTkn.nextToken());
-			} else
+			} else {
 				logger.info("Line " + i + " ignored:" + nextLine);
+				logEmpty = false;
+			}
 			
 			if (nextLine.split(correctLine).length > 0)
 				nextLine = nextLine.substring(0, nextLine.lastIndexOf('|') + 1);
@@ -96,7 +110,27 @@ public class Parser {
 			nextLine= nextLine.replace(r, '(');
 		}
 		s.close();
+		if (!logEmpty) {
+            createLog();
+		}
 		return returnTab;
+	}
+
+	/**
+	 * Copy over the temp Log to one named after program start time
+	 */
+	private void createLog() {
+		try {
+			FileInputStream tempIn = new FileInputStream(temp);
+			FileOutputStream tempOut = new FileOutputStream(new File(logPath));
+			FileChannel source = tempIn.getChannel();
+			FileChannel destination = tempOut.getChannel();
+			destination.transferFrom(source, 0, source.size());
+			tempIn.close();
+			tempOut.close();
+			source.close();
+			destination.close();
+		} catch (IOException e) { }
 	}
 
 	private boolean readHeader(Tablature returnTab, String nextLine) {

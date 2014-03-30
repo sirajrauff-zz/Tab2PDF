@@ -141,9 +141,6 @@ public class MeasureTest {
 		assertEquals(test1.size(), 6);
     }
     
-    
-    
-    
     /**
      * Tests the method setRepeat() which receives as parameters booleans
      * 
@@ -350,7 +347,6 @@ public class MeasureTest {
 			input.close();
 		} catch (FileNotFoundException e) { }	
     }
-    
     
     /**
      * Test case for the method getSpacing() which returns the current value for spacing. In this case the current

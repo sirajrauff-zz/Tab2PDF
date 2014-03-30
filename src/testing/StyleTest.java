@@ -18,7 +18,7 @@ public class StyleTest {
 	
 	/**
 	 * @throws IOException - as specified in the API, this exception will never occur
-	 * @throws DocumentException - - as specified in the API, this exception will never occur
+	 * @throws DocumentException - as specified in the API, this exception will never occur
 	 * 
 	 */
 	@Before

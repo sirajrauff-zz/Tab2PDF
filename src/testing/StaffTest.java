@@ -301,7 +301,8 @@ public class StaffTest {
 		result.add(new StringBuffer("D-||---3--------2--------0-----0-0-----|-D"));
 		
 		for (int i = 0; i < result.size(); i++) {
-			if (test.getLines().get(i).toString().compareTo(result.get(i).toString()) != 0) { fail(); }
+			if (test.getLines().get(i).toString().compareTo(result.get(i).toString()) != 0) 
+				fail(); 
 		}
 	    assertTrue(true);  
 	}
@@ -311,8 +312,7 @@ public class StaffTest {
 	 * initialization of the staff class.
 	 */
 	@Test
-	public void testGetPrintSpace() {
-		//PrintSpace equals 100f as defined in the initialization of test in the setup method
+	public void testGetPrintSpace() { //PrintSpace equals 100f as defined in the initialization of test in the setup method
 		assertEquals(test.getPrintSpace(), 300f, 0.0);
 	}
 
@@ -366,8 +366,6 @@ public class StaffTest {
 			assertEquals(input.nextLine(), "D-||---3--------2--------0-----0-0-----|-D");
 			
 			input.close();
-		} catch (FileNotFoundException e) { 
-			e.printStackTrace();
-		}
+		} catch (FileNotFoundException e) {  }
 	}
 }

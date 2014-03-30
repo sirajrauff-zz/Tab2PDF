@@ -23,7 +23,7 @@ public class TablatureTest {
 	
 	/**
 	 * 
-	 * Instantiates a new tablature instance called test. It also creates two instances of measure with the 
+	 * Instantiates a new Tablature instance called test. It also creates two instances of measure with the 
 	 * spacing value set as 0f and it also instantiates a new ArrayList of type measure which will be used
 	 * in testing the methods
 	 */
@@ -35,9 +35,8 @@ public class TablatureTest {
 		m2 = new Measure(0f);
 	}
 	
-	
 	/**
-	 * Test case for the constructor of tablature which creates a new instance of tablature with both
+	 * Test case for the constructor of Tablature which creates a new instance of Tablature with both
 	 * the title and subtitle set as the string "Default". This method is tested by asserting the title
 	 * and subtitle are equal to the string "Default"
 	 */
@@ -46,7 +45,6 @@ public class TablatureTest {
 		assertEquals(test.getTitle(), "Default");
 		assertEquals(test.getSubtitle(), "Default");
 	}
-
 	
 	/**
 	 * Test case for the method addLineToLastMeasure(String g) which adds a string/line to the current instance
@@ -110,7 +108,7 @@ public class TablatureTest {
 	}
 
 	/**
-	 * Test case for the method printMeasures() which prints the all the measures currently in tablature.
+	 * Test case for the method printMeasures() which prints the all the measures currently in Tablature.
 	 * This method is tested by first switching the output stream to a file and then asserting that the 
 	 * contents of the file are equal to the expected value.
 	 */
@@ -147,7 +145,7 @@ public class TablatureTest {
 	}
 	
 	/**
-	 * Test case for the size() method which returns the current number of measures in tablature. This method
+	 * Test case for the size() method which returns the current number of measures in Tablature. This method
 	 * is tested by adding one measure to the tablature and then asserting the size is equal to 1. Another measure 
 	 * is then added and the current size is asserted to be 2
 	 */
@@ -180,10 +178,9 @@ public class TablatureTest {
 			assertEquals(test.getSpacing(), 5f, 0.0);
 	}
 	
-	
 	/**
 	 * Test case for the method getMeasures() which returns an arrayList of all the measures currently
-	 * in tablature. This method is tested by iterating through the returned arrayList and asserting that
+	 * in Tablature. This method is tested by iterating through the returned arrayList and asserting that
 	 * each element in the arrayList is equal to the expected value.
 	 */
 	@Test
@@ -261,7 +258,7 @@ public class TablatureTest {
 	}
 
 	/**
-	 * Test case for the method getTitle() which returns the title of the tablature
+	 * Test case for the method getTitle() which returns the title of the Tablature
 	 */
 	@Test
 	public void testGetTitle() {
@@ -280,7 +277,7 @@ public class TablatureTest {
 	}
 	
 	/**
-	 * Test case for the method getTitle() which returns the title of the tablature
+	 * Test case for the method getTitle() which returns the title of the Tablature
 	 */
 	@Test
 	public void testGetSubtitle() {

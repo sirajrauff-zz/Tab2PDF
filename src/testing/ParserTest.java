@@ -17,7 +17,7 @@ public class ParserTest {
 	private Tablature tab;
 	
 	/**
-	 * Instantiates an instance of Parser called test and an instance of the class tablature
+	 * Instantiates an instance of Parser called test and an instance of the class Tablature
 	 * which stores the information the parser parses from the text file
 	 */
 	@Before
@@ -27,25 +27,12 @@ public class ParserTest {
 	}
 
 	/**
-	 * Test case for the constructor of the Parser class. The constructor creates a new log in which all errors
-	 * encountered during the parsing process is logged. This method is tested manually by going to the directory
-	 * of the log file and verifying visually that it was created
-	 * 
-	 * The log file is created in the directory /workspace/cse2311/logs
-	 */
-	@Test
-	public void testParser() {
-		assertTrue(true);
-	}
-
-	/**
 	 * This method tests that an exception is thrown when a non-existent file is selected. This exception
 	 * will never be thrown when the GUI is being used
 	 */
 	@Test
 	public void testExceptionReadFile() {
 		boolean check;
-	
 		try {
 			tab = test.readFile(new File("remember.txt"));
 		} 
@@ -57,7 +44,7 @@ public class ParserTest {
 	
 	/**
 	 * Test case for the method readFile(File input) which parses a text file and stores the information
-	 * in a tablature which it returns. This method is tested by converting 6 possible user inputs and checking
+	 * in a Tablature which it returns. This method is tested by converting 6 possible user inputs and checking
 	 * if the correct results are produced
 	 */
 	@Test
@@ -226,8 +213,6 @@ public class ParserTest {
 			* The following is from the 5th text file
 				
 				INFO: Line 6 ignored:	|-----1-----1-----1-----1-|-----1-----1-----1-----1-| */
-			
-			assertTrue(true);
 		} 
 		catch (FileNotFoundException e) {  }
 	}

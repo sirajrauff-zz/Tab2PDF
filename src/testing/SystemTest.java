@@ -12,10 +12,10 @@ import org.junit.Test;
 import cse2311.UI;
 
 /**
- * @author Jason, Siraj
+ * @author Jason
  *
  * System test class. This class tests the main functionality of the program including the GUI.
- * It does this using a robot to automatically convert a tablature (specifically "rememberingrain.txt")
+ * It does this using a robot to automatically convert a Tablature (specifically "rememberingrain.txt")
  * to a PDF called "systemtest.pdf" in the program's directory. The file is then tested for content
  * and creation time to ensure it is the correct file.
  *
@@ -65,7 +65,7 @@ public class SystemTest {
 			test.keyPress(KeyEvent.VK_T);
 			
 			test.keyPress(KeyEvent.VK_ENTER); //Press enter, 'open' button already selected by default
-			test.delay(32000 / computerSpeed);
+			test.delay(40000 / computerSpeed);
 			
 			test.keyPress(KeyEvent.VK_TAB);
 			test.delay(500 / computerSpeed);

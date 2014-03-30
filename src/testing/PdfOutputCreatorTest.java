@@ -17,22 +17,13 @@ import cse2311.*;
  * Test class for the PdfOutputCreator class
  */
 public class PdfOutputCreatorTest {
-
-	/**
-	 * Test case for the constructor of this class. The constructor just creates an instance of this class 
-	 * and nothing else
-	 */
-	@Test
-	public void testPdfOutputCreator() {
-		assertTrue(true);
-	}
 	
 	/**
-	 * Test case for the method testMakePDF which uses the music sheet, tablature, parser, and style classes 
-	 * to create a PDF file of a given text file tablature. This method is tested by converting 6 tablatures to 
-	 * PDF with each tablature testing most possible inputs and manually asserting it is correct.
+	 * Test case for the method testMakePDF which uses the MusicSheet, Tablature, Parser, and Style classes 
+	 * to create a PDF file of a given text file Tablature. This method is tested by converting 6 Tablatures to 
+	 * PDFs with each Tablature testing most possible inputs and manually asserting it is correct.
 	 * 
-	 * This testing case does not involve the use of a GUI, so the tablature is not customizable
+	 * This testing case does not involve the use of a GUI, so the Tablature is not customizable
 	 * 
 	 * The PDF is also read and compared with what is expected in the file. Please note that due to the 
 	 * current capabilities of java only the texts could be extracted from the PDFs
@@ -50,7 +41,7 @@ public class PdfOutputCreatorTest {
 			Tablature tab = new Tablature();                                           
 			Parser parse = new Parser();
 			PdfOutputCreator create = new PdfOutputCreator();
-			File out =  new File("test files/PdfOutputCreator/pdfOutput_test1.txt");
+			File out = new File("test files/PdfOutputCreator/pdfOutput_test1.txt");
 			tab = parse.readFile(out);
 			Style style = new Style();
 			create.makePDF(tab, style);
@@ -66,6 +57,7 @@ public class PdfOutputCreatorTest {
 			
 			input = new PdfReader("test files/PdfOutputCreator/pdfOutput_test1.pdf");  //Extracts the texts from the created PDFs
 			page = PdfTextExtractor.getTextFromPage(input, 1);
+			input.close();
 
 			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test1.pdf").exists());   //asserts that the PDF was created
 			assertEquals(page, "Default\nDefault");
@@ -80,8 +72,7 @@ public class PdfOutputCreatorTest {
 			Style style1 = new Style();
 			create1.makePDF(tab1, style1);
 			
-			source = null; //this is used to rename the temp file that is created
-            destination = null;
+			source = destination = null;
             
 	       	try {
                source = new FileInputStream(new File("temp.pdf")).getChannel();
@@ -91,6 +82,7 @@ public class PdfOutputCreatorTest {
        	
 			input = new PdfReader("test files/PdfOutputCreator/pdfOutput_test2.pdf"); //Extracts the texts from the created PDFs
 			page = PdfTextExtractor.getTextFromPage(input, 1);
+			input.close();
 			
 			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test2.pdf").exists()); //asserts that the PDF was created
 			assertEquals(page, "pdfOutput test2\nJim Mateos"); //asserts that the PDF contains the expected stuff
@@ -105,8 +97,7 @@ public class PdfOutputCreatorTest {
 			Style style2 = new Style();
 			create2.makePDF(tab2, style2);
 			
-			source = null;	//this is used to rename the temp file that is created
-            destination = null;
+			source = destination = null;
              
 	       	try {
                source = new FileInputStream(new File("temp.pdf")).getChannel();
@@ -116,6 +107,7 @@ public class PdfOutputCreatorTest {
 			
 			input = new PdfReader("test files/PdfOutputCreator/pdfOutput_test3.pdf");
 			page = PdfTextExtractor.getTextFromPage(input, 1); //Extracts the texts from the created PDFs
+			input.close();
 			
 			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test3.pdf").exists()); //asserts that the PDF was created
 			assertEquals(page, "pdfOutput test3\n" //asserts that the PDF contains the expected content
@@ -137,8 +129,7 @@ public class PdfOutputCreatorTest {
 			Style style3 = new Style();
 			create3.makePDF(tab3, style3);
 			
-			source = null; //this is used to rename the temp file that is created
-            destination = null;
+			source = destination = null;
              
 	       	try {
                source = new FileInputStream(new File("temp.pdf")).getChannel();
@@ -148,6 +139,7 @@ public class PdfOutputCreatorTest {
 			
 			input = new PdfReader("test files/PdfOutputCreator/pdfOutput_test4.pdf");
 			page = PdfTextExtractor.getTextFromPage(input, 1); //Extracts the texts from the created PDFs
+			input.close();
 			
 			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test4.pdf").exists()); //asserts that the PDF was created
 			assertEquals(page, "pdfOutput test4\n" 
@@ -189,7 +181,14 @@ public class PdfOutputCreatorTest {
 			Style style5 = new Style();
 			create5.makePDF(tab5, style5);
 			
-			new File("temp.pdf").deleteOnExit();
+			source.close();
+			destination.close();
+			
+			assertTrue(new File("temp.pdf").delete());
+			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test1.pdf").delete());
+			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test2.pdf").delete());
+			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test3.pdf").delete());
+			assertTrue(new File("test files/PdfOutputCreator/pdfOutput_test4.pdf").delete());
 		} catch (IOException | DocumentException e) { }
 	}
 }
