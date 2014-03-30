@@ -84,9 +84,9 @@ public class PdfOutputCreatorTest {
             destination = null;
             
 	       	try {
-	               source = new FileInputStream(new File("temp.pdf")).getChannel();
-	               destination = new FileOutputStream(new File("test files/PdfOutputCreator/pdfOutput_test2.pdf")).getChannel();
-	               destination.transferFrom(source, 0, source.size());
+               source = new FileInputStream(new File("temp.pdf")).getChannel();
+               destination = new FileOutputStream(new File("test files/PdfOutputCreator/pdfOutput_test2.pdf")).getChannel();
+               destination.transferFrom(source, 0, source.size());
 	       	} catch(Exception ex) { } 
        	
 			input = new PdfReader("test files/PdfOutputCreator/pdfOutput_test2.pdf"); //Extracts the texts from the created PDFs

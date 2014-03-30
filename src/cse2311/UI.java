@@ -1,7 +1,21 @@
 package cse2311;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.print.Book;
 import java.awt.print.PageFormat;
@@ -9,51 +23,49 @@ import java.awt.print.Paper;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
 import java.util.Iterator;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
-import javax.swing.ImageIcon;
-import javax.swing.JPanel;
-import javax.swing.JFrame;
+import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
 import com.itextpdf.text.DocumentException;
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
-
-import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * GUI. Allows user to choose, edit, save and print a guitar tablature.
@@ -75,13 +87,14 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu;
 	JMenu fileMenu;
 	Timer timer;
+	URI iText, pdfRenderer, tangoIcons, readerViewer, docViewer;
     //---VARIABLES------------------------------------------------------------------------
-    int view = 0, indexOfHelvetica, delay = 1000, userZoom;
+    int view = 0, indexOfHelvetica, delay = 500, userZoom;
     double width, height;
     float defaultSpacing = 5;
     boolean opened = false, allow;
     String filePath, prevDir, defaultTitle, defaultSubtitle;
-    File txtFile, output;
+    File txtFile, output, helpFile;
     Tablature t;
     Parser c = new Parser();
     Style s = new Style();
@@ -93,7 +106,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     //---RECENTLY-USED--------------------------------------------------------------------
     static FileReader fileReader;
     static BufferedReader bufferedReader;
-    static File recentFile;
     static ArrayList<String> recent = new ArrayList<String>();
     ArrayList<JMenuItem> recentMenu = new ArrayList<JMenuItem>();
 	
@@ -122,20 +134,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         try	{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) { }
-        
-        recentFile = new File("recent.txt");
-        try {
-        	if (!recentFile.exists())
-        		recentFile.createNewFile();
-			fileReader = new FileReader(recentFile);
-        	bufferedReader = new BufferedReader(fileReader);
-        	String line;
-			while((line = bufferedReader.readLine()) != null) {
-                recent.add(line);
-            }
-			fileReader.close();
-			bufferedReader.close();
-		} catch (IOException e) { }
 
 		//Create and set up the content pane.
         UI demo = new UI();
@@ -150,7 +148,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     }
     
     /**
-     * Creates a menuBar with options to open, save, print and open Helpdoc
+     * Creates a menuBar with options to open, save, print and open help documentation
      * @return menuBar
      */
     public JMenuBar createMenuBar() {
@@ -169,17 +167,20 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         //a group of JMenuItems
         ImageIcon icon = createImageIcon("images/open16.png");
         openMenu = new JMenuItem("Open", icon);
+        openMenu.setActionCommand("open");
         openMenu.addActionListener(this);
         menu.add(openMenu);
  
         icon = createImageIcon("images/save16.png");
         saveMenu = new JMenuItem("Save", icon);
+        saveMenu.setActionCommand("save");
         saveMenu.addActionListener(this);
         saveMenu.setEnabled(false);
         menu.add(saveMenu);
         
         icon = createImageIcon("images/print16.png");
         printMenu = new JMenuItem("Print", icon);
+        printMenu.setActionCommand("print");
         printMenu.addActionListener(this);
         printMenu.setEnabled(false);
         menu.add(printMenu);
@@ -204,17 +205,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         menu.addSeparator();
         icon = createImageIcon("images/exit16.png");
         exitMenu = new JMenuItem("Exit", icon);
+        exitMenu.setActionCommand("exit");
+        exitMenu.setMnemonic(KeyEvent.VK_E);
         exitMenu.addActionListener(this);
         menu.add(exitMenu);
-		
-        //Build second menu for options
-        menu = new JMenu("Options");
-        menuBar.add(menu);
-        
-        icon = createImageIcon("images/options16.png");
-        optionsMenu = new JMenuItem("Preferences", icon);
-        optionsMenu.addActionListener(this);
-        menu.add(optionsMenu);
         
         //Build a third menu for Help
         menu = new JMenu("Help");
@@ -222,10 +216,12 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         
         icon = createImageIcon("images/help16.png");
         helpMenu = new JMenuItem("Help", icon);
+        helpMenu.setActionCommand("help");
         helpMenu.addActionListener(this);
         menu.add(helpMenu);
         
         aboutMenu = new JMenuItem("About");
+        aboutMenu.setActionCommand("about");
         aboutMenu.addActionListener(this);
         menu.add(aboutMenu);
         
@@ -255,26 +251,34 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	JPanel temp = new JPanel(new GridLayout(2,2,10,10));
     	temp.setOpaque(true);
     	
-    	//create a jpanel with open, save, help and more buttons
+    	//create a jPanel with open, save, help and more buttons
     	ImageIcon icon = createImageIcon("images/open48.png");
     	open = new JButton("Open", icon);
     	open.setToolTipText("Open ASCII tablature to convert");
+    	open.setMnemonic(KeyEvent.VK_O);
+    	open.setActionCommand("open");
     	open.addActionListener(this);
     	
     	icon = createImageIcon("images/save48.png");
     	save = new JButton("Save", icon);
     	save.setToolTipText("Save this tablature as a PDF");
+    	save.setMnemonic(KeyEvent.VK_S);
+    	save.setActionCommand("save");
     	save.addActionListener(this);
     	save.setEnabled(false);
     	
     	icon = createImageIcon("images/help48.png");
     	help = new JButton("Help", icon);
     	help.setToolTipText("Click here for instructions to use this program");
+    	help.setMnemonic(KeyEvent.VK_H);
+    	help.setActionCommand("help");
     	help.addActionListener(this);
     	
     	icon = createImageIcon("images/print48.png");
     	print = new JButton("Print", icon);
     	print.setToolTipText("Print this tablature");
+    	print.setMnemonic(KeyEvent.VK_P);
+    	print.setActionCommand("print");
     	print.addActionListener(this);
     	print.setEnabled(false);
     	
@@ -296,6 +300,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	fontSizeTitle = new JComboBox<Integer>(fontSizes);
     	fontSizeTitle.setSelectedIndex(10);
     	fontSizeTitle.setToolTipText("Change font size of the title");
+    	fontSizeTitle.setActionCommand("font");
         fontSizeTitle.addActionListener(this);
     	title = new JTextField(15);
 		title.setText(defaultTitle);
@@ -308,6 +313,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	
     	fontSizeAuthor = new JComboBox<Integer>(fontSizes); //Author Box
     	fontSizeAuthor.setSelectedIndex(6);
+    	fontSizeAuthor.setActionCommand("font");
     	fontSizeAuthor.addActionListener(this);
     	fontSizeAuthor.setToolTipText("Change font size of the Author");
     	author = new JTextField(15);
@@ -323,10 +329,12 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	fontType = new JComboBox<String>(fonts);
     	indexOfHelvetica = (Arrays.asList(fonts)).indexOf("Helvetica");
     	fontType.setSelectedIndex(indexOfHelvetica);
+    	fontType.setActionCommand("font");
     	fontType.addActionListener(this);
     	fontType.setToolTipText("Set font used for the tablature");
         fontSize = new JComboBox<Integer>(fontSizes);
     	fontSize.setSelectedIndex(1);
+    	fontSize.setActionCommand("font");
         fontSize.addActionListener(this);
         fontSize.setToolTipText("Set font size used in tablature");
     	JPanel fontTemp = new JPanel();
@@ -335,7 +343,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         fontTemp.add(fontSize);
     	
     	JLabel spacingLabel = new JLabel("<html><u>Spacing"); //Spacing
-    	numberSpacing = new JSlider(1, 99, (int) (t.getSpacing() * 10));
+    	numberSpacing = new JSlider(1, 101, (int) (t.getSpacing() * 10));
     	numberSpacing.setMinorTickSpacing(10);
     	numberSpacing.setPaintTicks(true);
     	numberSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
@@ -346,7 +354,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	spacingBarsTemp.add(numberSpacing);
     	
     	measureSpacing = new JSlider(140, 900, 300); //Section spacing
-    	measureSpacing.setMinorTickSpacing(90);
+    	measureSpacing.setMinorTickSpacing(76);
     	measureSpacing.setPaintTicks(true);
     	measureSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
     	measureSpacing.addMouseListener(this);
@@ -356,7 +364,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	spacingStaffsTemp.add(measureSpacing);
     	
     	lineSpacing = new JSlider(20, 210, 70); //Line spacing
-    	lineSpacing.setMinorTickSpacing(20);
+    	lineSpacing.setMinorTickSpacing(19);
     	lineSpacing.setPaintTicks(true);
     	lineSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
     	lineSpacing.addMouseListener(this);
@@ -387,6 +395,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	
 		reset = new JButton("Reset"); //Reset button
 	    reset.setToolTipText("Reset all values to default");
+    	reset.setMnemonic(KeyEvent.VK_R);
+	    reset.setActionCommand("reset");
 	    reset.addActionListener(this);
 
     	JPanel temp = new JPanel(new BorderLayout());
@@ -406,7 +416,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     }
     
     /**
-     * Creates a JPanel with a JSlider and JTextField to change zoom of the liveprevew
+     * Creates a JPanel with a JSlider and JTextField to change zoom of the live preview
      * @return JPanel
      */
     public JPanel viewBox() {
@@ -426,7 +436,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	labelTable.put(301, new JLabel("300%"));
     	labelTable.put(400, new JLabel("400%"));
     	
-    	zoomSlide = new JSlider(JSlider.HORIZONTAL, 1, 400, defaultZoom);
+    	zoomSlide = new JSlider(SwingConstants.HORIZONTAL, 1, 400, defaultZoom);
     	zoomSlide.setMajorTickSpacing(100);
     	zoomSlide.setMinorTickSpacing(50);
     	zoomSlide.setPaintTicks(true);
@@ -437,7 +447,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	
     	temp.add(zoom);
     	temp.add(zoomSlide);
-    	temp.setPreferredSize(new Dimension((int) ((int) b1.getWidth() / 1.5 - 10) , 100));
+    	temp.setPreferredSize(new Dimension((int) (b1.getWidth() / 1.5 - 10) , 100));
 
 		return temp;
     }
@@ -473,7 +483,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	temp.setOpaque(true);
         
         fileTitle = new JTextField("Press a button to begin");
-        fileTitle.setHorizontalAlignment(JTextField.RIGHT);
+        fileTitle.setHorizontalAlignment(SwingConstants.RIGHT);
         fileTitle.setOpaque(false);
         fileTitle.setBorder(null);
         temp.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.gray));
@@ -483,7 +493,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
  
     /** 
      * Returns an ImageIcon, or null if the path was invalid. 
-     * */
+     */
     protected static ImageIcon createImageIcon(String path) {
         java.net.URL imgURL = UI.class.getResource(path);
         if (imgURL != null) {
@@ -496,7 +506,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource().equals(open) || e.getSource().equals(openMenu)) {
+		if (e.getActionCommand() == "open") {
 			fileTitle.setText("Opening...");
 			JFileChooser openFile = new JFileChooser();
 			if (prevDir != null)
@@ -521,7 +531,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 				fileTitle.setText("Open cancelled.");
 		}
 
-		else if (e.getSource().equals(save) || e.getSource().equals(saveMenu)) {
+		else if (e.getActionCommand() == "save") {
 			JFileChooser saveFile = new JFileChooser();
 			output = new File(t.getTitle() + ".pdf");
             saveFile.setAcceptAllFileFilterUsed(false);
@@ -577,14 +587,37 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         		fileTitle.setText("Save cancelled");		
 		}
 		
-		else if (e.getSource().equals(help) || e.getSource().equals(helpMenu)) {
-			try {
-				File htmlFile = new File("help/index.html");
-				java.awt.Desktop.getDesktop().browse(htmlFile.toURI());
-			} catch (IOException e1) { }
+		else if (e.getActionCommand() == "help") {
+			if (Desktop.isDesktopSupported()) {
+				try {
+					helpFile = new File("help/User_Manual.pdf");
+					Desktop.getDesktop().open(helpFile);
+				} catch (IOException e1) {
+					try {
+						helpFile = new File("help/User_Manual.doc");
+						Desktop.getDesktop().open(helpFile);
+					} catch (IOException e2) {
+						int returnVal = JOptionPane.showOptionDialog(frame, "Cannot open User Manual!\nPlease install a PDF reader or Microsoft DOC viewer.",
+								"Failed to open Help", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+								new String[]{"Download .pdf viewer", "Download .doc viewer", "Close"}, "close");
+						try {
+							readerViewer = new URI("http://get.adobe.com/reader/");
+							docViewer = new URI("http://www.microsoft.com/en-ca/download/details.aspx?id=4");
+							if (returnVal == 0)
+								java.awt.Desktop.getDesktop().browse(readerViewer);
+							else if (returnVal == 1)
+								java.awt.Desktop.getDesktop().browse(docViewer);
+						} catch (IOException | URISyntaxException e3) { //URISyntaxException should never be thrown
+							JOptionPane.showMessageDialog(frame, "Cannot open browser");
+						}
+					}
+				}
+			}
+			else
+				JOptionPane.showMessageDialog(frame, "Desktop not supported on " + System.getProperty("os.name") +".\nContact OS manufacturer for support.");
 		}
 		
-		else if (e.getSource().equals(print) || e.getSource().equals(printMenu)) {
+		else if (e.getActionCommand() == "print") {
 			fileTitle.setText("Printing...");
 			PDFPrintPage pages = new PDFPrintPage(pdfFile);
 			
@@ -612,8 +645,32 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			}
 		}
 		
-		else if (e.getSource().equals(fontSize) ||e.getSource().equals(fontSizeTitle) 
-				|| e.getSource().equals(fontSizeAuthor) || e.getSource().equals(fontType)) {
+		else if (e.getActionCommand() == "about") {
+			ImageIcon icon = createImageIcon("images/logo.png");
+			int returnVal = JOptionPane.showOptionDialog(frame,
+					"<html><center>Version: 3.0.6 \n"
+					+ "Thank you for using our Tablature to PDF software. \n"
+					+ "Devloped by CSE 2311 Group 3 of York University:\n"
+					+ "Calvin Tran, Jason Kuffaur, Mohamed Nasar, Muhammad Shah, Siraj Rauff, Umer Zahoor and Waleed Azhar\n"
+					+ "Special thanks to iText Software Corp., PDF-Renderer team, and Tango Desktop Project.",
+					"About", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, 
+					new String[] {"iText", "PDF-Renderer", "Tango Desktop Project", "Close"}, "Close");
+			try {
+				iText = new URI("http://itextpdf.com/");
+				pdfRenderer = new URI("https://java.net/projects/pdf-renderer/");
+				tangoIcons = new URI("http://tango.freedesktop.org/");
+				if (returnVal == 0)
+					java.awt.Desktop.getDesktop().browse(iText);
+				else if (returnVal == 1)
+					java.awt.Desktop.getDesktop().browse(pdfRenderer);
+				else if (returnVal == 2)
+					java.awt.Desktop.getDesktop().browse(tangoIcons);
+			} catch (IOException | URISyntaxException e1) { //URISyntaxException should never be thrown
+				JOptionPane.showMessageDialog(frame, "Cannot open browser.");
+			}
+		}
+		
+		else if (e.getActionCommand() == "font") {
 			s.myFontface = FontSelector.getFont(fontType.getSelectedIndex());
             s.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
             s.setMyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
@@ -621,57 +678,29 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             generatePDF(zoomSlide.getValue());
 		}
 		
-		else if (e.getSource().equals(aboutMenu)) {
-			ImageIcon icon = createImageIcon("images/logo.png");
-			JOptionPane.showMessageDialog(frame,
-			    "<html><center>Version: 3.0.6 \n"
-			    + "Thank you for using our Tablature to PDF software. \n"
-			    + "Group 3: Calvin Tran, Jason Kuffaur, Mohamed Nasar, Muhammad Shah, Siraj Rauf, Umer Zahoor, Waleed Azhar\n"
-			    + "Special thanks to iText team, Pdf-renderer team, and Tango icon set team",
-			    "About",
-			    JOptionPane.INFORMATION_MESSAGE,
-			    icon);
-		}
-		
-		else if (e.getSource().equals(reset)) {
+		else if (e.getActionCommand() == "reset") {
 			t.setTitle(defaultTitle); //Reset tab
 			t.setSubtitle(defaultSubtitle);
 			t.setSpacing(defaultSpacing);
 			reset();
 		}
 		
-		else if (fileMenu.getItem(0) != null && fileMenu.getItem(0).equals(e.getSource())) {
-			try {
-				open(new File(recent.get(0)));
-			} catch (FileNotFoundException e1) { }
+		else if (e.getActionCommand() == "exit") {
+			System.exit(0);
 		}
-		else if (fileMenu.getItem(1) != null && fileMenu.getItem(1).equals(e.getSource())) {
+		
+		else if (e.getActionCommand().startsWith("recent")) {
 			try {
-				open(new File(recent.get(1)));
-			} catch (FileNotFoundException e1) { }
-		}
-		else if (fileMenu.getItem(2) != null && fileMenu.getItem(2).equals(e.getSource())) {
-			try {
-				open(new File(recent.get(2)));
-			} catch (FileNotFoundException e1) { }
-		}
-		else if (fileMenu.getItem(3) != null && fileMenu.getItem(3).equals(e.getSource())) {
-			try {
-				open(new File(recent.get(3)));
-			} catch (FileNotFoundException e1) { }
-		}
-		else if (fileMenu.getItem(4) != null && fileMenu.getItem(4).equals(e.getSource())) {
-			try {
-				open(new File(recent.get(4)));
-			} catch (FileNotFoundException e1) { }
-		}
-		else if (fileMenu.getItem(5) != null && fileMenu.getItem(5).equals(e.getSource())) {
-			try {
-				open(new File(recent.get(6)));
+				open(new File(recent.get(Integer.parseInt(e.getActionCommand().replace("recent", "")))));
 			} catch (FileNotFoundException e1) { }
 		}
 	}
 
+	/**
+	 * Opens the passed file
+	 * @param userFile File to open
+	 * @throws FileNotFoundException
+	 */
 	private void open(File userFile) throws FileNotFoundException {
 		t = c.readFile(userFile);
 		defaultTitle = t.getTitle();
@@ -692,26 +721,15 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			printMenu.setEnabled(true);
         }
         
-        if (!recent.contains(userFile.getAbsolutePath())) {
+        if (recent.contains(userFile.getAbsolutePath())) {
+			recent.remove(userFile.getAbsolutePath());
+			recent.add(0, userFile.getAbsolutePath());
+		}
+		else {
 			recent.add(0, userFile.getAbsolutePath());
 			while (recent.size() > 6)
 				recent.remove(6);
 		}
-		else {
-			recent.remove(userFile.getAbsolutePath());
-			recent.add(0, userFile.getAbsolutePath());
-		}
-		
-		try {
-			FileWriter fw = new FileWriter(recentFile.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);		
-			for (String item: recent) {
-			    bw.append(item);
-				bw.newLine();
-			}
-			bw.close();
-			fw.close();
-		} catch (IOException e1) { }
 		
 		if (fileMenu != null) 
 			fileMenu.removeAll();
@@ -720,6 +738,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	    for (String item: recent) {
 	    	File temp = new File(item);
 	    	JMenuItem temp2 = new JMenuItem(index + ". " + temp.getName());
+	    	temp2.setActionCommand("recent" + (index - 1));
 	    	temp2.addActionListener(this);
 	    	recentMenu.add(temp2);
 	    	fileMenu.add(temp2);
@@ -727,6 +746,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 	}
 
+	/**
+	 * Resets all values to default.
+	 * Title, author and spacing are set to whatever was read in by the Tablature.
+	 */
 	private void reset() {
 		s.setFontSize(8);
 		s.setMyTitleSize(24);
@@ -742,7 +765,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		author.setText(defaultSubtitle);
 		fontType.setSelectedIndex(indexOfHelvetica);
 		fontSize.setSelectedIndex(1);
-		numberSpacing.setValue(50);
+		numberSpacing.setValue((int) (defaultSpacing * 10));
 		measureSpacing.setValue(300);
 		lineSpacing.setValue(70);
 		leftMargin.setValue(36);
@@ -756,9 +779,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	
 	/**
 	 * Creates the PDF with user entered values then updates preview.
-	 * Expands program and isntantiates live preview if no document was already open.
+	 * Expands program and instantiates live preview if no document was already open.
 	 * Defaults on set values if no user entered values.
-	 * @param zoomLevel Zoomlevel used for livepreview
+	 * @param zoomLevel Level of zoom used for livepreview
 	 */
 	private void generatePDF(int zoomLevel) {
 		try {
@@ -773,7 +796,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		else 
 			expandView();
 	}
-
+	
 	/**
 	 * Expands program to include editing options, and a live preview
 	 */
@@ -802,7 +825,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			width = 1070;
 		
 		timer = new Timer(delay, new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
+        	@Override
+			public void actionPerformed(ActionEvent e) {
         		fileTitle.setText("Updating title/author");
                 setVariables();
             }
@@ -874,7 +898,11 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	frame.validate();
     	frame.repaint();
     }
-
+    
+	/**
+	 * Sets variables that are changed by JTextFields. 
+	 * Should only be called after a delay to avoid creating a PDF for every keystroke.
+	 */
 	public void setVariables() {
 		t.setTitle(title.getText());
 		t.setSubtitle(author.getText());
@@ -938,27 +966,27 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			fileTitle.setText("Updated spacing");
 		}
 		else if (e.getSource().equals(measureSpacing)) {
-			s.setMeasureDistance((float) (measureSpacing.getValue() / 10f));
+			s.setMeasureDistance(measureSpacing.getValue() / 10f);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated measure spacing");
 		}
 		else if (e.getSource().equals(lineSpacing)) {
-			s.setLineDistance((float) (lineSpacing.getValue() / 10));
+			s.setLineDistance(lineSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated line spacing");
 		}
 		else if (e.getSource().equals(leftMargin)) {
-			s.setLeftMargin((float) leftMargin.getValue());
+			s.setLeftMargin(leftMargin.getValue());
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Left Margin adjusted");
         }
 		else if (e.getSource().equals(rightMargin)) {
-			s.setRightMargin((float) rightMargin.getValue());
+			s.setRightMargin(rightMargin.getValue());
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Right Margin adjusted");
 		}
 	}
-
+	
 	@Override
 	public void focusGained(FocusEvent arg0) { }
 

@@ -107,7 +107,6 @@ public class ParserTest {
 			assertEquals(tab.getSubtitle(), "Ludwig ");
 			assertEquals(tab.getTitle(), "ParserTest5");
 			
-			
 			/* The following is the error log output that the 4th and 5th text file should 
 			 * produce.
 			 * 
