@@ -73,6 +73,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	private static final int defaultZoom = 100, delay = 800;
 	final int defWidth = 180, defHeight = 30;
     static JFrame frame;
+    static RecentOpen recentOpen;
     /*---GUI----------------------------------------------------------------------------*/
     JTextField fileTitle, title, author, zoom;
     JPanel body, sidebar, moreOptions, basicButtons, livePreview, livePreview2;
@@ -82,31 +83,24 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JSlider numberSpacing, measureSpacing, lineSpacing, zoomSlide, leftMargin, rightMargin;
     JButton open, help, save, print, reset;
 	JMenuBar menuBar;
-	JMenu fileMenu, menu;
+	JMenu menu;
     JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu;
 	Timer timer;
-	/*---VARIABLES/DATA-----------------------------------------------------------------*/
-	FileChannel source, destination;
+	/*---VARIABLES----------------------------------------------------------------------*/
     int indexOfHelvetica, userZoom;
     double width, height;
     float defaultSpacing;
     boolean opened = false, allow;
     String filePath, prevDir, defaultTitle, defaultSubtitle;
     File txtFile, output, helpFile;
+	FileChannel source, destination;
+	/*---DATA---------------------------------------------------------------------------*/
     Tablature userTab;
     Parser tempParser = new Parser();
     Style userStyle = new Style();
 	URI iText, pdfRenderer, tangoIcons, readerViewer, docViewer;
     /*---PREVIEW------------------------------------------------------------------------*/
-	PDFPage page;
-    PDFFile pdfFile;
-    ArrayList<Image> image = new ArrayList<Image>();
-    ArrayList<JLabel> pageLabel = new ArrayList<JLabel>();
-    /*---RECENTLY-USED------------------------------------------------------------------*/
-    static FileReader fileReader;
-    static BufferedReader bufferedReader;
-    static ArrayList<String> recent = new ArrayList<String>();
-    ArrayList<JMenuItem> recentMenu = new ArrayList<JMenuItem>();
+	PDFPanel preview;
 	
     /**
      * Only used to instantiate the program
@@ -134,7 +128,11 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) { }
 
-		//Create and set up the content pane.
+        try {
+			recentOpen = new RecentOpen();
+		} catch (IOException e1) { }
+        
+        //Create and set up the content pane.
         UI demo = new UI();
         frame.setJMenuBar(demo.createMenuBar());
         frame.add(demo.createBody(), BorderLayout.CENTER);
@@ -179,22 +177,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         menu.add(printMenu);
         
 		menu.addSeparator();
-	    fileMenu = new JMenu("Recent");
-	    if (recent.size() != 0) {
-	        int index = 1;
-	        for(Iterator<String> itr = recent.iterator(); itr.hasNext() && index <= 6;)  {
-	        	File temp = new File(itr.next());
-	        	JMenuItem temp2 = new JMenuItem(index + "." + temp.getName());
-	        	temp2.addActionListener(this);
-	        	recentMenu.add(temp2);
-	        	fileMenu.add(temp2);
-	        	index++;
-		    }
-		}
-		else 
-	    	fileMenu.setEnabled(false);
-	    
-	    menu.add(fileMenu);
+		recentOpen.addActionListener(this);
+	    menu.add(recentOpen.getMenu());
 
         menu.addSeparator();
         icon = createImageIcon("images/exit16.png");
@@ -445,28 +429,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     }
     
     /**
-     * @return JScrollPane for live preview
-     * @throws IOException
-     */
-    public JScrollPane createA2() throws IOException {
-    	pageLabel.add(new JLabel());
-    	if (image.size() > 0) {
-    		for (int i = 0; i < image.size(); i++)
-    			pageLabel.get(i).setIcon(new ImageIcon(image.get(i)));
-    	}
-    	
-    	livePreview = new JPanel();
-    	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
-    	
-    	for (int i = 0; i < pageLabel.size(); i++)
-    		livePreview.add(pageLabel.get(i));
-    	
-    	livePreview2 = new JPanel(new GridBagLayout());
-    	livePreview2.add(livePreview);
-		return new JScrollPane (livePreview2);
-    }
-    
-    /**
      * Creates the JTextField to be used to show user status of program
      * @return JPanel with JTextField
      */
@@ -510,7 +472,13 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 		
 		else if (e.getActionCommand() == "print") {
-			print();
+			fileTitle.setText("Printing...");			
+			try {
+				preview.print();
+				fileTitle.setText("Printed " + userTab.getTitle() + ".pdf");
+			} catch (PrinterException e1) {
+				JOptionPane.showMessageDialog(frame, "Failed to print " + userTab.getTitle() + ".pdf");
+			}
 		}
 		
 		else if (e.getActionCommand() == "about") {
@@ -540,7 +508,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			int temp = Integer.parseInt(e.getActionCommand().replace("recent", ""));
 			if (temp != 0) {
 				try {
-					open(new File(recent.get(temp)));
+					openFile(new File(recentOpen.get(temp)));
 				} catch (FileNotFoundException e1) { }
 			}
 			else {
@@ -580,7 +548,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	}
 
 	/**
-	 * Select a .txt File to open
+	 * Select a TXT File to open
 	 */
 	private void selectFile() {
 		fileTitle.setText("Opening...");
@@ -596,42 +564,13 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			try {
-				open(txtFile);
+				openFile(txtFile);
 			} catch (IOException e1) { 
 				JOptionPane.showMessageDialog(frame, "Cannot open file!");
 			}
 		}
 		else
 			fileTitle.setText("Open cancelled.");
-	}
-
-	/**
-	 * Attempts to print the current PDF
-	 */
-	private void print() {
-		fileTitle.setText("Printing...");
-		PDFPrintPage pages = new PDFPrintPage(pdfFile);
-		
-		PrinterJob pjob = PrinterJob.getPrinterJob();
-		PageFormat pf = PrinterJob.getPrinterJob().defaultPage();
-		pjob.setJobName(userTab.getTitle());
-		Book book = new Book();
-		book.append(pages, pf, pdfFile.getNumPages());
-		pjob.setPageable(book);
-		
-		pf.setOrientation(PageFormat.PORTRAIT);
-		Paper paper = new Paper();
-		paper.setImageableArea(25,0,paper.getWidth() * 2,paper.getHeight());
-		pf.setPaper(paper);
-		
-		if (pjob.printDialog() == true) {
-			try {
-				pjob.print();
-				fileTitle.setText("Printed " + userTab.getTitle() + ".pdf");
-			} catch (PrinterException e1) {
-				JOptionPane.showMessageDialog(frame, "Failed to print " + userTab.getTitle() + ".pdf");
-			}
-		}
 	}
 
 	/**
@@ -727,7 +666,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	 * @param userFile File to open
 	 * @throws FileNotFoundException
 	 */
-	private void open(File userFile) throws FileNotFoundException {
+	private void openFile(File userFile) throws FileNotFoundException {
 		userTab = tempParser.readFile(userFile);
 		defaultTitle = userTab.getTitle();
 		defaultSubtitle = userTab.getSubtitle();
@@ -739,36 +678,15 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         	reset();
         else {
         	opened = true;
-			fileMenu.setEnabled(true);
 			save.setEnabled(true);
 			print.setEnabled(true);
 			saveMenu.setEnabled(true);
 			printMenu.setEnabled(true);
         }
-        
-        if (recent.contains(userFile.getAbsolutePath())) {
-			recent.remove(userFile.getAbsolutePath());
-			recent.add(0, userFile.getAbsolutePath());
-		}
-		else {
-			recent.add(0, userFile.getAbsolutePath());
-			while (recent.size() > 6)
-				recent.remove(6);
-		}
-		
-		if (fileMenu != null) 
-			fileMenu.removeAll();
-		
-	    int index = 1;
-	    for (String item: recent) {
-	    	File temp = new File(item);
-	    	JMenuItem temp2 = new JMenuItem(index + ". " + temp.getName());
-	    	temp2.setActionCommand("recent" + (index - 1));
-	    	temp2.addActionListener(this);
-	    	recentMenu.add(temp2);
-	    	fileMenu.add(temp2);
-	    	index++;
-		}
+
+        try {
+			recentOpen.add(userFile);
+		} catch (IOException e) { }
 
 		fileTitle.setText("Opened " + userTab.getTitle() + ".txt");
 	}
@@ -808,7 +726,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	 * Creates the PDF with user entered values then updates preview.
 	 * Expands program and instantiates live preview if no document was already open.
 	 * Defaults on set values if no user entered values.
-	 * @param zoomLevel Level of zoom used for livepreview
+	 * @param zoomLevel Level of zoom used for live preview
 	 */
 	private void generatePDF(int zoomLevel) {
 		try {
@@ -819,7 +737,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 		
 		if (opened == true)
-			updatePreview(zoomLevel);
+			preview.refresh(zoomLevel);
 		else 
 			expandView();
 	}
@@ -828,17 +746,14 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	 * Expands program to include editing options, and a live preview
 	 */
 	private void expandView() {
-		updatePreview(defaultZoom);
 		moreOptions = new JPanel();
 		moreOptions.setLayout(new BoxLayout(moreOptions, BoxLayout.Y_AXIS));
 		moreOptions.add(viewBox());
 		moreOptions.add(editBox());
 		sidebar.add(moreOptions, BorderLayout.PAGE_END);
 		 	
-		try {
-			a2 = createA2();
-			body.add(a2, BorderLayout.CENTER);
-		} catch (IOException e1) { }
+		preview = new PDFPanel(new File("temp.pdf"));
+		body.add(preview.getPreview(), BorderLayout.CENTER);
 		
 		frame.setResizable(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -862,68 +777,6 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         frame.setLocationRelativeTo(null);
 	}
 	
-    /**
-     * Updates live preview
-     * @param zoomLevel Level of zoom for live preview
-     */
-    private void updatePreview(int zoomLevel) {
-		RandomAccessFile raf;
-		ByteBuffer buf;
-		for (int i = 0; i < image.size(); i++)
-			image.get(i).flush();
-		
-		pageLabel.clear();
-		image.clear();
-
-		try {
-			raf = new RandomAccessFile (new File ("temp.pdf"), "r");
-			byte[] b = new byte[(int) raf.length()];
-			raf.read(b);
-			buf = ByteBuffer.wrap(b);
-			pdfFile = new PDFFile(buf);
-			
-			for (int i = 1; i <= pdfFile.getNumPages(); i++) {
-				page = pdfFile.getPage(i);
-			    Rectangle2D r2d = page.getBBox();
-			    width = r2d.getWidth();
-			    height = r2d.getHeight();
-			    width /= 72.0;
-			    height /= 72.0;
-			    int res = Toolkit.getDefaultToolkit ().getScreenResolution ();
-			    width *= res;
-			    height *= res;
-			    
-			    double realZoomLevel = 100 / (double) zoomLevel;
-			    image.add(page.getImage ((int) (width/realZoomLevel), (int) (height/realZoomLevel), r2d, null, true, true));
-			}
-		    buf.clear();
-		    raf.close();
-		} catch (IOException e1) { }
-		
-		if(image.size() > 0) {
-			for (int i = 0; i < image.size(); i++) {
-				ImageIcon temp = new ImageIcon(image.get(i));
-				JLabel temp2 = new JLabel();
-				temp2.setIcon(temp);
-				pageLabel.add(temp2);
-			}
-		}
-		
-		if (livePreview == null)
-			livePreview = new JPanel();
-    	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
-    	if (pageLabel != null) {
-    		livePreview.removeAll();
-        	for (int i = 0; i < pageLabel.size(); i++) {
-        		livePreview.add(pageLabel.get(i));
-        		livePreview.add(new JLabel(""));
-    		}
-		}
-    	frame.invalidate();
-    	frame.validate();
-    	frame.repaint();
-    }
-    
 	/**
 	 * Sets variables that are changed by JTextFields. 
 	 * Should only be called after a delay to avoid creating a PDF for every keystroke.
@@ -983,7 +836,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	public void mouseReleased(MouseEvent e) {
 		if (e.getSource().equals(zoomSlide)) {
 			zoom.setText(zoomSlide.getValue() + "%");
-	        updatePreview(zoomSlide.getValue());
+	        preview.refresh(zoomSlide.getValue());
 		}
 		else if (e.getSource().equals(numberSpacing)) {
 			userTab.setSpacing(numberSpacing.getValue() / 10);
@@ -1011,5 +864,4 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			fileTitle.setText("Right Margin adjusted");
 		}
 	}
-	
 }
