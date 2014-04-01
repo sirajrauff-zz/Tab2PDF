@@ -14,22 +14,19 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
 
 /**
- * @author Umer
  * This class allows for the creation of a JScrollPane
+ * @author Umer
  */
-
 public class PDFPanel {
 	private static final int defaultZoom = 100;
 	private JPanel livePreview;
@@ -43,7 +40,7 @@ public class PDFPanel {
 	
 	/**
      * Creates the PDF preview
-     * @param file Must be a PDF
+     * @param file PDF file to be previewed
      */	 
 	public PDFPanel(File file) {
 		fileInView = file;
@@ -56,28 +53,27 @@ public class PDFPanel {
     	livePreview = new JPanel();
     	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
     	
-    	for (int i = 0; i < pageLabel.size(); i++)
-    		livePreview.add(pageLabel.get(i));
+    	for (JLabel page: pageLabel)
+    		livePreview.add(page);
     	
-    	JPanel livePreview2 = new JPanel(new GridBagLayout());
-    	livePreview2.add(livePreview);
-    	preview = new JScrollPane(livePreview2);
+    	JPanel livePreviewContainer = new JPanel(new GridBagLayout());
+    	livePreviewContainer.add(livePreview);
+    	preview = new JScrollPane(livePreviewContainer);
     	refresh(defaultZoom);
     	
-    	preview.invalidate();
-    	preview.validate();
+    	preview.revalidate();
     	preview.repaint();
 	}
  
-	 /**
+	/**
      * Updates live preview
      * @param zoomLevel Level of zoom for live preview, INT > 0
      */	    
 	public void refresh(int zoomLevel) {
 		RandomAccessFile raf;
 		ByteBuffer buf;
-		for (int i = 0; i < image.size(); i++)
-			image.get(i).flush();
+		for (Image temp: image)
+			temp.flush();
 		
 		pageLabel.clear();
 		image.clear();
@@ -91,41 +87,39 @@ public class PDFPanel {
 			
 			for (int i = 1; i <= pdfFile.getNumPages(); i++) {
 				page = pdfFile.getPage(i);
-			    Rectangle2D r2d = page.getBBox();
-			    width = r2d.getWidth();
-			    height = r2d.getHeight();
+			    Rectangle2D rectangle = page.getBBox();
+			    width = rectangle.getWidth();
+			    height = rectangle.getHeight();
 			    width /= 72.0;
 			    height /= 72.0;
-			    int res = Toolkit.getDefaultToolkit ().getScreenResolution ();
+			    int res = Toolkit.getDefaultToolkit().getScreenResolution ();
 			    width *= res;
 			    height *= res;
 			    
 			    double realZoomLevel = 100 / (double) zoomLevel;
-			    image.add(page.getImage ((int) (width/realZoomLevel), (int) (height/realZoomLevel), r2d, null, true, true));
+			    image.add(page.getImage ((int)(width/realZoomLevel), (int)(height/realZoomLevel), rectangle, null, true, true));
 			}
 		    buf.clear();
 		    raf.close();
 		} catch (IOException e1) { }
 		
-		if(image.size() > 0) {
-			for (int i = 0; i < image.size(); i++) {
-				ImageIcon temp = new ImageIcon(image.get(i));
-				JLabel temp2 = new JLabel();
-				temp2.setIcon(temp);
-				pageLabel.add(temp2);
-			}
+		if (image.size() > 0) {
+			for (Image tempImage: image) 
+				pageLabel.add(new JLabel(new ImageIcon(tempImage)));
 		}
 		
 		if (livePreview == null)
 			livePreview = new JPanel();
     	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
+    	
     	if (pageLabel != null) {
     		livePreview.removeAll();
-        	for (int i = 0; i < pageLabel.size(); i++) {
-        		livePreview.add(pageLabel.get(i));
+        	for (JLabel temp: pageLabel) {
+        		livePreview.add(temp);
         		livePreview.add(new JLabel(""));
     		}
 		}
+    	
     	preview.invalidate();
     	preview.validate();
     	preview.repaint();
@@ -138,20 +132,20 @@ public class PDFPanel {
 	public void print() throws PrinterException {
 		PDFPrintPage pages = new PDFPrintPage(pdfFile);
 		
-		PrinterJob pjob = PrinterJob.getPrinterJob();
-		PageFormat pf = PrinterJob.getPrinterJob().defaultPage();
-		pjob.setJobName(fileInView.getName());
+		PrinterJob printJob = PrinterJob.getPrinterJob();
+		PageFormat format = PrinterJob.getPrinterJob().defaultPage();
+		printJob.setJobName(fileInView.getName());
 		Book book = new Book();
-		book.append(pages, pf, pdfFile.getNumPages());
-		pjob.setPageable(book);
+		book.append(pages, format, pdfFile.getNumPages());
+		printJob.setPageable(book);
 		
-		pf.setOrientation(PageFormat.PORTRAIT);
+		format.setOrientation(PageFormat.PORTRAIT);
 		Paper paper = new Paper();
-		paper.setImageableArea(25,0,paper.getWidth() * 2,paper.getHeight());
-		pf.setPaper(paper);
+		paper.setImageableArea(25, 0, paper.getWidth() * 2, paper.getHeight());
+		format.setPaper(paper);
 		
-		if (pjob.printDialog() == true)
-			pjob.print();
+		if (printJob.printDialog() == true)
+			printJob.print();
 	}
 	
 	/**
