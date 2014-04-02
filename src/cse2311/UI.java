@@ -4,9 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,28 +12,20 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.geom.Rectangle2D;
-import java.awt.print.Book;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Iterator;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -52,25 +42,24 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import com.itextpdf.text.DocumentException;
-import com.sun.pdfview.PDFFile;
-import com.sun.pdfview.PDFPage;
-import com.sun.pdfview.PDFPrintPage;
 
 /**
  * GUI. Allows user to choose, edit, save and print a guitar Tablature.
  * @author Umer Zahoor, Siraj Rauff, Waleed Azhar
  */
-public class UI extends JFrame implements ActionListener, KeyListener, MouseListener {
+public class UI extends JFrame implements ActionListener, KeyListener, MouseListener, WindowListener {
 	/*---STATICS/FINALS-----------------------------------------------------------------*/
     private static final long serialVersionUID = 1L;
-	private static final int defaultZoom = 100, delay = 800;
+	private static final int defaultZoom = 100, textDelay = 800, zoomDelay = 500;
 	final int defWidth = 180, defHeight = 30;
     static JFrame frame;
     static RecentOpen recentOpen;
@@ -84,13 +73,15 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     JButton open, help, save, print, reset;
 	JMenuBar menuBar;
 	JMenu menu;
-    JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu;
-	Timer timer;
+    JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu,
+    resetMenu, zoomInMenu, zoomOutMenu;
+    ImageIcon icon;
+	Timer textTimer, zoomTimer;
 	/*---VARIABLES----------------------------------------------------------------------*/
     int indexOfHelvetica, userZoom;
     double width, height;
     float defaultSpacing;
-    boolean opened = false, allow;
+    boolean opened = false, allow, fileSaved = false, changesSaved = false;
     String filePath, prevDir, defaultTitle, defaultSubtitle;
     File txtFile, output, helpFile;
 	FileChannel source, destination;
@@ -156,7 +147,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
         menuBar.add(menu);
         
-        ImageIcon icon = createImageIcon("images/open16.png");
+        icon = createImageIcon("images/open16.png");
         openMenu = new JMenuItem("Open", icon);
         openMenu.setActionCommand("open");
         openMenu.addActionListener(this);
@@ -188,6 +179,41 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         exitMenu.addActionListener(this);
         menu.add(exitMenu);
         
+        //Build second menu for options
+        menu = new JMenu("Edit");
+        menuBar.add(menu);
+        
+        icon = createImageIcon("images/reset16.png");
+        resetMenu = new JMenuItem("Reset", icon);
+        resetMenu.setEnabled(false);
+        resetMenu.addActionListener(this);
+        resetMenu.setAccelerator(KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_R, 
+                java.awt.Event.CTRL_MASK));
+        resetMenu.setActionCommand("reset");
+        menu.add(resetMenu);
+        menu.addSeparator();
+        
+        icon = createImageIcon("images/zoomIn16.png");
+        zoomInMenu = new JMenuItem("Zoom in", icon);
+        zoomInMenu.setEnabled(false);
+        zoomInMenu.setActionCommand("zoom");
+        zoomInMenu.addActionListener(this);
+        zoomInMenu.setAccelerator(KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_EQUALS, 
+                java.awt.Event.CTRL_MASK));
+        menu.add(zoomInMenu);
+        
+        icon = createImageIcon("images/zoomOut16.png");
+        zoomOutMenu = new JMenuItem("Zoom out", icon);
+        zoomOutMenu.setEnabled(false);
+        zoomOutMenu.setActionCommand("zoom");
+        zoomOutMenu.addActionListener(this);
+        zoomOutMenu.setAccelerator(KeyStroke.getKeyStroke(
+                java.awt.event.KeyEvent.VK_MINUS, 
+                java.awt.Event.CTRL_MASK));
+        menu.add(zoomOutMenu);
+        
         menu = new JMenu("Help");
         menuBar.add(menu);
         
@@ -213,6 +239,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
         body = new JPanel(new BorderLayout());
         sidebar = new JPanel(new BorderLayout());
         basicButtons = createB1();
+        
+        frame.addWindowListener(this);
         
         sidebar.add(basicButtons, BorderLayout.PAGE_START);
         body.add(sidebar, BorderLayout.LINE_START);
@@ -370,7 +398,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
     	RightMarginStaffsTemp.add(new JLabel("Right Margin: "));
     	RightMarginStaffsTemp.add(rightMargin);
     	
-		reset = new JButton("Reset"); //Reset button
+    	icon = createImageIcon("images/reset16.png");
+    	reset = new JButton("Reset", icon); //Reset button
 	    reset.setToolTipText("Reset all values to default");
     	reset.setMnemonic(KeyEvent.VK_R);
 	    reset.setActionCommand("reset");
@@ -460,7 +489,27 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand() == "open") {
-			selectFile();
+			if (opened && !fileSaved) {
+				int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
+					+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+				if (temp == JOptionPane.YES_OPTION) {
+					saveFile();
+					selectFile();
+				} else if (temp == JOptionPane.NO_OPTION)
+					selectFile();
+			} else if (opened && !changesSaved) {
+				int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
+						+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+					if (temp == JOptionPane.YES_OPTION) {
+						saveFile();
+						selectFile();
+					} else if (temp == JOptionPane.NO_OPTION)
+						selectFile();
+			}
+			else
+				selectFile();
 		}
 
 		else if (e.getActionCommand() == "save") {
@@ -491,6 +540,16 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
             userStyle.setMyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
             userStyle.setMySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
             generatePDF(zoomSlide.getValue());
+    		changesSaved = false;
+		}
+		
+		else if (e.getActionCommand().startsWith("update")) {
+			if (e.getActionCommand() == "updateValues") {
+				fileTitle.setText("Updating title/author");
+	            grabUserValues();
+			}
+			else
+	            preview.refresh(zoomSlide.getValue());
 		}
 		
 		else if (e.getActionCommand() == "reset") {
@@ -498,6 +557,21 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			userTab.setSubtitle(defaultSubtitle);
 			userTab.setSpacing(defaultSpacing);
 			reset();
+			changesSaved = true;
+		}
+	
+		else if (e.getActionCommand().equals("zoom")){
+			if (e.getSource().equals(zoomInMenu)) 
+				zoomSlide.setValue(zoomSlide.getValue() + 25);
+			else if (e.getSource().equals(zoomOutMenu))
+				zoomSlide.setValue(zoomSlide.getValue() - 25);
+			zoom.setText(zoomSlide.getValue() + "%");
+			
+			if (zoomTimer.isRunning()) {
+				if(zoomTimer.getInitialDelay() > 0)
+					zoomTimer.restart();
+			} else 
+				zoomTimer.start();
 		}
 		
 		else if (e.getActionCommand() == "exit") {
@@ -505,10 +579,29 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		}
 		
 		else if (e.getActionCommand().startsWith("recent")) {
-			int temp = Integer.parseInt(e.getActionCommand().replace("recent", ""));
-			if (temp != 0) {
+			int recentItem = Integer.parseInt(e.getActionCommand().replace("recent", ""));
+			if (recentItem != 0) {
 				try {
-					openFile(new File(recentOpen.get(temp)));
+					if (opened && !fileSaved) {
+						int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
+							+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+							JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+						if (temp == JOptionPane.YES_OPTION) {
+							saveFile();
+							openFile(new File(recentOpen.get(recentItem)));
+						} else if (temp == JOptionPane.NO_OPTION)
+							openFile(new File(recentOpen.get(recentItem)));
+					} else if (opened && !changesSaved) {
+						int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
+								+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+							if (temp == JOptionPane.YES_OPTION) {
+								saveFile();
+								openFile(new File(recentOpen.get(recentItem)));
+							} else if (temp == JOptionPane.NO_OPTION)
+								openFile(new File(recentOpen.get(recentItem)));
+					} else
+						openFile(new File(recentOpen.get(recentItem)));
 				} catch (FileNotFoundException e1) { }
 			}
 			else {
@@ -602,6 +695,8 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		            source = new FileInputStream(new File("temp.pdf")).getChannel();
 		            destination = new FileOutputStream(destFile).getChannel();
 		            destination.transferFrom(source, 0, source.size());
+		            fileSaved = true;
+		            changesSaved = true;
 					fileTitle.setText("Saved " + userTab.getTitle() + ".pdf to " + destFile.getParent());
 		    	} catch(Exception ex) { 
 		    		JOptionPane.showMessageDialog(frame, "File in use! Cannot save.");
@@ -673,6 +768,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		defaultSpacing = userTab.getSpacing();
 		generatePDF(defaultZoom);
 		frame.setTitle("Tab2PDF - " + userTab.getTitle() + ".pdf");
+		fileSaved = false;
 		
         if (opened)
         	reset();
@@ -682,6 +778,9 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 			print.setEnabled(true);
 			saveMenu.setEnabled(true);
 			printMenu.setEnabled(true);
+			resetMenu.setEnabled(true);
+			zoomInMenu.setEnabled(true);
+			zoomOutMenu.setEnabled(true);
         }
 
         try {
@@ -723,6 +822,36 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	}
 	
 	/**
+	 * Attempts to save file before exit
+	 */
+	private void saveOnExit(){
+		if (!fileSaved && opened) {
+			int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
+			+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+			JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+			if (temp == JOptionPane.YES_OPTION) {
+				saveFile();
+			}
+			else if (temp == JOptionPane.NO_OPTION) {
+				frame.dispose();
+			}
+		} else if (!changesSaved && opened) {
+			int temp = JOptionPane.showOptionDialog(frame, "Changes have not been saved. Would you like to save " 
+			+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+			JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+			if (temp == JOptionPane.YES_OPTION) {
+				saveFile();
+			}
+			else if (temp == JOptionPane.NO_OPTION) {
+				frame.dispose();
+			}
+		}
+		else {
+			frame.dispose();
+		}
+	}
+	
+	/**
 	 * Creates the PDF with user entered values then updates preview.
 	 * Expands program and instantiates live preview if no document was already open.
 	 * Defaults on set values if no user entered values.
@@ -753,7 +882,7 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		sidebar.add(moreOptions, BorderLayout.PAGE_END);
 		 	
 		preview = new PDFPanel(new File("temp.pdf"));
-		body.add(preview.getPreview(), BorderLayout.CENTER);
+		body.add(preview, BorderLayout.CENTER);
 		
 		frame.setResizable(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -764,13 +893,10 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		if (width < 1070)
 			width = 1070;
 		
-		timer = new Timer(delay, new ActionListener() {
-        	@Override
-			public void actionPerformed(ActionEvent e) {
-        		fileTitle.setText("Updating title/author");
-                grabUserValues();
-            }
-        });
+		textTimer = new Timer(textDelay, this);
+		textTimer.setActionCommand("updateValues");
+		zoomTimer = new Timer(zoomDelay, this);
+		zoomTimer.setActionCommand("updateZoom");
 		
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.pack();
@@ -782,9 +908,11 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	 * Should only be called after a delay to avoid creating a PDF for every keystroke.
 	 */
 	public void grabUserValues() {
+		textTimer.stop();
+		if (userTab.getTitle() != title.getText() && userTab.getSubtitle() != author.getText())
+			changesSaved = false;
 		userTab.setTitle(title.getText());
 		userTab.setSubtitle(author.getText());
-		timer.stop();
 		if (zoom.getText().length() > 0) {
 			try {
 				userZoom = Integer.parseInt(zoom.getText().replaceAll("%", ""));
@@ -812,12 +940,12 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 	public void keyReleased(KeyEvent e) {
 		if (e.getKeyChar() == KeyEvent.VK_ENTER) {
 			grabUserValues();
-			timer.stop();
-		} else if (timer.isRunning()) {
-			if(timer.getInitialDelay() > 0)
-				timer.restart();
+			textTimer.stop();
+		} else if (textTimer.isRunning()) {
+			if(textTimer.getInitialDelay() > 0)
+				textTimer.restart();
 		} else 
-			timer.start();
+			textTimer.start();
 	}
 	
 	@Override
@@ -837,31 +965,60 @@ public class UI extends JFrame implements ActionListener, KeyListener, MouseList
 		if (e.getSource().equals(zoomSlide)) {
 			zoom.setText(zoomSlide.getValue() + "%");
 	        preview.refresh(zoomSlide.getValue());
+			changesSaved = false;
 		}
 		else if (e.getSource().equals(numberSpacing)) {
 			userTab.setSpacing(numberSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated spacing");
+			changesSaved = false;
 		}
 		else if (e.getSource().equals(measureSpacing)) {
 			userStyle.setMeasureDistance(measureSpacing.getValue() / 10f);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated measure spacing");
+			changesSaved = false;
 		}
 		else if (e.getSource().equals(lineSpacing)) {
 			userStyle.setLineDistance(lineSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated line spacing");
+			changesSaved = false;
 		}
 		else if (e.getSource().equals(leftMargin)) {
 			userStyle.setLeftMargin(leftMargin.getValue());
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Left Margin adjusted");
+			changesSaved = false;
         }
 		else if (e.getSource().equals(rightMargin)) {
 			userStyle.setRightMargin(rightMargin.getValue());
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Right Margin adjusted");
+			changesSaved = false;
 		}
 	}
+
+	@Override
+	public void windowActivated(WindowEvent arg0) { }
+	
+	@Override
+	public void windowClosed(WindowEvent arg0) { }
+	
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		saveOnExit();
+	}
+	
+	@Override
+	public void windowDeactivated(WindowEvent arg0) { }
+	
+	@Override
+	public void windowDeiconified(WindowEvent arg0) { }
+	
+	@Override
+	public void windowIconified(WindowEvent arg0) { }
+	
+	@Override
+	public void windowOpened(WindowEvent arg0) { }
 }

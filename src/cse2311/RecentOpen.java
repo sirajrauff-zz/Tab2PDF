@@ -22,22 +22,21 @@ public class RecentOpen {
      * otherwise it will read the file and get the last open files
      * @param file - that holds the recently opened files
      */
-    public RecentOpen () throws IOException {
+    public RecentOpen() throws IOException {
     	fileMenu = new JMenu("Recent");
 	    fileMenu.setEnabled(false);
     }
     
     /**
      * Adds the file to the top of stack of recent file discarding the file in the 6th position
-     * @param file - to add into the list of recent files
+     * @param file - File to be added to the list, or moved to the top if it already exists.
      * @throws IOException
      */
     public void add (File userFile) throws IOException {
     	if (recent.contains(userFile.getAbsolutePath())) {
 			recent.remove(userFile.getAbsolutePath());
 			recent.add(0, userFile.getAbsolutePath());
-		}
-		else {
+		} else {
 			recent.add(0, userFile.getAbsolutePath());
 			while (recent.size() > 6)
 				recent.remove(6);

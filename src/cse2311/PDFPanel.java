@@ -27,13 +27,13 @@ import com.sun.pdfview.PDFPrintPage;
  * This class allows for the creation of a JScrollPane
  * @author Umer
  */
-public class PDFPanel {
+public class PDFPanel extends JScrollPane{
+	private static final long serialVersionUID = 1L;
 	private static final int defaultZoom = 100;
 	private JPanel livePreview;
 	private ArrayList<JLabel> pageLabel = new ArrayList<JLabel>();
 	private ArrayList<Image> image = new ArrayList<Image>();
 	private PDFPage page;
-	private JScrollPane preview;
 	private PDFFile pdfFile;
 	private double width, height;
 	private File fileInView;
@@ -58,11 +58,11 @@ public class PDFPanel {
     	
     	JPanel livePreviewContainer = new JPanel(new GridBagLayout());
     	livePreviewContainer.add(livePreview);
-    	preview = new JScrollPane(livePreviewContainer);
+    	this.setViewportView(livePreviewContainer);
     	refresh(defaultZoom);
     	
-    	preview.revalidate();
-    	preview.repaint();
+    	this.revalidate();
+    	this.repaint();
 	}
  
 	/**
@@ -120,9 +120,8 @@ public class PDFPanel {
     		}
 		}
     	
-    	preview.invalidate();
-    	preview.validate();
-    	preview.repaint();
+    	this.revalidate();
+    	this.repaint();
 	}
 	
 	/**
@@ -146,13 +145,5 @@ public class PDFPanel {
 		
 		if (printJob.printDialog() == true)
 			printJob.print();
-	}
-	
-	/**
-     * Gets the actual component
-     * @return The JScrollPane that is generated
-     */	
-	public JScrollPane getPreview() {
-		return preview;
 	}
 }
