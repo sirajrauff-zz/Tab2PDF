@@ -25,6 +25,73 @@ public class PdfOutputCreator {
 	
 	public PdfOutputCreator() {	}
 
+	private void createBezierCurves(PdfContentByte draw, float x0, float y0, float x1, char c) {
+            draw.moveTo(x0 + s.getWidth(c), y0 +s.getHeight() / 2); //Start Point
+            float third = ((x1+spacing)-(x0 + s.getWidth(c))) / 3.0f;
+            draw.curveTo( // Control Point 1, Control Point 2, End Point
+                    x0 + s.getWidth(c) + third, y0 + s.getHeight() / 1.5f, // Control Point 1
+                    x0 + s.getWidth(c) + (2 * third), y0 + s.getHeight() / 1.5f, // Control Point 2
+                    x1 + spacing, y0 + s.getHeight() / 2); //End Point
+	}
+	
+	private void drawCircle(float currX, float currY, PdfContentByte draw) {
+		currX += 1.7f;
+		draw.circle(currX + (this.spacing - 3f) / 2, currY, 1.5f);
+		draw.setColorFill(BaseColor.BLACK);
+		draw.fillStroke();
+	}
+
+	private void drawDiagonal(float currX, float currY, PdfContentByte draw) {
+		draw.moveTo(currX + 2.5f, currY - 2f);
+		draw.lineTo(currX+spacing - 0.5f, currY + 2f);
+		draw.stroke();
+
+	}
+
+	private void drawDiamond(float currX, float currY, PdfContentByte draw) {
+		currY += 1.7f;
+		currX = currX + 2.4f;
+		draw.moveTo(currX + 0.175f, currY + 0.175f);
+		draw.lineTo(currX - 1.93f, currY - 1.93f);
+		draw.stroke();
+		
+		draw.moveTo(currX, currY);
+		draw.lineTo(currX + 1.93f, currY - 1.93f);
+		draw.stroke();
+		
+		currY = currY - (3.5f);
+		draw.moveTo(currX - 0.175f, currY - 0.175f);
+		draw.lineTo(currX + 1.93f, currY + 1.93f);
+		draw.stroke();
+		
+		draw.moveTo(currX, currY);
+		draw.lineTo(currX - 1.93f, currY + 1.93f);
+		draw.stroke();
+		currY -= 1.7f;
+	}
+
+	private void drawHorLine(float currX, float currY, float toX, PdfContentByte draw) {
+		draw.setLineWidth(.2f);
+		draw.moveTo(currX, currY);
+		draw.lineTo(currX + toX, currY);
+		draw.stroke();
+		draw.setLineWidth(.5f);
+	}
+
+	private void drawThick(float currX, float currY, float toY, PdfContentByte draw) {
+		draw.setLineWidth(2.2f);
+		draw.moveTo(currX, currY);
+		draw.lineTo(currX, currY + toY);
+		draw.stroke();
+	}
+
+	private void drawVerLine(float currX, float currY, float toY, PdfContentByte draw) {
+		draw.setLineWidth(.5f);
+		draw.moveTo(currX + 1.5f, currY);
+		draw.lineTo(currX + 1.5f, currY + toY);
+		draw.stroke();
+	}
+
 	public void makePDF(Tablature userTab, Style userStyle) throws IOException, DocumentException {
 		s = userStyle;
 		ms = new MusicSheet(userTab, s);
@@ -150,7 +217,7 @@ public class PdfOutputCreator {
 		write.close();
 		documentStream.close();
 	}
-	
+
 	private float printTitle(String title, String subtitle, Document document)
 			throws DocumentException {
         float moveY = 0.0f;
@@ -166,64 +233,6 @@ public class PdfOutputCreator {
         return moveY;
 	}
 
-	private void drawHorLine(float currX, float currY, float toX, PdfContentByte draw) {
-		draw.setLineWidth(.2f);
-		draw.moveTo(currX, currY);
-		draw.lineTo(currX + toX, currY);
-		draw.stroke();
-		draw.setLineWidth(.5f);
-	}
-
-	private void drawVerLine(float currX, float currY, float toY, PdfContentByte draw) {
-		draw.setLineWidth(.5f);
-		draw.moveTo(currX + 1.5f, currY);
-		draw.lineTo(currX + 1.5f, currY + toY);
-		draw.stroke();
-	}
-
-	private void drawDiamond(float currX, float currY, PdfContentByte draw) {
-		currY += 1.7f;
-		currX = currX + 2.4f;
-		draw.moveTo(currX + 0.175f, currY + 0.175f);
-		draw.lineTo(currX - 1.93f, currY - 1.93f);
-		draw.stroke();
-		
-		draw.moveTo(currX, currY);
-		draw.lineTo(currX + 1.93f, currY - 1.93f);
-		draw.stroke();
-		
-		currY = currY - (3.5f);
-		draw.moveTo(currX - 0.175f, currY - 0.175f);
-		draw.lineTo(currX + 1.93f, currY + 1.93f);
-		draw.stroke();
-		
-		draw.moveTo(currX, currY);
-		draw.lineTo(currX - 1.93f, currY + 1.93f);
-		draw.stroke();
-		currY -= 1.7f;
-	}
-
-	private void drawCircle(float currX, float currY, PdfContentByte draw) {
-		currX += 1.7f;
-		draw.circle(currX + (this.spacing - 3f) / 2, currY, 1.5f);
-		draw.setColorFill(BaseColor.BLACK);
-		draw.fillStroke();
-	}
-
-	private void drawThick(float currX, float currY, float toY, PdfContentByte draw) {
-		draw.setLineWidth(2.2f);
-		draw.moveTo(currX, currY);
-		draw.lineTo(currX, currY + toY);
-		draw.stroke();
-	}
-
-	private void drawDiagonal(float currX, float currY, PdfContentByte draw) {
-		draw.moveTo(currX + 2.5f, currY - 2f);
-		draw.lineTo(currX+spacing - 0.5f, currY + 2f);
-		draw.stroke();
-
-	}
-
 	private void text(String text, float currX, float currY, BaseFont font, int fontsize, PdfContentByte draw) 
 			throws DocumentException, IOException {
 		draw.saveState();
@@ -233,14 +242,5 @@ public class PdfOutputCreator {
 		draw.showText(text);
 		draw.endText();
 		draw.restoreState();
-	}
-
-	private void createBezierCurves(PdfContentByte draw, float x0, float y0, float x1, char c) {
-            draw.moveTo(x0 + s.getWidth(c), y0 +s.getHeight() / 2); //Start Point
-            float third = ((x1+spacing)-(x0 + s.getWidth(c))) / 3.0f;
-            draw.curveTo( // Control Point 1, Control Point 2, End Point
-                    x0 + s.getWidth(c) + third, y0 + s.getHeight() / 1.5f, // Control Point 1
-                    x0 + s.getWidth(c) + (2 * third), y0 + s.getHeight() / 1.5f, // Control Point 2
-                    x1 + spacing, y0 + s.getHeight() / 2); //End Point
 	}
 }

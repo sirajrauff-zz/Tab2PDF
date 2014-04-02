@@ -1,10 +1,14 @@
 package testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
+
 import org.junit.Test;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.BaseFont;
+
 import cse2311.FontSelector;
 
 /**

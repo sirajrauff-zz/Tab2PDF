@@ -11,17 +11,6 @@ public class MusicSheet {
 		this.makeStaffs(tab);
 	}
 
-	private void makeStaffs(Tablature tab) {
-		for (Measure m: tab.getMeasures()){
-			if (!this.getStaffs().isEmpty() && this.getLastStaff().canFitAnother(m)) 
-					this.getLastStaff().addToStaff(m);
-			else {
-				addStaff();
-				this.getLastStaff().addToStaff(m);
-			}
-		}
-	}
-	
 	private void addStaff() {
 		this.getStaffs().add(new Staff(myStyle.getPrintSpace()));
 	}
@@ -32,15 +21,22 @@ public class MusicSheet {
 		else
 			return null;
 	}
-
+	
 	public ArrayList<Staff> getStaffs() {
 		if(myStaffs == null)
 			myStaffs = new ArrayList<Staff>();
 		return myStaffs;
 	}
 
-	public void setStaffs(ArrayList<Staff> myStaffs) {
-		this.myStaffs = myStaffs;
+	private void makeStaffs(Tablature tab) {
+		for (Measure m: tab.getMeasures()){
+			if (!this.getStaffs().isEmpty() && this.getLastStaff().canFitAnother(m)) 
+					this.getLastStaff().addToStaff(m);
+			else {
+				addStaff();
+				this.getLastStaff().addToStaff(m);
+			}
+		}
 	}
 
 	public void print(Object s) {
@@ -50,5 +46,9 @@ public class MusicSheet {
 	public void printStaff() {
 		for (Staff s : this.getStaffs())
 			s.printLines();
+	}
+
+	public void setStaffs(ArrayList<Staff> myStaffs) {
+		this.myStaffs = myStaffs;
 	}
 }

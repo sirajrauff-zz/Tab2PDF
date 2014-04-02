@@ -14,11 +14,13 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 import com.sun.pdfview.PDFFile;
 import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
@@ -65,6 +67,29 @@ public class PDFPanel extends JScrollPane{
     	this.repaint();
 	}
  
+	/**
+	 * Takes the preview and prints it, will ask to change printer settings first
+	 * @throws PrinterException
+	 */
+	public void print() throws PrinterException {
+		PDFPrintPage pages = new PDFPrintPage(pdfFile);
+		
+		PrinterJob printJob = PrinterJob.getPrinterJob();
+		PageFormat format = PrinterJob.getPrinterJob().defaultPage();
+		printJob.setJobName(fileInView.getName());
+		Book book = new Book();
+		book.append(pages, format, pdfFile.getNumPages());
+		printJob.setPageable(book);
+		
+		format.setOrientation(PageFormat.PORTRAIT);
+		Paper paper = new Paper();
+		paper.setImageableArea(25, 0, paper.getWidth() * 2, paper.getHeight());
+		format.setPaper(paper);
+		
+		if (printJob.printDialog() == true)
+			printJob.print();
+	}
+	
 	/**
      * Updates live preview
      * @param zoomLevel Level of zoom for live preview, INT > 0
@@ -122,28 +147,5 @@ public class PDFPanel extends JScrollPane{
     	
     	this.revalidate();
     	this.repaint();
-	}
-	
-	/**
-	 * Takes the preview and prints it, will ask to change printer settings first
-	 * @throws PrinterException
-	 */
-	public void print() throws PrinterException {
-		PDFPrintPage pages = new PDFPrintPage(pdfFile);
-		
-		PrinterJob printJob = PrinterJob.getPrinterJob();
-		PageFormat format = PrinterJob.getPrinterJob().defaultPage();
-		printJob.setJobName(fileInView.getName());
-		Book book = new Book();
-		book.append(pages, format, pdfFile.getNumPages());
-		printJob.setPageable(book);
-		
-		format.setOrientation(PageFormat.PORTRAIT);
-		Paper paper = new Paper();
-		paper.setImageableArea(25, 0, paper.getWidth() * 2, paper.getHeight());
-		format.setPaper(paper);
-		
-		if (printJob.printDialog() == true)
-			printJob.print();
 	}
 }

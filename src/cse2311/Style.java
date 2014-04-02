@@ -1,6 +1,7 @@
 package cse2311;
 
 import java.io.IOException;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.BaseFont;
 
@@ -18,72 +19,72 @@ public class Style {
 		}
 	}
 	
-	public float getPrintSpace() {
-		return 595f - leftMargin - rightMargin;
+	public int getFontSize() {
+		return myFontSize;
 	}
 	
-	public void setLeftMargin(float userSize) {
-		 leftMargin = userSize;
+	public float getHeight() {
+		return (myFontface.getFontDescriptor(BaseFont.ASCENT, myFontSize) - myFontface
+				.getFontDescriptor(BaseFont.DESCENT, myFontSize));
 	}
 	
 	public float getLeftMargin() {
 		return leftMargin;
     }
         
-    public void setRightMargin(float userSize) {
-		 rightMargin = userSize;
-	}
-	
-	public float getRightMargin() {
-		return rightMargin;
-    }
-        
-    public void setFontSize(int userSize) {
-		myFontSize = userSize;
-	}
-	
-	public int getFontSize() {
-		return myFontSize;
-	}
-	
-    public void setMyTitleSize(int userSize) {
-    	myTitleSize = userSize;
-	}
-	
-	public int getMyTitleSize() {
-		return myTitleSize;
-	}
-    
-	public void setMySubTitleSize(int userSize) {
-		mySubTitleSize = userSize;
+    public float getLineDistance() {
+		return distLines;
 	}
 	
 	public int getMySubTitleSize() {
 		return mySubTitleSize;
 	}
-	
-	public void setMeasureDistance(float userDistance) {
-		distMeasures = userDistance;
+        
+    public int getMyTitleSize() {
+		return myTitleSize;
 	}
+	
+	public float getPrintSpace() {
+		return 595f - leftMargin - rightMargin;
+	}
+	
+    public float getRightMargin() {
+		return rightMargin;
+    }
 	
 	public float getSectionDistance() {
 		return distMeasures;
+	}
+    
+	public float getWidth(char char1) {
+		return myFontface.getWidthPoint(char1, myFontSize);
+	}
+	
+	public void setFontSize(int userSize) {
+		myFontSize = userSize;
+	}
+	
+	public void setLeftMargin(float userSize) {
+		 leftMargin = userSize;
 	}
 	
 	public void setLineDistance(float userDistance) {
 		distLines = userDistance;
 	}
 	
-	public float getLineDistance() {
-		return distLines;
+	public void setMeasureDistance(float userDistance) {
+		distMeasures = userDistance;
+	}
+	
+	public void setMySubTitleSize(int userSize) {
+		mySubTitleSize = userSize;
 	}
 
-	public float getWidth(char char1) {
-		return myFontface.getWidthPoint(char1, myFontSize);
+	public void setMyTitleSize(int userSize) {
+    	myTitleSize = userSize;
 	}
 
-	public float getHeight() {
-		return (myFontface.getFontDescriptor(BaseFont.ASCENT, myFontSize) - myFontface
-				.getFontDescriptor(BaseFont.DESCENT, myFontSize));
+	public void setRightMargin(float userSize) {
+		 rightMargin = userSize;
 	}
 }

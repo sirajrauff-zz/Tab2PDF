@@ -1,16 +1,24 @@
 package testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+
 import org.junit.Test;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-import cse2311.*;
+
+import cse2311.Parser;
+import cse2311.PdfOutputCreator;
+import cse2311.Style;
+import cse2311.Tablature;
 
 /**
  * @author Jason

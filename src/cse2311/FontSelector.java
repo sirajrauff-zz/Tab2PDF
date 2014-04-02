@@ -1,10 +1,11 @@
 package cse2311;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.pdf.BaseFont;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.BaseFont;
 
 /**
  * @author Waleed Azhar

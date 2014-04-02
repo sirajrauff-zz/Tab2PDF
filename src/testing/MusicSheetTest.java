@@ -1,14 +1,18 @@
 package testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import cse2311.Measure;
 import cse2311.MusicSheet;
 import cse2311.Staff;
@@ -62,17 +66,6 @@ public class MusicSheetTest {
 	}
 	
 	/**
-	 * Test class for MusicSheet(Tablature tab, Style s) which is the constructor for the class. This method is tested
-	 * by asserting that the test instance of musicSheet contains the expected value.
-	 */
-	@Test
-	public void testMusicSheet() {
-		assertEquals(test.getStaffs().get(0).getLines().get(0).toString(), "|s4-----------------2-----|-----4-----4-----4-----4-|"
-				+ "---5-----5-----5-----5---|-5-----5-----5-----------|"
-				+ "-------3-----------3-----|-------------------------|");
-	}
-
-	/**
 	 * Test case for the method getStaffs() which returns an arrayList of staffs in music sheet. This method is 
 	 * tested by asserting that the staffs returned by this method equal the expected values
  	 */
@@ -91,37 +84,16 @@ public class MusicSheetTest {
 		assertEquals(test.getStaffs().get(0).getLines().get(1).toString(), result1);
 		assertEquals(test.getStaffs().get(0).getLines().get(2).toString(), result2);
 	}
-	
+
 	/**
-	 * Test case for setStaffs(ArrayList<Staff> myStaffs) which sets the staff in the music sheet instance. This
-	 * method is tested by adding staffs to the music sheet and an arrayList setStaffs and the music sheet's staff 
-	 * is asserted to be equal
+	 * Test class for MusicSheet(Tablature tab, Style s) which is the constructor for the class. This method is tested
+	 * by asserting that the test instance of musicSheet contains the expected value.
 	 */
 	@Test
-	public void testSetStaffs() {
-		ArrayList<Staff> setstaffs = new ArrayList<Staff>(); 
-		Staff staff = new Staff(5);
-		Staff staff1 = new Staff(5);
-		Staff staff2 = new Staff(5);
-		
-		Measure m = new Measure(5);
-		m.addLine("||*-----<5>-----------<7>----------------------------*||");
-		m.addLine("||-0-----------7-----------------------------0---------|");
-		m.addLine("*--------------------------------2---------------------*");
-		m.addLine("|-0--------------7--------------------------0---------||");
-		m.addLine("|-----0----------10-------------0-------0-------5s7----|");
-		
-		staff.addToStaff(m);
-		staff1.addToStaff(m);
-		staff2.addToStaff(m);
-		
-		setstaffs.add(staff1);
-		setstaffs.add(staff2);
-		setstaffs.add(staff);
-		
-		test.setStaffs(setstaffs);
-		
-		assertSame(test.getStaffs(), setstaffs);
+	public void testMusicSheet() {
+		assertEquals(test.getStaffs().get(0).getLines().get(0).toString(), "|s4-----------------2-----|-----4-----4-----4-----4-|"
+				+ "---5-----5-----5-----5---|-5-----5-----5-----------|"
+				+ "-------3-----------3-----|-------------------------|");
 	}
 	
 	/**
@@ -149,7 +121,7 @@ public class MusicSheetTest {
 			input.close();
 		} catch (FileNotFoundException e) { }
 	}
-
+	
 	/**
 	 * Test case for the method for printStaff() which prints the current staff. This method is test by switching the
 	 * default output (console) to a file and then asserting that the contents of the file are equal to the expected
@@ -182,5 +154,37 @@ public class MusicSheetTest {
 			assertEquals(input.nextLine(), result1);
 			assertEquals(input.nextLine(), result2);
 		} catch (FileNotFoundException e) { }	
+	}
+
+	/**
+	 * Test case for setStaffs(ArrayList<Staff> myStaffs) which sets the staff in the music sheet instance. This
+	 * method is tested by adding staffs to the music sheet and an arrayList setStaffs and the music sheet's staff 
+	 * is asserted to be equal
+	 */
+	@Test
+	public void testSetStaffs() {
+		ArrayList<Staff> setstaffs = new ArrayList<Staff>(); 
+		Staff staff = new Staff(5);
+		Staff staff1 = new Staff(5);
+		Staff staff2 = new Staff(5);
+		
+		Measure m = new Measure(5);
+		m.addLine("||*-----<5>-----------<7>----------------------------*||");
+		m.addLine("||-0-----------7-----------------------------0---------|");
+		m.addLine("*--------------------------------2---------------------*");
+		m.addLine("|-0--------------7--------------------------0---------||");
+		m.addLine("|-----0----------10-------------0-------0-------5s7----|");
+		
+		staff.addToStaff(m);
+		staff1.addToStaff(m);
+		staff2.addToStaff(m);
+		
+		setstaffs.add(staff1);
+		setstaffs.add(staff2);
+		setstaffs.add(staff);
+		
+		test.setStaffs(setstaffs);
+		
+		assertSame(test.getStaffs(), setstaffs);
 	}
 }

@@ -1,14 +1,18 @@
 package testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+
 import org.junit.Before;
 import org.junit.Test;
+
 import cse2311.Measure;
 import cse2311.Tablature;
 
@@ -33,17 +37,6 @@ public class TablatureTest {
 		myMeasure = new ArrayList<Measure>();
 		m1= new Measure(0f);
 		m2 = new Measure(0f);
-	}
-	
-	/**
-	 * Test case for the constructor of Tablature which creates a new instance of Tablature with both
-	 * the title and subtitle set as the string "Default". This method is tested by asserting the title
-	 * and subtitle are equal to the string "Default"
-	 */
-	@Test
-	public void testTablature() {
-		assertEquals(test.getTitle(), "Default");
-		assertEquals(test.getSubtitle(), "Default");
 	}
 	
 	/**
@@ -106,7 +99,54 @@ public class TablatureTest {
 		assertEquals(test.getMeasures().get(1).getLines().get(0), two);
 		assertEquals(test.getMeasures().get(2).getLines().get(0), three);
 	}
+	
+	/**
+	 * Test case for the method getMeasures() which returns an arrayList of all the measures currently
+	 * in Tablature. This method is tested by iterating through the returned arrayList and asserting that
+	 * each element in the arrayList is equal to the expected value.
+	 */
+	@Test
+	public void testGetMeasures() {
+		String g = "||*-----<5>-----------<7>----------------------------*||";
+		test.addLineToLastMeasure(g);
+		
+		g = "||*-----<4>-----------<10>----------------------------*||";
+		test.addLineToLastMeasure(g);
+		
+		g = "||*-----<3>-----------<0>----------------------------*||";
+		test.addLineToLastMeasure(g);
+		
+		
+		assertEquals(test.getMeasures().get(0).getLines().get(0), "||*-----<5>-----------<7>----------------------------*||");
+		assertEquals(test.getMeasures().get(0).getLines().get(1), "||*-----<4>-----------<10>----------------------------*||");
+		assertEquals(test.getMeasures().get(0).getLines().get(2), "||*-----<3>-----------<0>----------------------------*||");
+	}
 
+	/**
+	 * Test case for the method getSpacing() which returns the current spacing value. The default value
+	 * for the spacing is 5f. This method is tested by asserting it returns 5f
+	 */
+	@Test
+	public void testGetSpacing() {
+			assertEquals(test.getSpacing(), 5f, 0.0);
+	}
+	
+	/**
+	 * Test case for the method getTitle() which returns the title of the Tablature
+	 */
+	@Test
+	public void testGetSubtitle() {
+		assertEquals(test.getSubtitle(), "Default");
+	}
+	
+	/**
+	 * Test case for the method getTitle() which returns the title of the Tablature
+	 */
+	@Test
+	public void testGetTitle() {
+		assertEquals(test.getTitle(), "Default");
+	}
+	
 	/**
 	 * Test case for the method printMeasures() which prints the all the measures currently in Tablature.
 	 * This method is tested by first switching the output stream to a file and then asserting that the 
@@ -142,62 +182,6 @@ public class TablatureTest {
 			input.close();
 		}
 		catch (FileNotFoundException e) { }
-	}
-	
-	/**
-	 * Test case for the size() method which returns the current number of measures in Tablature. This method
-	 * is tested by adding one measure to the tablature and then asserting the size is equal to 1. Another measure 
-	 * is then added and the current size is asserted to be 2
-	 */
-	@Test
-	public void testSize() {
-		assertEquals(test.size(), 0);
-		
-		String g = "||*-----<5>-----------<7>----------------------------*||";
-		
-		test.addLineToLastMeasure(g);
-		test.addLineToLastMeasure(g);
-		test.addLineToLastMeasure(g);
-		test.addLineToLastMeasure(g);
-		test.addLineToLastMeasure(g);
-		
-		assertEquals(test.size(), 1);
-		
-		test.addLineToLastMeasure(g);
-		test.addLineToLastMeasure(g);
-		
-		assertEquals(test.size(), 2);
-	}
-	
-	/**
-	 * Test case for the method getSpacing() which returns the current spacing value. The default value
-	 * for the spacing is 5f. This method is tested by asserting it returns 5f
-	 */
-	@Test
-	public void testGetSpacing() {
-			assertEquals(test.getSpacing(), 5f, 0.0);
-	}
-	
-	/**
-	 * Test case for the method getMeasures() which returns an arrayList of all the measures currently
-	 * in Tablature. This method is tested by iterating through the returned arrayList and asserting that
-	 * each element in the arrayList is equal to the expected value.
-	 */
-	@Test
-	public void testGetMeasures() {
-		String g = "||*-----<5>-----------<7>----------------------------*||";
-		test.addLineToLastMeasure(g);
-		
-		g = "||*-----<4>-----------<10>----------------------------*||";
-		test.addLineToLastMeasure(g);
-		
-		g = "||*-----<3>-----------<0>----------------------------*||";
-		test.addLineToLastMeasure(g);
-		
-		
-		assertEquals(test.getMeasures().get(0).getLines().get(0), "||*-----<5>-----------<7>----------------------------*||");
-		assertEquals(test.getMeasures().get(0).getLines().get(1), "||*-----<4>-----------<10>----------------------------*||");
-		assertEquals(test.getMeasures().get(0).getLines().get(2), "||*-----<3>-----------<0>----------------------------*||");
 	}
 	
 	/**
@@ -258,11 +242,14 @@ public class TablatureTest {
 	}
 
 	/**
-	 * Test case for the method getTitle() which returns the title of the Tablature
+	 * Test case for the method setSubtitle(String mySbutitle) which changes the tablature's subtitle to the 
+	 * string mySutitle
 	 */
 	@Test
-	public void testGetTitle() {
-		assertEquals(test.getTitle(), "Default");
+	public void testSetSubtitle() {
+        assertEquals(test.getSubtitle(), "Default");
+		test.setSubtitle("Michaelangelo");
+		assertEquals(test.getSubtitle(), "Michaelangelo");
 	}
 	
 	/**
@@ -277,21 +264,38 @@ public class TablatureTest {
 	}
 	
 	/**
-	 * Test case for the method getTitle() which returns the title of the Tablature
+	 * Test case for the size() method which returns the current number of measures in Tablature. This method
+	 * is tested by adding one measure to the tablature and then asserting the size is equal to 1. Another measure 
+	 * is then added and the current size is asserted to be 2
 	 */
 	@Test
-	public void testGetSubtitle() {
-		assertEquals(test.getSubtitle(), "Default");
+	public void testSize() {
+		assertEquals(test.size(), 0);
+		
+		String g = "||*-----<5>-----------<7>----------------------------*||";
+		
+		test.addLineToLastMeasure(g);
+		test.addLineToLastMeasure(g);
+		test.addLineToLastMeasure(g);
+		test.addLineToLastMeasure(g);
+		test.addLineToLastMeasure(g);
+		
+		assertEquals(test.size(), 1);
+		
+		test.addLineToLastMeasure(g);
+		test.addLineToLastMeasure(g);
+		
+		assertEquals(test.size(), 2);
 	}
 
 	/**
-	 * Test case for the method setSubtitle(String mySbutitle) which changes the tablature's subtitle to the 
-	 * string mySutitle
+	 * Test case for the constructor of Tablature which creates a new instance of Tablature with both
+	 * the title and subtitle set as the string "Default". This method is tested by asserting the title
+	 * and subtitle are equal to the string "Default"
 	 */
 	@Test
-	public void testSetSubtitle() {
-        assertEquals(test.getSubtitle(), "Default");
-		test.setSubtitle("Michaelangelo");
-		assertEquals(test.getSubtitle(), "Michaelangelo");
+	public void testTablature() {
+		assertEquals(test.getTitle(), "Default");
+		assertEquals(test.getSubtitle(), "Default");
 	}
 }

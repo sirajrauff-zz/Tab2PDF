@@ -22,6 +22,15 @@ public class Tablature {
 		}
 	}
 
+	private void addLineToMeasure(int index, String inputLine) {
+		if(this.getMeasures().size() >= index)
+			this.getMeasures().get(getMeasures().size() - index).addLine(inputLine);
+	}
+
+	private void addMeasure() {
+		this.getMeasures().add(new Measure(this.getSpacing()));
+	}
+
 	public void addMultiMeasureLine(StringTokenizer StrTkn) {
 		if (this.getMeasures().size() < StrTkn.countTokens() || this.getLastMeasure().size() == 6) {
 			while (StrTkn.hasMoreTokens()) {
@@ -35,15 +44,6 @@ public class Tablature {
 		}
 	}
 
-	private void addMeasure() {
-		this.getMeasures().add(new Measure(this.getSpacing()));
-	}
-
-	private void addLineToMeasure(int index, String inputLine) {
-		if(this.getMeasures().size() >= index)
-			this.getMeasures().get(getMeasures().size() - index).addLine(inputLine);
-	}
-
 	private Measure getLastMeasure() {
 		if (!getMeasures().isEmpty())
 			return getMeasures().get(getMeasures().size() - 1);
@@ -51,23 +51,27 @@ public class Tablature {
 			return null;
 	}
 	
-	public void printMeasures() {
-		for (Measure m : this.getMeasures())
-			m.printLines();
-	}
-
-	public int size() {
-		return this.getMeasures().size();
+	public ArrayList<Measure> getMeasures() {
+		if (this.myMeasure == null) // Lazy initialization
+			this.myMeasure = new ArrayList<Measure>();
+		return myMeasure;
 	}
 
 	public float getSpacing() {
 		return mySpacing;
 	}
 
-	public ArrayList<Measure> getMeasures() {
-		if (this.myMeasure == null) // Lazy initialization
-			this.myMeasure = new ArrayList<Measure>();
-		return myMeasure;
+	public String getSubtitle() {
+		return mySubtitle;
+	}
+
+	public String getTitle() {
+		return myTitle;
+	}
+
+	public void printMeasures() {
+		for (Measure m : this.getMeasures())
+			m.printLines();
 	}
 
 	public void setMeasures(ArrayList<Measure> myMeasure) {
@@ -80,19 +84,15 @@ public class Tablature {
 		this.mySpacing = mySpacing;
 	}
 
-	public String getTitle() {
-		return myTitle;
+	public void setSubtitle(String mySubtitle) {
+		this.mySubtitle = mySubtitle;
 	}
 
 	public void setTitle(String myTitle) {
 		this.myTitle = myTitle;
 	}
 
-	public String getSubtitle() {
-		return mySubtitle;
-	}
-
-	public void setSubtitle(String mySubtitle) {
-		this.mySubtitle = mySubtitle;
+	public int size() {
+		return this.getMeasures().size();
 	}
 }

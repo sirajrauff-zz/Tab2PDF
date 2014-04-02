@@ -11,6 +11,10 @@ public class Staff {
 		setPrintSpace(printSpace);
 	}
 
+	public void addStringBuffer() {
+		getLines().add(new StringBuffer());
+	}
+
 	public void addToStaff(Measure m) {
 		appendToLines(m);
 		if (m.isRepeat())
@@ -18,25 +22,6 @@ public class Staff {
 		setWidth(m.getWidth());
 	}
 
-	public ArrayList<Integer> getrepeatNum() {
-		if (repeatNum == null) // Lazy initialization
-				repeatNum = new ArrayList<Integer>();
-		return repeatNum;
-	}
-
-	public void setrepeatNum(ArrayList<Integer> userNum) {
-		repeatNum = userNum;
-	}
-	
-	public int getTopInt() {
-		int i =-1;
-		if(getrepeatNum()!= null && !getrepeatNum().isEmpty() ){
-			i = getrepeatNum().get(0);
-			getrepeatNum().remove(0);
-		}
-		return i;
-	}
-	
 	private void appendToLines(Measure m) {
 		int i = 0;
 		for (String line : m.getLines()) {
@@ -50,7 +35,7 @@ public class Staff {
 		}
 		fixBars();
 	}
-
+	
 	private String barsAdded(String bar, String line) {
 		String single = "|";
 		String left = "D-|";
@@ -67,11 +52,7 @@ public class Staff {
 		
 		return line;
 	}
-
-	public void addStringBuffer() {
-		getLines().add(new StringBuffer());
-	}
-
+	
 	public boolean canFitAnother(Measure m) {
 		return getWidth() + m.getWidth() < getPrintSpace();
 	}
@@ -91,7 +72,7 @@ public class Staff {
         line = line.replace("D|", "D");
 		line = line.replace("||", "|");
 		return new StringBuffer(line);
-	}	
+	}
 
 	public ArrayList<StringBuffer> getLines() {
 		if (myLines == null)// Lazy initialization
@@ -103,16 +84,23 @@ public class Staff {
 		return printSpace;
 	}
 
-	private void setPrintSpace(float userPrintSpace) {
-		printSpace = userPrintSpace;
+	public ArrayList<Integer> getrepeatNum() {
+		if (repeatNum == null) // Lazy initialization
+				repeatNum = new ArrayList<Integer>();
+		return repeatNum;
+	}	
+
+	public int getTopInt() {
+		int i =-1;
+		if(getrepeatNum()!= null && !getrepeatNum().isEmpty() ){
+			i = getrepeatNum().get(0);
+			getrepeatNum().remove(0);
+		}
+		return i;
 	}
 
 	public float getWidth() {
 		return width;
-	}
-
-	private void setWidth(float userWidth) {
-		width += userWidth;
 	}
 
 	public void printLines() {
@@ -120,5 +108,17 @@ public class Staff {
 			System.out.println(m.toString());
 		}
 		System.out.println();
+	}
+
+	private void setPrintSpace(float userPrintSpace) {
+		printSpace = userPrintSpace;
+	}
+
+	public void setrepeatNum(ArrayList<Integer> userNum) {
+		repeatNum = userNum;
+	}
+
+	private void setWidth(float userWidth) {
+		width += userWidth;
 	}
 }

@@ -1,6 +1,9 @@
 package testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
@@ -8,8 +11,10 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
 import org.junit.Test;
-import cse2311.UI;
+
+import cse2311.UserInterface;
 
 /**
  * @author Jason
@@ -33,7 +38,7 @@ public class SystemTest {
 	 */
 	@Test
 	public void test() {
-		UI.createAndShowGUI(); //Runs the main program
+		UserInterface.createAndShowGUI(); //Runs the main program
 		try {
 			Robot test = new Robot(); //Initializes the robot which will perform the automation
 			

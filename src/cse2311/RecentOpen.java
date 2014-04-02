@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
@@ -71,19 +72,19 @@ public class RecentOpen {
     }
     
     /**
-     * Returns the JMenu with all the recent files
-     * @return JMenu - returns a JMenu with all the recent files
-     */
-    public JMenu getMenu() {
-    	return fileMenu;
-    }
-    
-    /**
      * Returns the file as string at position I
      * @param i - index of desired file
      * @return String - file as a string at index i
      */
     public String get(int i) {
     	return recent.get(i);
+    }
+    
+    /**
+     * Returns the JMenu with all the recent files
+     * @return JMenu - returns a JMenu with all the recent files
+     */
+    public JMenu getMenu() {
+    	return fileMenu;
     }
 }
