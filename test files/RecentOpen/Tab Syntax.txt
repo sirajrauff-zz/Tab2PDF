@@ -1,0 +1,90 @@
+Title and Subtitle
+
+Titles of the tabs must be preceded by either of the following
+title=
+TITLE=
+
+Subtitles of the tabs must be preceded by either of the following
+subtitle=
+SUBTITLE=
+
+Spacing
+User may set spacing in file or manually while program is running
+In file user must precede spacing value with
+
+SPACING=
+SPACING=
+
+spacing can be any value between 0-10
+Syntax of Tabs
+
+Single Bar
+|
+|
+|
+|
+|
+|
+Double Bar
+||-    -||
+||-	   -|| 	
+||*    *||
+||* or *||
+||-	   -||
+||-    -||
+Single Bar Repeating(x is repeating amount)
+|X
+||
+||
+||
+||
+||
+Double Bar Repeating(x is repeating amount)
+|X-    -|X
+||-	   -|| 	
+||*    *||
+||* or *||
+||-	   -||
+||-    -||
+
+Diamond(dont know musical name)
+>
+-6>
+
+Slide
+s
+-8s8-
+
+Hammer 
+h
+-8h8-
+
+Play notes in rapid succesion  
+" "
+-4 4-
+-- --
+-- -- 
+-- -- 
+-- -- 
+-- -- 
+
+Frets > 9
+-9-10-12-11-
+means play 9,10,12,11
+
+Accepted symbols
+\ | - s , * + < > 0-9 ^ ( ) h p = g S s % e x /
+
+Any Line containing symbols that are not above will be ignored by the program.
+
+General Rules
+All lines in a Measure should be of equal length.
+Any Staff must have measures separated by bars
+All Measures must end in bars.
+All Lines must contain at least One of| and -.
+
+
+
+
+
+

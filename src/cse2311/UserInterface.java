@@ -63,57 +63,6 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	final int defWidth = 180, defHeight = 30;
     static JFrame frame;
     static RecentOpen recentOpen;
-    /**
-     * Create the GUI and show it.  For thread safety,
-     * this method should be invoked from the
-     * event-dispatching thread.
-     */
-    public static void createAndShowGUI() {
-        //Create and set up the window.
-        frame = new JFrame("Tab2PDF");
-        frame.setLayout(new BorderLayout());
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        //set look and feel to OS's look and feel, if it fails will just use the default Java look and feel
-        try	{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) { }
-
-        try {
-			recentOpen = new RecentOpen();
-		} catch (IOException e1) { }
-        
-        //Create and set up the content pane.
-        UserInterface demo = new UserInterface();
-        frame.setJMenuBar(demo.createMenuBar());
-        frame.add(demo.createBody(), BorderLayout.CENTER);
- 
-        //Display the window.
-        frame.setResizable(false);
-        frame.setVisible(true);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-    }
-    /** 
-     * Returns an ImageIcon, or null if the path was invalid. 
-     */
-    protected static ImageIcon createImageIcon(String path) {
-        java.net.URL imgURL = UserInterface.class.getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL);
-        } else {
-            return null;
-        }
-    }
-    /**
-     * Only used to instantiate the program
-     * @param args UNUSED
-     * @throws DocumentException 
-     * @throws IOException
-     */
-    public static void main(String[] args) throws DocumentException, IOException {
-		createAndShowGUI();
-	}
     /*---GUI----------------------------------------------------------------------------*/
     JTextField fileTitle, title, author, zoom;
 	JPanel body, sidebar, moreOptions, basicButtons, livePreview, livePreview2;
@@ -144,13 +93,69 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
     /*---PREVIEW------------------------------------------------------------------------*/
 	PDFPanel preview;
 	
+	/**
+     * Create the GUI and show it.  For thread safety,
+     * this method should be invoked from the
+     * event-dispatching thread.
+     */
+    public static void createAndShowGUI() {
+        //Create and set up the window.
+        frame = new JFrame("Tab2PDF");
+        frame.setLayout(new BorderLayout());
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        ImageIcon icon = createImageIcon("images/icon.png");
+        frame.setIconImage(icon.getImage());
+        
+        //set look and feel to OS's look and feel, if it fails will just use the default Java look and feel
+        try	{
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) { }
+
+        try {
+			recentOpen = new RecentOpen();
+		} catch (IOException e1) { }
+        
+        //Create and set up the content pane.
+        UserInterface demo = new UserInterface();
+        frame.setJMenuBar(demo.createMenuBar());
+        frame.add(demo.createBody(), BorderLayout.CENTER);
+ 
+        //Display the window.
+        frame.setResizable(false);
+        frame.setVisible(true);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+    }
+    
+    /** 
+     * Returns an ImageIcon, or null if the path was invalid. 
+     */
+    protected static ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = UserInterface.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            return null;
+        }
+    }
+    
+    /**
+     * Only used to instantiate the program
+     * @param args UNUSED
+     * @throws DocumentException 
+     * @throws IOException
+     */
+    public static void main(String[] args) throws DocumentException, IOException {
+		createAndShowGUI();
+	}
+    
     @Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand() == "open") {
 			if (opened && !fileSaved) {
 				int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
 					+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+					JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
 				if (temp == JOptionPane.YES_OPTION) {
 					saveFile();
 					selectFile();
@@ -159,7 +164,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 			} else if (opened && !changesSaved) {
 				int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
 						+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+						JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
 					if (temp == JOptionPane.YES_OPTION) {
 						saveFile();
 						selectFile();
@@ -233,7 +238,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		}
 		
 		else if (e.getActionCommand() == "exit") {
-			System.exit(0);
+			saveOnExit();
 		}
 		
 		else if (e.getActionCommand().startsWith("recent")) {
@@ -243,7 +248,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 					if (opened && !fileSaved) {
 						int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
 							+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+							JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
 						if (temp == JOptionPane.YES_OPTION) {
 							saveFile();
 							openFile(new File(recentOpen.get(recentItem)));
@@ -252,7 +257,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 					} else if (opened && !changesSaved) {
 						int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
 								+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+								JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
 							if (temp == JOptionPane.YES_OPTION) {
 								saveFile();
 								openFile(new File(recentOpen.get(recentItem)));
@@ -452,125 +457,130 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
      * @return JPanel
      */
     public JPanel editBox() {
-    	Integer[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48}; //Title box
-    	fontSizeTitle = new JComboBox<Integer>(fontSizes);
-    	fontSizeTitle.setSelectedIndex(10);
-    	fontSizeTitle.setToolTipText("Change font size of the title");
-    	fontSizeTitle.setActionCommand("font");
-        fontSizeTitle.addActionListener(this);
-    	title = new JTextField(15);
+	    Integer[] fontSizes = {8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48}; //Title box
+		fontSizeTitle = new JComboBox<Integer>(fontSizes);
+		fontSizeTitle.setSelectedIndex(10);
+		fontSizeTitle.setToolTipText("Change font size of the title");
+	    fontSizeTitle.addActionListener(this);
+		title = new JTextField(15);
 		title.setText(defaultTitle);
-    	title.addKeyListener(this);
-    	title.setToolTipText("Change title of the tablature");
-    	JPanel titleTemp = new JPanel();
-    	titleTemp.add(new JLabel("    Title: "));
-    	titleTemp.add(title);
-    	titleTemp.add(fontSizeTitle);
-    	
-    	fontSizeAuthor = new JComboBox<Integer>(fontSizes); //Author Box
-    	fontSizeAuthor.setSelectedIndex(6);
-    	fontSizeAuthor.setActionCommand("font");
-    	fontSizeAuthor.addActionListener(this);
-    	fontSizeAuthor.setToolTipText("Change font size of the Author");
-    	author = new JTextField(15);
+		title.addKeyListener(this);
+		title.setToolTipText("Change title of the tablature");
+		JPanel titleTemp = new JPanel();
+		titleTemp.add(new JLabel("    Title: "));
+		titleTemp.add(title);
+		titleTemp.add(fontSizeTitle);
+		
+		fontSizeAuthor = new JComboBox<Integer>(fontSizes); //Author Box
+		fontSizeAuthor.setSelectedIndex(6);
+		fontSizeAuthor.addActionListener(this);
+		fontSizeAuthor.setToolTipText("Change font size of the Author");
+		author = new JTextField(15);
 		author.setText(defaultSubtitle);
-    	author.addKeyListener(this);
-    	author.setToolTipText("Set Author of Tablature");
-    	JPanel authorTemp = new JPanel();
-    	authorTemp.add(new JLabel("Author: "));
-    	authorTemp.add(author);
-    	authorTemp.add(fontSizeAuthor);
-    	
-    	String fonts[] = FontSelector.Fonts; //Font Box
-    	fontType = new JComboBox<String>(fonts);
-    	indexOfHelvetica = (Arrays.asList(fonts)).indexOf("Helvetica");
-    	fontType.setSelectedIndex(indexOfHelvetica);
-    	fontType.setActionCommand("font");
-    	fontType.addActionListener(this);
-    	fontType.setToolTipText("Set font used for the tablature");
-        fontSize = new JComboBox<Integer>(fontSizes);
-    	fontSize.setSelectedIndex(1);
-    	fontSize.setActionCommand("font");
-        fontSize.addActionListener(this);
-        fontSize.setToolTipText("Set font size used in tablature");
-    	JPanel fontTemp = new JPanel();
-    	fontTemp.add(new JLabel("    Font: "));
-    	fontTemp.add(fontType);
-        fontTemp.add(fontSize);
-    	
+		author.addKeyListener(this);
+		author.setToolTipText("Set Author of Tablature");
+		JPanel authorTemp = new JPanel();
+		authorTemp.add(new JLabel(" Author:"));
+		authorTemp.add(author);
+		authorTemp.add(fontSizeAuthor);
+		
+		String fonts[] = FontSelector.Fonts; //Font Box
+		fontType = new JComboBox<String>(fonts);
+		indexOfHelvetica = (Arrays.asList(fonts)).indexOf("Helvetica");
+		fontType.setSelectedIndex(indexOfHelvetica);
+		fontType.addActionListener(this);
+		fontType.setToolTipText("Set font used for the tablature");
+		fontType.setPrototypeDisplayValue("XXXXXXXXXXXXXXXXX");    	
+		
+	    fontSize = new JComboBox<Integer>(fontSizes);
+		fontSize.setSelectedIndex(1);
+	    fontSize.addActionListener(this);
+	    fontSize.setToolTipText("Set font size used in tablature");
+		JPanel fontTemp = new JPanel();
+		fontTemp.add(new JLabel("     Font:"));
+		fontTemp.add(fontType);
+	    fontTemp.add(fontSize);
+		
+	    fontSizeTitle.setActionCommand("font");
+	    fontSizeAuthor.setActionCommand("font");
+	    fontType.setActionCommand("font");
+	    fontSize.setActionCommand("font");
+	    
+	    int change = -30;
     	JLabel spacingLabel = new JLabel("<html><u>Spacing"); //Spacing
-    	numberSpacing = new JSlider(1, 101, (int) (userTab.getSpacing() * 10));
-    	numberSpacing.setMinorTickSpacing(10);
-    	numberSpacing.setPaintTicks(true);
-    	numberSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
-    	numberSpacing.addMouseListener(this);
-    	numberSpacing.setToolTipText("Set spacing of numbers/symbols in tablature");
-    	JPanel spacingBarsTemp = new JPanel();
-    	spacingBarsTemp.add(new JLabel("Numbers:      "));
-    	spacingBarsTemp.add(numberSpacing);
-    	
-    	measureSpacing = new JSlider(140, 900, 300); //Section spacing
-    	measureSpacing.setMinorTickSpacing(76);
-    	measureSpacing.setPaintTicks(true);
-    	measureSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
-    	measureSpacing.addMouseListener(this);
-    	measureSpacing.setToolTipText("Set spacing between measures in the tablature");
-    	JPanel spacingStaffsTemp = new JPanel();
-    	spacingStaffsTemp.add(new JLabel("Measures:     "));
-    	spacingStaffsTemp.add(measureSpacing);
-    	
-    	lineSpacing = new JSlider(20, 210, 70); //Line spacing
-    	lineSpacing.setMinorTickSpacing(19);
-    	lineSpacing.setPaintTicks(true);
-    	lineSpacing.setPreferredSize(new Dimension(defWidth, defHeight));
-    	lineSpacing.addMouseListener(this);
-    	lineSpacing.setToolTipText("Set spacing between lines in a measure");
-    	JPanel spacingLinesTemp = new JPanel();
-    	spacingLinesTemp.add(new JLabel("Lines:            "));
-    	spacingLinesTemp.add(lineSpacing);
-       
-        leftMargin = new JSlider(0, 200, 36); //Left margin offset
-    	leftMargin.setMinorTickSpacing(20);
-    	leftMargin.setPaintTicks(true);
-    	leftMargin.setPreferredSize(new Dimension(defWidth, defHeight));
-    	leftMargin.addMouseListener(this);
-    	leftMargin.setToolTipText("Set margin from the left side of the page");
-        JPanel LeftMarginStaffsTemp = new JPanel();
-    	LeftMarginStaffsTemp.add(new JLabel(" Left Margin:    "));
-    	LeftMarginStaffsTemp.add(leftMargin);
-        
-        rightMargin = new JSlider(0, 200, 36); //Right margin offset
-    	rightMargin.setMinorTickSpacing(20);
-    	rightMargin.setPaintTicks(true);
-    	rightMargin.setPreferredSize(new Dimension(defWidth, defHeight));
-    	rightMargin.addMouseListener(this);
-    	rightMargin.setToolTipText("Set margin from the right side of the page");
-        JPanel RightMarginStaffsTemp = new JPanel();
-    	RightMarginStaffsTemp.add(new JLabel("Right Margin: "));
-    	RightMarginStaffsTemp.add(rightMargin);
-    	
-    	icon = createImageIcon("images/reset16.png");
-    	reset = new JButton("Reset", icon); //Reset button
+		numberSpacing = new JSlider(1, 99, (int) (userTab.getSpacing() * 10));
+		numberSpacing.setMinorTickSpacing(10);
+		numberSpacing.setPaintTicks(true);
+	    Dimension d = new Dimension(numberSpacing.getPreferredSize().width + change, numberSpacing.getPreferredSize().height);
+	    numberSpacing.setPreferredSize(d);
+		numberSpacing.addMouseListener(this);
+		numberSpacing.setToolTipText("Set spacing of numbers/symbols in tablature");
+		JPanel spacingBarsTemp = new JPanel();
+		spacingBarsTemp.add(new JLabel("  Numbers:"));
+		spacingBarsTemp.add(numberSpacing);
+		
+		measureSpacing = new JSlider(140, 900, 300); //Section spacing
+		measureSpacing.setMinorTickSpacing(90);
+		measureSpacing.setPaintTicks(true);
+	    measureSpacing.setPreferredSize(d);
+		measureSpacing.addMouseListener(this);
+		measureSpacing.setToolTipText("Set spacing between measures in the tablature");
+		JPanel spacingStaffsTemp = new JPanel();
+		spacingStaffsTemp.add(new JLabel(" Measures:"));
+		spacingStaffsTemp.add(measureSpacing);
+		
+		lineSpacing = new JSlider(20, 210, 70); //Line spacing
+		lineSpacing.setMinorTickSpacing(20);
+		lineSpacing.setPaintTicks(true);
+	    lineSpacing.setPreferredSize(d);
+		lineSpacing.addMouseListener(this);
+		lineSpacing.setToolTipText("Set spacing between lines in a measure");
+		JPanel spacingLinesTemp = new JPanel();
+		spacingLinesTemp.add(new JLabel("    Lines:"));
+		spacingLinesTemp.add(lineSpacing);
+	   
+	    leftMargin = new JSlider(0, 160, 36); //Left margin offset
+		leftMargin.setMinorTickSpacing(16);
+		leftMargin.setPaintTicks(true);
+	    leftMargin.setPreferredSize(d);
+		leftMargin.addMouseListener(this);
+		leftMargin.setToolTipText("Set margin from the left side of the page");
+	    JPanel LeftMarginStaffsTemp = new JPanel();
+		LeftMarginStaffsTemp.add(new JLabel(" L Margin:"));
+		LeftMarginStaffsTemp.add(leftMargin);
+	    
+	    rightMargin = new JSlider(0, 160, 36); //Right margin offset
+		rightMargin.setMinorTickSpacing(16);
+		rightMargin.setPaintTicks(true);
+	    rightMargin.setPreferredSize(d);
+		rightMargin.addMouseListener(this);
+		rightMargin.setToolTipText("Set margin from the right side of the page");
+	    JPanel RightMarginStaffsTemp = new JPanel();
+		RightMarginStaffsTemp.add(new JLabel(" R Margin:"));
+		RightMarginStaffsTemp.add(rightMargin);
+		
+		reset = new JButton("Reset"); //Reset button
 	    reset.setToolTipText("Reset all values to default");
-    	reset.setMnemonic(KeyEvent.VK_R);
-	    reset.setActionCommand("reset");
 	    reset.addActionListener(this);
-
-    	JPanel temp = new JPanel(new BorderLayout());
-    	temp.setLayout(new BoxLayout(temp, BoxLayout.Y_AXIS));
-    	temp.setBorder(new TitledBorder(new EtchedBorder(), "Edit"));
-    	temp.add(titleTemp, temp);
-    	temp.add(authorTemp, temp);
-    	temp.add(fontTemp, temp);
-    	temp.add(spacingLabel, temp);
-    	temp.add(spacingBarsTemp, temp);
-    	temp.add(spacingStaffsTemp, temp);
-    	temp.add(spacingLinesTemp, temp);
-        temp.add(LeftMarginStaffsTemp, temp);
-    	temp.add(RightMarginStaffsTemp, temp);
-    	temp.add(reset);
-    	return temp;
-    }
+	    reset.setActionCommand("reset");
+	    JPanel resetTemp = new JPanel();
+	    resetTemp.add(reset);
+	    
+		JPanel temp = new JPanel(new BorderLayout());
+		temp.setLayout(new BoxLayout(temp, BoxLayout.Y_AXIS));
+		temp.setBorder(new TitledBorder(new EtchedBorder(), "Edit"));
+		temp.add(titleTemp, temp);
+		temp.add(authorTemp, temp);
+		temp.add(fontTemp, temp);
+		temp.add(spacingLabel, temp);
+		temp.add(spacingBarsTemp, temp);
+		temp.add(spacingStaffsTemp, temp);
+		temp.add(spacingLinesTemp, temp);
+	    temp.add(LeftMarginStaffsTemp, temp);
+		temp.add(RightMarginStaffsTemp, temp);
+		temp.add(resetTemp, temp);
+		return temp;
+	}
     
 	/**
 	 * Expands program to include editing options, and a live preview
@@ -589,8 +599,8 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int height = (int) (screenSize.getHeight() / 1.5);
 		int width = (int) (screenSize.getWidth() / 1.5);
-		if (height < 675)
-			height = 675;
+		if (height < 685)
+			height = 685;
 		if (width < 1070)
 			width = 1070;
 		
@@ -622,6 +632,8 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 			preview.refresh(zoomLevel);
 		else 
 			expandView();
+		
+		frame.setTitle("Tab2PDF - *" + userTab.getTitle() + ".pdf");
 	}
 
 	/**
@@ -656,14 +668,13 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * Provides links to source libraries that were used.
 	 */
 	private void openAbout() {
-		ImageIcon icon = createImageIcon("images/logo.png");
 		int returnVal = JOptionPane.showOptionDialog(frame,
-				"<html><center>Version: 3.0.6 \n"
+				"<html><center>Version: 9.1.12 \n"
 				+ "Thank you for using our Tablature to PDF software. \n"
 				+ "Devloped by CSE 2311 Group 3 of York University:\n"
 				+ "Calvin Tran, Jason Kuffaur, Mohamed Nasar, Muhammad Shah, Siraj Rauff, Umer Zahoor and Waleed Azhar\n"
 				+ "Special thanks to iText Software Corp., PDF-Renderer team, and Tango Desktop Project.",
-				"About", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, icon, 
+				"About", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, createImageIcon("images/logo.png"), 
 				new String[] {"iText", "PDF-Renderer", "Tango Desktop Project", "Close"}, "Close");
 		try {
 			iText = new URI("http://itextpdf.com/");
@@ -691,7 +702,6 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		defaultSubtitle = userTab.getSubtitle();
 		defaultSpacing = userTab.getSpacing();
 		generatePDF(defaultZoom);
-		frame.setTitle("Tab2PDF - " + userTab.getTitle() + ".pdf");
 		fileSaved = false;
 		
         if (opened)
@@ -813,7 +823,8 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		            destination.transferFrom(source, 0, source.size());
 		            fileSaved = true;
 		            changesSaved = true;
-					fileTitle.setText("Saved " + userTab.getTitle() + ".pdf to " + destFile.getParent());
+					fileTitle.setText("Saved " + destFile.getName() + " to " + destFile.getParent());
+					frame.setTitle("Tab2PDF - " + userTab.getTitle() + ".pdf");
 		    	} catch(Exception ex) { 
 		    		JOptionPane.showMessageDialog(frame, "File in use! Cannot save.");
 					fileTitle.setText("Save failed.");
@@ -842,26 +853,32 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		if (!fileSaved && opened) {
 			int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
 			+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-			JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+			JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Cancel");
 			if (temp == JOptionPane.YES_OPTION) {
 				saveFile();
+				frame.dispose();
+				System.exit(0);
 			}
 			else if (temp == JOptionPane.NO_OPTION) {
 				frame.dispose();
+				System.exit(0);
 			}
 		} else if (!changesSaved && opened) {
 			int temp = JOptionPane.showOptionDialog(frame, "Changes have not been saved. Would you like to save " 
 			+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-			JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save"}, "Don't Save");
+			JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Cancel");
 			if (temp == JOptionPane.YES_OPTION) {
 				saveFile();
+				frame.dispose();
+				System.exit(0);
 			}
 			else if (temp == JOptionPane.NO_OPTION) {
 				frame.dispose();
+				System.exit(0);
 			}
-		}
-		else {
+		} else {
 			frame.dispose();
+			System.exit(0);
 		}
 	}
 	
@@ -873,8 +890,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		JFileChooser openFile = new JFileChooser();
 		if (prevDir != null)
 			openFile.setCurrentDirectory(new File(prevDir));
-		openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));	
-		openFile.setAcceptAllFileFilterUsed(false);
+		openFile.setFileFilter(new FileNameExtensionFilter("Text documents", "txt"));
 		int returnVal = openFile.showOpenDialog(this);
 		txtFile = openFile.getSelectedFile();
 		if (txtFile != null)
