@@ -1,5 +1,7 @@
 package backEnd;
 
+
+import cse2311.Tablature;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +19,7 @@ public class Parser {
 	String spacingRegex = "[Ss][Pp][Aa][Cc][Ii][Nn][Gg]=[\\s0-9.]+";
 	String acceptedSymbols = "[\\x5c\\|\\-\\s,*\\+<>0-9^\\(\\)hp=gSs%ex/]+";
 	String correctLine = "^(\\||\\-|[0-9])("+acceptedSymbols+"(\\s?)+"+")(\\||\\-|[0-9])" ;
-	String measureSeparators = "[\\|]";
+	String measureSeparators = "|";
 	String logPath;
 	FileHandler fh;
 	Logger logger;
@@ -78,7 +80,19 @@ public class Parser {
 				logger.info("Line " + i + " has no seperating characters `|`:" + nextLine);
 				logEmpty = false;
 				continue;
-			} else if (nextLine.matches(correctLine)) {
+			}  
+                            
+                        char r = 92;
+			nextLine= nextLine.replace(r, '-');
+			r = ']';
+			nextLine= nextLine.replace(r, ')');
+			r = '[';
+			nextLine= nextLine.replace(r, '(');
+                            
+                            
+                        
+                            
+                        if (nextLine.matches(correctLine)) {
 				nextLine = subsituteSymbols(nextLine);
 				StringTokenizer StrTkn = new StringTokenizer(nextLine, measureSeparators);
 				if (StrTkn.countTokens() > 1)
@@ -93,12 +107,7 @@ public class Parser {
 			if (nextLine.split(correctLine).length > 0)
 				nextLine = nextLine.substring(0, nextLine.lastIndexOf('|') + 1);
 			
-			char r = 92;
-			nextLine= nextLine.replace(r, '-');
-			r = ']';
-			nextLine= nextLine.replace(r, ')');
-			r = '[';
-			nextLine= nextLine.replace(r, '(');
+			
 		}
 		
 		s.close();
