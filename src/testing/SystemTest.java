@@ -14,7 +14,7 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import cse2311.UserInterface;
+import frontEnd.UserInterface;
 
 /**
  * @author Jason

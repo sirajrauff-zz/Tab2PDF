@@ -1,4 +1,4 @@
-package cse2311;
+package frontEnd;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -49,6 +49,8 @@ import javax.swing.UIManager;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import backEnd.*;
 
 import com.itextpdf.text.DocumentException;
 

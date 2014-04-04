@@ -13,8 +13,8 @@ import java.util.StringTokenizer;
 import org.junit.Before;
 import org.junit.Test;
 
-import cse2311.Measure;
-import cse2311.Tablature;
+import backEnd.Measure;
+import backEnd.Tablature;
 
 /**
  * @author Jason

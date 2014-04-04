@@ -9,8 +9,8 @@ import java.io.FileNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
-import cse2311.Parser;
-import cse2311.Tablature;
+import backEnd.Parser;
+import backEnd.Tablature;
 
 /**
  * @author Jason

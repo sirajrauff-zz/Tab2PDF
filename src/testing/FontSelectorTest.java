@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import backEnd.FontSelector;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.BaseFont;
-
-import cse2311.FontSelector;
 
 /**
  * @author Jason

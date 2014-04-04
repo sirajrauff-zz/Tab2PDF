@@ -13,11 +13,11 @@ import java.util.StringTokenizer;
 import org.junit.Before;
 import org.junit.Test;
 
-import cse2311.Measure;
-import cse2311.MusicSheet;
-import cse2311.Staff;
-import cse2311.Style;
-import cse2311.Tablature;
+import backEnd.Measure;
+import backEnd.MusicSheet;
+import backEnd.Staff;
+import backEnd.Style;
+import backEnd.Tablature;
 
 /**
  * @author Jason

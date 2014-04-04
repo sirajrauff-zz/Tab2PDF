@@ -11,14 +11,14 @@ import java.nio.channels.FileChannel;
 
 import org.junit.Test;
 
+import backEnd.Parser;
+import backEnd.PdfOutputCreator;
+import backEnd.Style;
+import backEnd.Tablature;
+
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-
-import cse2311.Parser;
-import cse2311.PdfOutputCreator;
-import cse2311.Style;
-import cse2311.Tablature;
 
 /**
  * @author Jason

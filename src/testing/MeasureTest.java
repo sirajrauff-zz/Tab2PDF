@@ -15,7 +15,7 @@ import java.util.Scanner;
 import org.junit.Before;
 import org.junit.Test;
 
-import cse2311.Measure;
+import backEnd.Measure;
 
 /**
  * @author Jason

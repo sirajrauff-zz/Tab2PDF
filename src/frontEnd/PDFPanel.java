@@ -1,4 +1,4 @@
-package cse2311;
+package frontEnd;
 
 import java.awt.GridBagLayout;
 import java.awt.Image;
