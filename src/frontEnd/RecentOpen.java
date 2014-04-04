@@ -13,9 +13,9 @@ import javax.swing.JMenuItem;
  * @author Umer Zahoor
  */
 public class RecentOpen {
-    static ArrayList<String> recent = new ArrayList<String>();
-    JMenu fileMenu;
-    ActionListener actionListener;
+	private static ArrayList<String> recent = new ArrayList<String>();
+	private JMenu fileMenu;
+	private ActionListener actionListener;
     
     /**
      * Creates a RecentOpen object which holds the files in a file and arrayList(recent)

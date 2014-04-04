@@ -39,7 +39,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -50,9 +49,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import backEnd.*;
-
 import com.itextpdf.text.DocumentException;
+
+import backEnd.*;
 
 /**
  * GUI. Allows user to choose, edit, save and print a guitar Tablature.
@@ -62,39 +61,41 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	/*---STATICS/FINALS-----------------------------------------------------------------*/
     private static final long serialVersionUID = 1L;
 	private static final int defaultZoom = 100, textDelay = 800, zoomDelay = 500;
-	final int defWidth = 180, defHeight = 30;
-    static JFrame frame;
-    static RecentOpen recentOpen;
+	private static JFrame frame;
+	private static RecentOpen recentOpen;
     /*---GUI----------------------------------------------------------------------------*/
-    JTextField fileTitle, title, author, zoom;
-	JPanel body, sidebar, moreOptions, basicButtons, livePreview, livePreview2;
-	JScrollPane a2;
-    JComboBox<String> fontType;
-    JComboBox<Integer> fontSizeTitle, fontSizeAuthor, fontSize;
-	JSlider numberSpacing, measureSpacing, lineSpacing, zoomSlide, leftMargin, rightMargin;
-	JButton open, help, save, print, reset;
-    JMenuBar menuBar;
-    JMenu menu;
-    JMenuItem openMenu, saveMenu, optionsMenu, printMenu, aboutMenu, helpMenu, exitMenu,
-    resetMenu, zoomInMenu, zoomOutMenu;
-    ImageIcon icon;
-    Timer textTimer, zoomTimer;
+	private JTextField fileTitle, title, author, zoom;
+	private JPanel body, sidebar, basicButtons;
+	private JComboBox<String> fontType;
+	private JComboBox<Integer> fontSizeTitle, fontSizeAuthor, fontSize;
+	private JSlider numberSpacing, measureSpacing, lineSpacing, zoomSlide, leftMargin, rightMargin;
+	private JButton open, help, save, print, reset;
+	private JMenuBar menuBar;
+	private JMenu menu;
+	private JMenuItem openMenu, saveMenu, printMenu, aboutMenu, helpMenu, exitMenu, resetMenu, 
+	zoomInMenu, zoomOutMenu;
+	private Timer textTimer, zoomTimer;
 	/*---VARIABLES/CHANNELS-------------------------------------------------------------*/
-    int indexOfHelvetica, userZoom;
-	double width, height;
-    float defaultSpacing;
-    boolean opened = false, allow, fileSaved = true, changesSaved = true;
-	String filePath, prevDir, defaultTitle, defaultSubtitle;
-    File txtFile, output, helpFile;
-    FileChannel source, destination;
+	private int indexOfHelvetica;
+	private  float defaultSpacing;
+	private boolean opened = false, fileSaved = true, changesSaved = true;
+	private String prevDir, defaultTitle, defaultSubtitle;
     /*---DATA---------------------------------------------------------------------------*/
-    Tablature userTab;
-    Parser tempParser = new Parser();
-	Style userStyle = new Style();
-    URI iText, pdfRenderer, tangoIcons, readerViewer, docViewer;
+	private Tablature userTab;
+	private Style userStyle = new Style();
     /*---PREVIEW------------------------------------------------------------------------*/
-	PDFPanel preview;
+	private PDFPanel preview;
 	
+	/**
+     * Only used to instantiate the program
+     * @param args UNUSED
+     * @throws DocumentException 
+     * @throws IOException
+     */
+    public static void main(String[] args) throws DocumentException, IOException {
+		createAndShowGUI();
+	}
+    
 	/**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
@@ -124,158 +125,11 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
  
         //Display the window.
         frame.setResizable(false);
-        frame.setVisible(true);
         frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
-    
-    /** 
-     * Returns an ImageIcon, or null if the path was invalid. 
-     */
-    protected static ImageIcon createImageIcon(String path) {
-        java.net.URL imgURL = UserInterface.class.getResource(path);
-        if (imgURL != null) {
-            return new ImageIcon(imgURL);
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * Only used to instantiate the program
-     * @param args UNUSED
-     * @throws DocumentException 
-     * @throws IOException
-     */
-    public static void main(String[] args) throws DocumentException, IOException {
-		createAndShowGUI();
-	}
-    
-    @Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand() == "open") {
-			if (opened && !fileSaved) {
-				int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
-					+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
-				if (temp == JOptionPane.YES_OPTION) {
-					saveFile();
-					selectFile();
-				} else if (temp == JOptionPane.NO_OPTION)
-					selectFile();
-			} else if (opened && !changesSaved) {
-				int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
-						+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
-					if (temp == JOptionPane.YES_OPTION) {
-						saveFile();
-						selectFile();
-					} else if (temp == JOptionPane.NO_OPTION)
-						selectFile();
-			}
-			else
-				selectFile();
-		}
 
-		else if (e.getActionCommand() == "save") {
-			saveFile();		
-		}
-		
-		else if (e.getActionCommand() == "help") {
-			openHelp();
-		}
-		
-		else if (e.getActionCommand() == "print") {
-			fileTitle.setText("Printing...");			
-			try {
-				preview.print();
-				fileTitle.setText("Printed " + userTab.getTitle() + ".pdf");
-			} catch (PrinterException e1) {
-				JOptionPane.showMessageDialog(frame, "Failed to print " + userTab.getTitle() + ".pdf");
-			}
-		}
-		
-		else if (e.getActionCommand() == "about") {
-			openAbout();
-		}
-		
-		else if (e.getActionCommand() == "font") {
-			userStyle.myFontface = FontSelector.getFont(fontType.getSelectedIndex());
-            userStyle.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
-            userStyle.setMyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
-            userStyle.setMySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
-            generatePDF(zoomSlide.getValue());
-    		changesSaved = false;
-		}
-		
-		else if (e.getActionCommand().startsWith("update")) {
-			if (e.getActionCommand() == "updateValues") {
-				fileTitle.setText("Updating title/author");
-	            grabUserValues();
-			}
-			else
-	            preview.refresh(zoomSlide.getValue());
-		}
-		
-		else if (e.getActionCommand() == "reset") {
-			userTab.setTitle(defaultTitle); //Reset tab
-			userTab.setSubtitle(defaultSubtitle);
-			userTab.setSpacing(defaultSpacing);
-			reset();
-			changesSaved = true;
-		}
-	
-		else if (e.getActionCommand().equals("zoom")){
-			if (e.getSource().equals(zoomInMenu)) 
-				zoomSlide.setValue(zoomSlide.getValue() + 25);
-			else if (e.getSource().equals(zoomOutMenu))
-				zoomSlide.setValue(zoomSlide.getValue() - 25);
-			zoom.setText(zoomSlide.getValue() + "%");
-			
-			if (zoomTimer.isRunning()) {
-				if(zoomTimer.getInitialDelay() > 0)
-					zoomTimer.restart();
-			} else 
-				zoomTimer.start();
-		}
-		
-		else if (e.getActionCommand() == "exit") {
-			saveOnExit();
-		}
-		
-		else if (e.getActionCommand().startsWith("recent")) {
-			int recentItem = Integer.parseInt(e.getActionCommand().replace("recent", ""));
-			if (recentItem != 0) {
-				try {
-					if (opened && !fileSaved) {
-						int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
-							+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
-						if (temp == JOptionPane.YES_OPTION) {
-							saveFile();
-							openFile(new File(recentOpen.get(recentItem)));
-						} else if (temp == JOptionPane.NO_OPTION)
-							openFile(new File(recentOpen.get(recentItem)));
-					} else if (opened && !changesSaved) {
-						int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
-								+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
-							if (temp == JOptionPane.YES_OPTION) {
-								saveFile();
-								openFile(new File(recentOpen.get(recentItem)));
-							} else if (temp == JOptionPane.NO_OPTION)
-								openFile(new File(recentOpen.get(recentItem)));
-					} else
-						openFile(new File(recentOpen.get(recentItem)));
-				} catch (FileNotFoundException e1) { }
-			}
-			else {
-				reset();
-				fileTitle.setText("Opened " + userTab.getTitle() + ".txt");
-			}
-		}
-	}
-    
     /**
      * Creates a JPanel with buttons for open, save, help and print
      * @return JPanel
@@ -346,9 +200,11 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
      * @return menuBar
      */
     public JMenuBar createMenuBar() {
+    	ImageIcon icon;
         menuBar = new JMenuBar(); //Create the menu bar.
  
-        menu = new JMenu("File"); //Build the first menu.
+        /*---FIRST MENU-------------------------------------------------------------------*/
+        menu = new JMenu("File"); 
         menu.setMnemonic(KeyEvent.VK_A);
         menu.getAccessibleContext().setAccessibleDescription("The only menu in this program that has menu items");
         menuBar.add(menu);
@@ -385,7 +241,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
         exitMenu.addActionListener(this);
         menu.add(exitMenu);
         
-        //Build second menu for options
+        /*---SECOND MENU(options)------------------------------------------------*/
         menu = new JMenu("Edit");
         menuBar.add(menu);
         
@@ -423,6 +279,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
         menu = new JMenu("Help");
         menuBar.add(menu);
         
+        /*---THIRD MENU----------------------------------------------------------*/
         icon = createImageIcon("images/help16.png");
         helpMenu = new JMenuItem("Help", icon);
         helpMenu.setActionCommand("help");
@@ -538,7 +395,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		lineSpacing.addMouseListener(this);
 		lineSpacing.setToolTipText("Set spacing between lines in a measure");
 		JPanel spacingLinesTemp = new JPanel();
-		spacingLinesTemp.add(new JLabel("    Lines:"));
+		spacingLinesTemp.add(new JLabel("        Lines:"));
 		spacingLinesTemp.add(lineSpacing);
 	   
 	    leftMargin = new JSlider(0, 160, 36); //Left margin offset
@@ -548,7 +405,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		leftMargin.addMouseListener(this);
 		leftMargin.setToolTipText("Set margin from the left side of the page");
 	    JPanel LeftMarginStaffsTemp = new JPanel();
-		LeftMarginStaffsTemp.add(new JLabel(" L Margin:"));
+		LeftMarginStaffsTemp.add(new JLabel("   L Margin:"));
 		LeftMarginStaffsTemp.add(leftMargin);
 	    
 	    rightMargin = new JSlider(0, 160, 36); //Right margin offset
@@ -588,7 +445,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * Expands program to include editing options, and a live preview
 	 */
 	private void expandView() {
-		moreOptions = new JPanel();
+		JPanel moreOptions = new JPanel();
 		moreOptions.setLayout(new BoxLayout(moreOptions, BoxLayout.Y_AXIS));
 		moreOptions.add(viewBox());
 		moreOptions.add(editBox());
@@ -596,7 +453,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		 	
 		preview = new PDFPanel(new File("temp.pdf"));
 		body.add(preview, BorderLayout.CENTER);
-		
+		preview.refresh(defaultZoom);
 		frame.setResizable(true);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		int height = (int) (screenSize.getHeight() / 1.5);
@@ -611,31 +468,70 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		zoomTimer = new Timer(zoomDelay, this);
 		zoomTimer.setActionCommand("updateZoom");
 		
+		frame.setVisible(false);
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.pack();
         frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
 	}
+	
+	/**
+     * Creates a JPanel with a JSlider and JTextField to change zoom of the live preview
+     * @return JPanel
+     */
+    public JPanel viewBox() {
+    	JPanel temp = new JPanel();
+    	temp.setBorder(new TitledBorder(new EtchedBorder(), "View"));
 
+    	zoom = new JTextField(5);
+    	zoom.setText(defaultZoom + "%");
+    	zoom.setToolTipText("Set level of zoom for preview");
+    	zoom.addKeyListener(this);
+    	
+    	Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
+    	labelTable.put(1, new JLabel("0%"));
+    	labelTable.put(101, new JLabel("100%"));
+    	labelTable.put(201, new JLabel("200%"));
+    	labelTable.put(301, new JLabel("300%"));
+    	labelTable.put(400, new JLabel("400%"));
+    	
+    	zoomSlide = new JSlider(SwingConstants.HORIZONTAL, 1, 400, defaultZoom);
+    	zoomSlide.setMajorTickSpacing(100);
+    	zoomSlide.setMinorTickSpacing(50);
+    	zoomSlide.setPaintTicks(true);
+    	zoomSlide.setLabelTable(labelTable);
+    	zoomSlide.setPaintLabels(true);
+    	zoomSlide.addMouseListener(this);
+    	zoomSlide.setToolTipText("Set level of zoom for preview");
+    	
+    	temp.add(zoom);
+    	temp.add(zoomSlide);
+    	temp.setPreferredSize(new Dimension((int) (basicButtons.getWidth() / 1.5 - 10) , 100));
+
+		return temp;
+    }
+    
 	/**
 	 * Creates the PDF with user entered values then updates preview.
 	 * Expands program and instantiates live preview if no document was already open.
 	 * Defaults on set values if no user entered values.
 	 * @param zoomLevel Level of zoom used for live preview
 	 */
-	private void generatePDF(int zoomLevel) {
+	private void generatePDF(final int zoomLevel) {
+		
 		try {
-			PdfOutputCreator pdfout = new PdfOutputCreator();
-			pdfout.makePDF(userTab, userStyle);
-		} catch (IOException | DocumentException e1) {
-			e1.printStackTrace();
-		}
-		
-		if (opened == true)
+   			PdfOutputCreator pdfout = new PdfOutputCreator();
+   			pdfout.makePDF(userTab, userStyle);
+   		} catch (IOException | DocumentException e1) {
+   			System.out.println("test");
+   		}
+	   
+		if (opened == true && preview != null) { //Expand the view, or if already expanded, refresh the preview
 			preview.refresh(zoomLevel);
-		else 
-			expandView();
-		
-		frame.setTitle("Tab2PDF - *" + userTab.getTitle() + ".pdf");
+		}
+	    else 
+   			expandView();
+		frame.setTitle("*" + userTab.getTitle() + ".pdf - Tab2PDF");
 	}
 
 	/**
@@ -644,13 +540,16 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 */
 	public void grabUserValues() {
 		textTimer.stop();
-		if (userTab.getTitle() != title.getText() && userTab.getSubtitle() != author.getText())
+		
+		if (userTab.getTitle() != title.getText() || userTab.getSubtitle() != author.getText()) {
 			changesSaved = false;
-		userTab.setTitle(title.getText());
-		userTab.setSubtitle(author.getText());
+			userTab.setTitle(title.getText());
+			userTab.setSubtitle(author.getText());
+		}
+		
 		if (zoom.getText().length() > 0) {
 			try {
-				userZoom = Integer.parseInt(zoom.getText().replaceAll("%", ""));
+				int userZoom = Integer.parseInt(zoom.getText().replaceAll("%", ""));
 				if (userZoom > 400)
 					userZoom = 400;
 				else if (userZoom < 1)
@@ -670,6 +569,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * Provides links to source libraries that were used.
 	 */
 	private void openAbout() {
+		URI iText, pdfRenderer, tangoIcons;
 		int returnVal = JOptionPane.showOptionDialog(frame,
 				"<html><center>Version: 9.1.12 \n"
 				+ "Thank you for using our Tablature to PDF software. \n"
@@ -699,11 +599,14 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * @throws FileNotFoundException
 	 */
 	private void openFile(File userFile) throws FileNotFoundException {
+		Parser tempParser = new Parser();
 		userTab = tempParser.readFile(userFile);
 		defaultTitle = userTab.getTitle();
 		defaultSubtitle = userTab.getSubtitle();
 		defaultSpacing = userTab.getSpacing();
+		
 		generatePDF(defaultZoom);
+		preview.getVerticalScrollBar().setValue(0);
 		fileSaved = false;
 		
         if (opened)
@@ -723,7 +626,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 			recentOpen.add(userFile);
 		} catch (IOException e) { }
 
-		fileTitle.setText("Opened " + userTab.getTitle() + ".txt");
+		fileTitle.setText("Opened " + userFile.getName());
 	}
 
 	/**
@@ -732,13 +635,14 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * Should this fail, it will prompt the user to download a PDF/DOC viewer.
 	 */
 	private void openHelp() {
+		URI readerViewer, docViewer;
 		if (Desktop.isDesktopSupported()) {
 			try {
-				helpFile = new File("help/User_Manual.pdf");
+				File helpFile = new File("help/User_Manual.pdf");
 				Desktop.getDesktop().open(helpFile);
 			} catch (IOException e1) {
 				try {
-					helpFile = new File("help/User_Manual.doc");
+					File helpFile = new File("help/User_Manual.doc");
 					Desktop.getDesktop().open(helpFile);
 				} catch (IOException e2) {
 					int returnVal = JOptionPane.showOptionDialog(frame, "Cannot open User Manual!\n"
@@ -768,6 +672,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * Title, author and spacing are set to whatever was read in by the Tablature.
 	 */
 	private void reset() {
+		/*-Reset Variables-*/
 		userStyle.setFontSize(8);
 		userStyle.setMyTitleSize(24);
 		userStyle.setMySubTitleSize(16);
@@ -776,7 +681,8 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		userStyle.setLeftMargin(36f);
 		userStyle.setRightMargin(36f);
 		
-		fontSizeTitle.setSelectedIndex(10); //Reset GUI
+		/*-Reset GUI------*/
+		fontSizeTitle.setSelectedIndex(10);
 		fontSizeAuthor.setSelectedIndex(6);
 		title.setText(defaultTitle);
 		author.setText(defaultSubtitle);
@@ -799,6 +705,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 * Moves temp.pdf to the new location and renames it (if needed).
 	 */
 	private void saveFile() {
+		File output;
 		JFileChooser saveFile = new JFileChooser();
 		output = new File(userTab.getTitle() + ".pdf");
 		saveFile.setAcceptAllFileFilterUsed(false);
@@ -812,8 +719,10 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 			File destFile = saveFile.getSelectedFile();
 			if (!destFile.getAbsolutePath().endsWith(".pdf"))
 				destFile = new File(destFile.getAbsolutePath().concat(".pdf"));
-				
-			allow = true;
+			
+			FileChannel source, destination;
+			
+			boolean allow = true;
 			if (destFile.exists())
 				allow = JOptionPane.showConfirmDialog(null, "File already exists, overwrite?") == JOptionPane.OK_OPTION;
 			
@@ -826,7 +735,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		            fileSaved = true;
 		            changesSaved = true;
 					fileTitle.setText("Saved " + destFile.getName() + " to " + destFile.getParent());
-					frame.setTitle("Tab2PDF - " + userTab.getTitle() + ".pdf");
+					frame.setTitle(userTab.getTitle() + ".pdf - Tab2PDF");
 		    	} catch(Exception ex) { 
 		    		JOptionPane.showMessageDialog(frame, "File in use! Cannot save.");
 					fileTitle.setText("Save failed.");
@@ -889,6 +798,7 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	 */
 	private void selectFile() {
 		fileTitle.setText("Opening...");
+		File txtFile;
 		JFileChooser openFile = new JFileChooser();
 		if (prevDir != null)
 			openFile.setCurrentDirectory(new File(prevDir));
@@ -908,41 +818,138 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 		else
 			fileTitle.setText("Open cancelled.");
 	}
+    
+    @Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand() == "open") {
+			if (opened && !fileSaved) {
+				int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
+					+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
+				if (temp == JOptionPane.YES_OPTION) {
+					saveFile();
+					selectFile();
+				} else if (temp == JOptionPane.NO_OPTION)
+					selectFile();
+			} else if (opened && !changesSaved) {
+				int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
+						+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
+					if (temp == JOptionPane.YES_OPTION) {
+						saveFile();
+						selectFile();
+					} else if (temp == JOptionPane.NO_OPTION)
+						selectFile();
+			}
+			else
+				selectFile();
+		}
+
+		else if (e.getActionCommand() == "save")
+			saveFile();
+		
+		else if (e.getActionCommand() == "help")
+			openHelp();
+		
+		else if (e.getActionCommand() == "exit")
+			saveOnExit();
+		
+		else if (e.getActionCommand() == "about")
+			openAbout();
+		
+		else if (e.getActionCommand() == "print") {
+			fileTitle.setText("Printing...");			
+			try {
+				preview.print();
+				fileTitle.setText("Printed " + userTab.getTitle() + ".pdf");
+			} catch (PrinterException e1) {
+				JOptionPane.showMessageDialog(frame, "Failed to print " + userTab.getTitle() + ".pdf");
+			}
+		}
+		
+		else if (e.getActionCommand() == "font") {
+			userStyle.myFontface = FontSelector.getFont(fontType.getSelectedIndex());
+            userStyle.setFontSize(Integer.parseInt(fontSize.getSelectedItem().toString()));
+            userStyle.setMyTitleSize(Integer.parseInt(fontSizeTitle.getSelectedItem().toString()));
+            userStyle.setMySubTitleSize(Integer.parseInt(fontSizeAuthor.getSelectedItem().toString()));
+            generatePDF(zoomSlide.getValue());
+    		changesSaved = false;
+		}
+		
+		else if (e.getActionCommand().startsWith("update")) {
+			if (e.getActionCommand() == "updateValues") {
+				fileTitle.setText("Updating title/author");
+	            grabUserValues();
+			}
+			else
+	            preview.refresh(zoomSlide.getValue());
+		}
+		
+		else if (e.getActionCommand() == "reset") {
+			userTab.setTitle(defaultTitle); //Reset tab
+			userTab.setSubtitle(defaultSubtitle);
+			userTab.setSpacing(defaultSpacing);
+			reset();
+			changesSaved = true;
+		}
 	
-	/**
-     * Creates a JPanel with a JSlider and JTextField to change zoom of the live preview
-     * @return JPanel
+		else if (e.getActionCommand().equals("zoom")){
+			if (e.getSource().equals(zoomInMenu)) 
+				zoomSlide.setValue(zoomSlide.getValue() + 25);
+			else if (e.getSource().equals(zoomOutMenu))
+				zoomSlide.setValue(zoomSlide.getValue() - 25);
+			zoom.setText(zoomSlide.getValue() + "%");
+			
+			if (zoomTimer.isRunning()) {
+				if(zoomTimer.getInitialDelay() > 0)
+					zoomTimer.restart();
+			} else 
+				zoomTimer.start();
+		}
+		
+		else if (e.getActionCommand().startsWith("recent")) {
+			int recentItem = Integer.parseInt(e.getActionCommand().replace("recent", ""));
+			if (recentItem != 0) {
+				try {
+					if (opened && !fileSaved) {
+						int temp = JOptionPane.showOptionDialog(frame, "File has not been saved. Would you like to save " 
+							+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+							JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
+						if (temp == JOptionPane.YES_OPTION) {
+							saveFile();
+							openFile(new File(recentOpen.get(recentItem)));
+						} else if (temp == JOptionPane.NO_OPTION)
+							openFile(new File(recentOpen.get(recentItem)));
+					} else if (opened && !changesSaved) {
+						int temp = JOptionPane.showOptionDialog(frame, "Changes not been saved. Would you like to save " 
+								+ userTab.getTitle() + ".pdf ?",  "Save?", JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, new String[]{"Save", "Don't Save", "Cancel"}, "Don't Save");
+							if (temp == JOptionPane.YES_OPTION) {
+								saveFile();
+								openFile(new File(recentOpen.get(recentItem)));
+							} else if (temp == JOptionPane.NO_OPTION)
+								openFile(new File(recentOpen.get(recentItem)));
+					} else
+						openFile(new File(recentOpen.get(recentItem)));
+				} catch (FileNotFoundException e1) { }
+			}
+			else {
+				reset();
+				fileTitle.setText("Opened " + userTab.getTitle() + ".txt");
+			}
+		}
+	}
+    
+	/** 
+     * Returns an ImageIcon, or null if the path was invalid. 
      */
-    public JPanel viewBox() {
-    	JPanel temp = new JPanel();
-    	temp.setBorder(new TitledBorder(new EtchedBorder(), "View"));
-
-    	zoom = new JTextField(5);
-    	zoom.setText(defaultZoom + "%");
-    	zoom.setToolTipText("Set level of zoom for preview");
-    	zoom.addKeyListener(this);
-    	
-    	Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
-    	labelTable.put(1, new JLabel("0%"));
-    	labelTable.put(101, new JLabel("100%"));
-    	labelTable.put(201, new JLabel("200%"));
-    	labelTable.put(301, new JLabel("300%"));
-    	labelTable.put(400, new JLabel("400%"));
-    	
-    	zoomSlide = new JSlider(SwingConstants.HORIZONTAL, 1, 400, defaultZoom);
-    	zoomSlide.setMajorTickSpacing(100);
-    	zoomSlide.setMinorTickSpacing(50);
-    	zoomSlide.setPaintTicks(true);
-    	zoomSlide.setLabelTable(labelTable);
-    	zoomSlide.setPaintLabels(true);
-    	zoomSlide.addMouseListener(this);
-    	zoomSlide.setToolTipText("Set level of zoom for preview");
-    	
-    	temp.add(zoom);
-    	temp.add(zoomSlide);
-    	temp.setPreferredSize(new Dimension((int) (basicButtons.getWidth() / 1.5 - 10) , 100));
-
-		return temp;
+    protected static ImageIcon createImageIcon(String path) {
+        java.net.URL imgURL = UserInterface.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL);
+        } else {
+            return null;
+        }
     }
     
     @Override
@@ -982,30 +989,35 @@ public class UserInterface extends JFrame implements ActionListener, KeyListener
 	        preview.refresh(zoomSlide.getValue());
 			changesSaved = false;
 		}
+		
 		else if (e.getSource().equals(numberSpacing)) {
 			userTab.setSpacing(numberSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated spacing");
 			changesSaved = false;
 		}
+		
 		else if (e.getSource().equals(measureSpacing)) {
 			userStyle.setMeasureDistance(measureSpacing.getValue() / 10f);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated measure spacing");
 			changesSaved = false;
 		}
+		
 		else if (e.getSource().equals(lineSpacing)) {
 			userStyle.setLineDistance(lineSpacing.getValue() / 10);
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Updated line spacing");
 			changesSaved = false;
 		}
+		
 		else if (e.getSource().equals(leftMargin)) {
 			userStyle.setLeftMargin(leftMargin.getValue());
 			generatePDF(zoomSlide.getValue());
 			fileTitle.setText("Left Margin adjusted");
 			changesSaved = false;
         }
+		
 		else if (e.getSource().equals(rightMargin)) {
 			userStyle.setRightMargin(rightMargin.getValue());
 			generatePDF(zoomSlide.getValue());

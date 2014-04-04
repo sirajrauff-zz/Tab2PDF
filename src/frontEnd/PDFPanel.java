@@ -26,37 +26,25 @@ import com.sun.pdfview.PDFPage;
 import com.sun.pdfview.PDFPrintPage;
 
 /**
- * This class allows for the creation of a JScrollPane
- * @author Umer
+ * This class allows for the creation of a JScrollPane that displays a PDF
+ * @author Umer Zahoor
  */
-public class PDFPanel extends JScrollPane{
+public class PDFPanel extends JScrollPane {
 	private static final long serialVersionUID = 1L;
 	private static final int defaultZoom = 100;
 	private JPanel livePreview;
-	private ArrayList<JLabel> pageLabel = new ArrayList<JLabel>();
-	private ArrayList<Image> image = new ArrayList<Image>();
-	private PDFPage page;
 	private PDFFile pdfFile;
-	private double width, height;
 	private File fileInView;
 	
 	/**
-     * Creates the PDF preview
-     * @param file PDF file to be previewed
+     * Creates the PDF preview panel, which acts as a JComponent
+     * @param file - PDF file to be previewed
      */	 
 	public PDFPanel(File file) {
 		fileInView = file;
-		pageLabel.add(new JLabel());
-    	if (image.size() > 0) {
-    		for (int i = 0; i < image.size(); i++)
-    			pageLabel.get(i).setIcon(new ImageIcon(image.get(i)));
-    	}
-    	
+
     	livePreview = new JPanel();
     	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
-    	
-    	for (JLabel page: pageLabel)
-    		livePreview.add(page);
     	
     	JPanel livePreviewContainer = new JPanel(new GridBagLayout());
     	livePreviewContainer.add(livePreview);
@@ -97,11 +85,10 @@ public class PDFPanel extends JScrollPane{
 	public void refresh(int zoomLevel) {
 		RandomAccessFile raf;
 		ByteBuffer buf;
-		for (Image temp: image)
-			temp.flush();
-		
-		pageLabel.clear();
-		image.clear();
+		PDFPage page;
+		double width, height;
+		ArrayList<Image> image = new ArrayList<Image>();
+		ArrayList<JLabel> pageLabel = new ArrayList<JLabel>();
 
 		try {
 			raf = new RandomAccessFile (fileInView, "r");
@@ -132,16 +119,13 @@ public class PDFPanel extends JScrollPane{
 			for (Image tempImage: image) 
 				pageLabel.add(new JLabel(new ImageIcon(tempImage)));
 		}
-		
-		if (livePreview == null)
-			livePreview = new JPanel();
+
     	livePreview.setLayout(new BoxLayout(livePreview, BoxLayout.Y_AXIS));
     	
     	if (pageLabel != null) {
     		livePreview.removeAll();
         	for (JLabel temp: pageLabel) {
         		livePreview.add(temp);
-        		livePreview.add(new JLabel(""));
     		}
 		}
     	
