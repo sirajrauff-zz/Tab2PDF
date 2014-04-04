@@ -1,7 +1,5 @@
 package backEnd;
 
-
-import cse2311.Tablature;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -82,17 +80,14 @@ public class Parser {
 				continue;
 			}  
                             
-                        char r = 92;
+            char r = 92;
 			nextLine= nextLine.replace(r, '-');
 			r = ']';
 			nextLine= nextLine.replace(r, ')');
 			r = '[';
 			nextLine= nextLine.replace(r, '(');
                             
-                            
-                        
-                            
-                        if (nextLine.matches(correctLine)) {
+            if (nextLine.matches(correctLine)) {
 				nextLine = subsituteSymbols(nextLine);
 				StringTokenizer StrTkn = new StringTokenizer(nextLine, measureSeparators);
 				if (StrTkn.countTokens() > 1)
@@ -106,8 +101,6 @@ public class Parser {
 			
 			if (nextLine.split(correctLine).length > 0)
 				nextLine = nextLine.substring(0, nextLine.lastIndexOf('|') + 1);
-			
-			
 		}
 		
 		s.close();
@@ -129,10 +122,12 @@ public class Parser {
 			returnTab.setTitle(nextLine.substring(nextLine.indexOf("=") + 1));
 			return true;
 		}
+		
 		if (nextLine.matches(subtitleRegex)) {
 			returnTab.setSubtitle(nextLine.substring(nextLine.indexOf("=") + 1));
 			return true;
 		}
+		
 		if (nextLine.matches(spacingRegex)) {
 			returnTab.setSpacing(Float.valueOf(nextLine.replaceAll("[A-Za-z=]+", "")) % 10);
 			return true;
