@@ -1,11 +1,8 @@
 package backEnd;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.logging.FileHandler;
@@ -23,22 +20,10 @@ public class Parser {
 	String measureSeparators = "[\\|]";
 	String logPath;
 	FileHandler fh;
-	File temp;
 	Logger logger;
 	Boolean logEmpty = true;
     
-	public Parser() { 
-        logger = Logger.getLogger("MyLog");
-        try { // This block configure the logger with handler and formatter  
-        	logPath = "logs/MyLogFile " + System.currentTimeMillis() + ".log";
-            fh = new FileHandler("logs/temp.log");  
-            logger.addHandler(fh);
-            SimpleFormatter formatter = new SimpleFormatter();
-            fh.setFormatter(formatter);
-        	temp = new File ("logs/temp.log");
-			temp.deleteOnExit();
-        } catch (SecurityException | IOException e) { }
-	}
+	public Parser() { }
 
 	private String subsituteSymbols(String sections) {
 		char repeatNum = '=';
@@ -57,8 +42,14 @@ public class Parser {
 		return out;
 	}
 	
-
-	public Tablature readFile(File file) throws FileNotFoundException {
+	public Tablature readFile(File file) throws FileNotFoundException {  
+    	long currentTime = System.currentTimeMillis();
+        logger = Logger.getLogger("MyLog");
+        try { // This block configure the logger with handler and formatter  
+            logger.addHandler(fh = new FileHandler("logs/MyLogFile " + currentTime + ".log"));
+            fh.setFormatter(new SimpleFormatter());
+        } catch (SecurityException | IOException e) { }
+        
 		Scanner s = new Scanner(file);
 		Tablature returnTab = new Tablature();
         int i = 0;
@@ -109,30 +100,21 @@ public class Parser {
 			r = '[';
 			nextLine= nextLine.replace(r, '(');
 		}
+		
 		s.close();
-		if (!logEmpty) {
-            createLog();
-		}
+		logger.removeHandler(fh);
+		fh.close();
+		if (logEmpty)
+            new File ("logs/MyLogFile " + currentTime + ".log").delete();
 		return returnTab;
 	}
 
 	/**
-	 * Copy over the temp Log to one named after program start time
+	 * Scans the given line to check if it contains the title, subtitle or spacing
+	 * @param returnTab Tablature to add title/subtitle/spacing to
+	 * @param nextLine Line to be scanned
+	 * @return Returns true if it finds a title/subtitle/spacing
 	 */
-	private void createLog() {
-		try {
-			FileInputStream tempIn = new FileInputStream(temp);
-			FileOutputStream tempOut = new FileOutputStream(new File(logPath));
-			FileChannel source = tempIn.getChannel();
-			FileChannel destination = tempOut.getChannel();
-			destination.transferFrom(source, 0, source.size());
-			tempIn.close();
-			tempOut.close();
-			source.close();
-			destination.close();
-		} catch (IOException e) { }
-	}
-
 	private boolean readHeader(Tablature returnTab, String nextLine) {
 		if (nextLine.matches(titleRegex)) {
 			returnTab.setTitle(nextLine.substring(nextLine.indexOf("=") + 1));
